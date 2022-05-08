@@ -13,6 +13,8 @@
 		709433092827AE9B00A9AC3B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 709433072827AE9B00A9AC3B /* Main.storyboard */; };
 		7094330B2827AEA000A9AC3B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7094330A2827AEA000A9AC3B /* Assets.xcassets */; };
 		7094330E2827AEA000A9AC3B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7094330C2827AEA000A9AC3B /* LaunchScreen.storyboard */; };
+		709433392827DF9900A9AC3B /* Diary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709433382827DF9900A9AC3B /* Diary.swift */; };
+		70D614FA28281C11007E66A1 /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70D614F928281C11007E66A1 /* PostView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		7094330A2827AEA000A9AC3B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7094330D2827AEA000A9AC3B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7094330F2827AEA000A9AC3B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		709433382827DF9900A9AC3B /* Diary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diary.swift; sourceTree = "<group>"; };
+		70D614F928281C11007E66A1 /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +60,7 @@
 		709433002827AE9B00A9AC3B /* tripApp */ = {
 			isa = PBXGroup;
 			children = (
+				70D614FC2828304F007E66A1 /* View */,
 				709433012827AE9B00A9AC3B /* AppDelegate.swift */,
 				709433032827AE9B00A9AC3B /* SceneDelegate.swift */,
 				709433052827AE9B00A9AC3B /* ViewController.swift */,
@@ -63,8 +68,17 @@
 				7094330A2827AEA000A9AC3B /* Assets.xcassets */,
 				7094330C2827AEA000A9AC3B /* LaunchScreen.storyboard */,
 				7094330F2827AEA000A9AC3B /* Info.plist */,
+				709433382827DF9900A9AC3B /* Diary.swift */,
+				70D614F928281C11007E66A1 /* PostView.swift */,
 			);
 			path = tripApp;
+			sourceTree = "<group>";
+		};
+		70D614FC2828304F007E66A1 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -140,6 +154,8 @@
 				709433062827AE9B00A9AC3B /* ViewController.swift in Sources */,
 				709433022827AE9B00A9AC3B /* AppDelegate.swift in Sources */,
 				709433042827AE9B00A9AC3B /* SceneDelegate.swift in Sources */,
+				70D614FA28281C11007E66A1 /* PostView.swift in Sources */,
+				709433392827DF9900A9AC3B /* Diary.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
