@@ -26,11 +26,7 @@ class MapViewController: UIViewController {
     }()
     var locationManager:CLLocationManager!
     
-    let array = [
-        Diary(id: "11111", title: "東京", image: ["tc"], text: "本文", date: Date(), location: Location(latitude:35.661971 , longitude: 139.703795)),
-        Diary(id:  "12111", title: "大阪", image: ["megane"], text: "本文2", date: Date(), location: Location(latitude: 34.693725, longitude: 135.502254)),
-       
-    ]
+    var array = [Diary]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,16 +40,19 @@ class MapViewController: UIViewController {
         let myLongPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(tapGesture(sender:)))
         mapView.addGestureRecognizer(myLongPressGesture)
         
-        postButton.addTarget(self, action: #selector(onClickMyButton(sender:)), for: .touchUpInside)
+        postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
         setupNavigationItems()
         
-        setData()
+        
         
         
        
     }
-    @objc internal func onClickMyButton(sender: UIButton) {
-        
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        setData()
+    }
+    @objc internal func sendtoPostView(sender: UIButton) {
         let nav = UINavigationController(rootViewController: PostViewController())
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true, completion: nil)
@@ -96,25 +95,24 @@ class MapViewController: UIViewController {
     }
     
     func setData(){
+        array = DataManager.shere.get()
+        print(array.count)
         for i in 0..<array.count{
             let annotation = MKPointAnnotation()
-            //if array[i].location!.latitude != nil
-            annotation.coordinate = CLLocationCoordinate2DMake(array[i].location!.latitude,array[i].location!.longitude)
-            annotation.title = array[i].title
-                        
-            annotation.subtitle = array[i].text
-            self.mapView.addAnnotation(annotation)
+            if array[i].location != nil{
+                print(i + 1,"かいめ")
+                print(array[i].text)
+                annotation.coordinate = CLLocationCoordinate2DMake(array[i].location!.latitude,array[i].location!.longitude)
+                annotation.title = array[i].date.covertString()
+                annotation.subtitle = array[i].text
+                self.mapView.addAnnotation(annotation)
+                
+            }
+            
         }
     }
 
-    func generateID(_ length: Int) -> String {
-               let string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-               var randomString = ""
-               for _ in 0 ..< length {
-                   randomString += String(string.randomElement()!)
-               }
-               return randomString
-       }
+    
     func setupNavigationItems(){
         
         let titleLabel = UILabel(frame: CGRect(x: 30, y: 0, width: view.frame.width - 32, height: view.frame.height))
@@ -170,12 +168,12 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
         pinView.canShowCallout = true
         
         for i in 0..<array.count{
-            if annotation.title == array[i].title && annotation.subtitle == array[i].text{
+            if annotation.title == array[i].date.covertString() && annotation.subtitle == array[i].text{
                 //stackviewに変更する
                 
                 let stackview = setStackView()
                 let textLabel = UILabel()
-                let imageView = UIImageView(image: UIImage(named: array[i].image[0]))
+                let imageView = UIImageView(image: UIImage(data:array[i].image))
                 textLabel.text = array[i].text
                 stackview.addArrangedSubview(imageView)
                 stackview.addArrangedSubview(textLabel)
