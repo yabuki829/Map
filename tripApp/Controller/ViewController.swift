@@ -27,7 +27,7 @@ class MapViewController: UIViewController {
     var locationManager:CLLocationManager!
     
     var array = [Diary]()
-
+    var selectDiary:Diary?
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "マップアプリ"
@@ -37,8 +37,6 @@ class MapViewController: UIViewController {
         view.addSubview(postButton)
         addConstraintMapView()
         addConstraintButton()
-        let myLongPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(tapGesture(sender:)))
-        mapView.addGestureRecognizer(myLongPressGesture)
         
         postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
         setupNavigationItems()
@@ -52,27 +50,21 @@ class MapViewController: UIViewController {
         super.viewWillAppear(true)
         setData()
     }
+    
     @objc internal func sendtoPostView(sender: UIButton) {
         let nav = UINavigationController(rootViewController: PostViewController())
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true, completion: nil)
       }
-    @objc internal func tapGesture(sender: UILongPressGestureRecognizer){
-        let location:CGPoint = sender.location(in: mapView)
-                print("tap")
-        if (sender.state == UIGestureRecognizer.State.ended){
-                    
-            let mapPoint:CLLocationCoordinate2D = mapView.convert(location, toCoordinateFrom: mapView)
-                    
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = CLLocationCoordinate2DMake(mapPoint.latitude, mapPoint.longitude)
-            annotation.title = "あああああ"
-            annotation.subtitle = "テストテストテストテストテストテストテストテストテストテストテストテストテストテストテストテストテストテストテスト"
-            mapView.addAnnotation(annotation)
-        }
-
-      }
-
+    @objc internal func sendtoDetailView(sender: UIButton) {
+        let vc = DetailViewController()
+      
+        vc.diary = selectDiary!
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+        
+    }
     
     func addConstraintMapView(){
         mapView.translatesAutoresizingMaskIntoConstraints = false
@@ -100,10 +92,8 @@ class MapViewController: UIViewController {
         for i in 0..<array.count{
             let annotation = MKPointAnnotation()
             if array[i].location != nil{
-                print(i + 1,"かいめ")
-                print(array[i].text)
                 annotation.coordinate = CLLocationCoordinate2DMake(array[i].location!.latitude,array[i].location!.longitude)
-                annotation.title = array[i].date.covertString()
+                annotation.title = array[i].title
                 annotation.subtitle = array[i].text
                 self.mapView.addAnnotation(annotation)
                 
@@ -129,7 +119,6 @@ class MapViewController: UIViewController {
               let accountItem = UIBarButtonItem(image: accountImage, style: .plain, target: self, action: #selector(tapSettingIcon))
               
               navigationItem.rightBarButtonItems = [accountItem,searchItem]
-              
               navigationController?.navigationBar.tintColor = .darkGray
     }
     @objc  func search(){
@@ -144,7 +133,16 @@ class MapViewController: UIViewController {
 
 
 extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
-
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        for i in 0..<array.count{
+            if view.annotation?.title == array[i].title && view.annotation?.subtitle == array[i].text{
+                selectDiary = array[i]
+                break
+            }
+        }
+       
+    }
     func locationManager(_ manager: CLLocationManager,didChangeAuthorization status: CLAuthorizationStatus) {
                switch status {
                case .notDetermined:
@@ -168,22 +166,28 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
         pinView.canShowCallout = true
         
         for i in 0..<array.count{
-            if annotation.title == array[i].date.covertString() && annotation.subtitle == array[i].text{
-                //stackviewに変更する
-                
+            if annotation.title == array[i].title && annotation.subtitle == array[i].text{
                 let stackview = setStackView()
                 let textLabel = UILabel()
                 let imageView = UIImageView(image: UIImage(data:array[i].image))
+                let button = UIButton()
                 textLabel.text = array[i].text
+                button.setTitle("＞＞", for: .normal)
+                button.setTitleColor(.darkGray, for: .normal)
+                button.setTitleColor(.systemGray3, for: .highlighted)
+                button.contentHorizontalAlignment = .right
+                button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
+               
                 stackview.addArrangedSubview(imageView)
                 stackview.addArrangedSubview(textLabel)
+                stackview.addArrangedSubview(button)
                 stackview.translatesAutoresizingMaskIntoConstraints = false
+                
                 let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: view.frame.width / 3 * 2)
                    stackview.addConstraint(widthConstraint)
                 let heightConstraint = NSLayoutConstraint(item: stackview, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: view.frame.width / 3 * 2)
                    stackview.addConstraint(heightConstraint)
               
-                
                 pinView.detailCalloutAccessoryView = stackview
             }
         }

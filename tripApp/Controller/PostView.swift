@@ -15,6 +15,13 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
     var locationManager: CLLocationManager!
     let geocoder = CLGeocoder()
     var location:Location?
+    
+    let textField:UITextField = {
+        let tf = UITextField()
+        tf.placeholder = "タイトルや場所の名前を入力してください"
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        return tf
+    }()
     let textView:UITextView = {
         let tv = UITextView()
         tv.font = UIFont.systemFont(ofSize: 16)
@@ -46,6 +53,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         super.viewDidLoad()
         self.title = "投稿画面"
         self.view.backgroundColor = .white
+        view.addSubview(textField)
         view.addSubview(textView)
         view.addSubview(collectionView)
         view.addSubview(locationButton)
@@ -53,10 +61,12 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         addConstraintCollectionView()
         
         setupNavigationItems()
+      
         textView.textContainerInset = UIEdgeInsets(top: 20, left: 10, bottom: 0, right: 10)
         textView.becomeFirstResponder()
         textView.delegate = self
         settingTextViewPlaceHolder()
+      
         locationButton.addTarget(self, action: #selector(getMyLocation(sender:)), for: .touchUpInside)
         
         collectionView.delegate = self
@@ -75,6 +85,10 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                    object: nil
                  )
     }
+    
+    override func viewDidLayoutSubviews() {
+        textField.setUnderLine(color:.darkGray)
+    }
     func setupNavigationItems(){
         navigationController?.navigationBar.shadowImage = UIImage()
         let navigationBarAppearance = UINavigationBarAppearance()
@@ -92,11 +106,11 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
     }
     @objc  func post(){
         if let image = imageArray[selectedIndexPath!.row] as UIImage?,
+           let title = textField.text,
            let text = textView.text{
-            let diary = Diary(id: String().generateID(7), image:image.convert_data() , text: text, date: Date(), location: location)
+            let diary = Diary(id: String().generateID(7), image:image.convert_data(), title: title , text: text, date: Date(), location: location)
                 var data = DataManager.shere.get()
                 data.append(diary)
-            print(data.count)
                 DataManager.shere.save(data: data)
                 self.presentingViewController?.dismiss(animated: true, completion: nil)
         }
@@ -115,8 +129,14 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         print("位置情報を取得")
         setupLocationManager()
      }
+    
     func addConstraintTextView(){
-        textView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 0).isActive = true
+        
+        textField.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 10).isActive = true
+        textField.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -15).isActive = true
+        textField.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 15).isActive = true
+        
+        textView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 1).isActive = true
         textView.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: 0).isActive = true
         textView.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 0).isActive = true
         textView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: 0).isActive = true
@@ -155,7 +175,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         placeholderLabel.sizeToFit()
         textView.addSubview(placeholderLabel)
         placeholderLabel.frame.origin = CGPoint(x: 15, y: 20)
-        placeholderLabel.textColor = UIColor.lightGray
+        placeholderLabel.textColor = .systemGray3
         placeholderLabel.isHidden = !textView.text.isEmpty
     }
     func textViewDidChange(_ textView: UITextView) {
@@ -258,11 +278,24 @@ extension PostViewController{
             let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
             for i in 0..<10{
                 let asset = assets.object(at: i) as PHAsset
-                imgManager.requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode:.aspectFit, options: requestOptions, resultHandler: { img, aa in
+                imgManager.requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode:.aspectFit, options: requestOptions, resultHandler: { img, info in
+                    
+                   
+                    let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
+                    if isDegraded {
+                       return
+                    }
                    
                     if let img = img {
-                        print("画像の取得に成功")
-                        self.imageArray.append(img)
+                        if self.imageArray.count == 10{
+                            return
+                        }
+                        else{
+                            print(i + 1 ,"回目")
+                            self.imageArray.append(img)
+                        }
+                        
+                       
                                     
                     }
                 })

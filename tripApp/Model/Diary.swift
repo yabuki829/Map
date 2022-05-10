@@ -11,12 +11,10 @@ import Foundation
 struct Diary:Codable,Equatable{
     let id:String
     let image:Data
+    let title:String
     let text:String?
     let date:Date
     let location:Location?
-    
-
-
 }
 
 struct Location :Codable,Equatable{

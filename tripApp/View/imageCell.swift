@@ -12,8 +12,6 @@ import UIKit
 class ImageCell:UICollectionViewCell{
     override var isSelected: Bool{
            didSet{
-//               menuTitle.textColor =  isSelected ? .white : .black
-//               menuTitle.backgroundColor = isSelected ? .darkGray : .systemGray5
             imageView.alpha = isSelected ? 0.5 : 1.0
            }
           

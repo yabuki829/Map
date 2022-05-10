@@ -67,8 +67,26 @@ extension Date{
     func covertString() -> String{
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ja_JP")
-        formatter.dateFormat = "yyy年MM月dd日(eee)"
+        formatter.dateFormat = "yyy年MM月dd日(eee) HH:MM"
         let date = formatter.string(from: NSDate() as Date)
         return date
     }
 }
+
+
+extension UITextField{
+    func setUnderLine(color:UIColor) {
+          borderStyle = .none
+          let underline = UIView()
+       
+          underline.frame = CGRect(x: 0, y: frame.height , width: frame.width - frame.height, height: 0.5)
+        
+          underline.backgroundColor = color
+          addSubview(underline)
+          bringSubviewToFront(underline)
+      }
+    
+    
+}
+
+
