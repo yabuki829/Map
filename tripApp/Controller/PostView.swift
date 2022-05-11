@@ -105,9 +105,10 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         
     }
     @objc  func post(){
-        if let image = imageArray[selectedIndexPath!.row] as UIImage?,
+        if ((selectedIndexPath?.isEmpty) != nil),
            let title = textField.text,
            let text = textView.text{
+            let image = imageArray[selectedIndexPath!.row]
             let diary = Diary(id: String().generateID(7), image:image.convert_data(), title: title , text: text, date: Date(), location: location)
                 var data = DataManager.shere.get()
                 data.append(diary)
@@ -115,8 +116,20 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                 self.presentingViewController?.dismiss(animated: true, completion: nil)
         }
         else{
-            //alert
-            print("画像を選択してください")
+            var message = ""
+            if selectedIndexPath?.isEmpty ==  true {
+                message = "画像が選択されていません"
+            }
+            else if textField.text?.isEmpty == true {
+                message = "タイトルが入力されていません"
+            }
+            else if textView.text.isEmpty == true{
+                message = "本文が入力されていません"
+            }
+         
+            let alert = UIAlertController(title: "報告", message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
         }
 
        

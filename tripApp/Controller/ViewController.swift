@@ -58,11 +58,15 @@ class MapViewController: UIViewController {
       }
     @objc internal func sendtoDetailView(sender: UIButton) {
         let vc = DetailViewController()
-      
+
         vc.diary = selectDiary!
         let nav = UINavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true, completion: nil)
+//        let vc = DetailViewController()
+//        vc.diary = selectDiary!
+//        vc.modalPresentationStyle = .fullScreen
+//        self.present(vc, animated: true, completion: nil)
         
     }
     
@@ -87,18 +91,18 @@ class MapViewController: UIViewController {
     }
     
     func setData(){
+        print("setData")
         array = DataManager.shere.get()
-        print(array.count)
+        mapView.removeAnnotations(mapView.annotations)
         for i in 0..<array.count{
+            print(i,"回目")
             let annotation = MKPointAnnotation()
             if array[i].location != nil{
                 annotation.coordinate = CLLocationCoordinate2DMake(array[i].location!.latitude,array[i].location!.longitude)
                 annotation.title = array[i].title
                 annotation.subtitle = array[i].text
                 self.mapView.addAnnotation(annotation)
-                
             }
-            
         }
     }
 
@@ -110,15 +114,13 @@ class MapViewController: UIViewController {
         titleLabel.text = "mapapp"
         navigationItem.titleView = titleLabel
         
-        let searchImage = UIImage(systemName:"magnifyingglass")
-              let searchItem = UIBarButtonItem(image: searchImage, style: .plain, target: self, action: #selector(search))
               
               
               let accountImage = UIImage(systemName: "gearshape")
              
               let accountItem = UIBarButtonItem(image: accountImage, style: .plain, target: self, action: #selector(tapSettingIcon))
               
-              navigationItem.rightBarButtonItems = [accountItem,searchItem]
+              navigationItem.rightBarButtonItems = [accountItem]
               navigationController?.navigationBar.tintColor = .darkGray
     }
     @objc  func search(){
