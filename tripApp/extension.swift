@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import CoreLocation
 extension Encodable {
 
     var json: Data? {
@@ -74,19 +75,31 @@ extension Date{
 }
 
 
-extension UITextField{
-    func setUnderLine(color:UIColor) {
-          borderStyle = .none
-          let underline = UIView()
-       
-          underline.frame = CGRect(x: 0, y: frame.height , width: frame.width - frame.height, height: 0.5)
+
+
+
+extension Location{
+    func geocoding(compleation:@escaping (String) -> Void){
+        let Location = CLLocation(latitude: self.latitude, longitude: self.longitude)
+        var text = ""
+        CLGeocoder().reverseGeocodeLocation(Location) {  placemarks, error in
+            if let placemark = placemarks?.first {
+                print(placemark)
+                let country = String(placemark.country!)
+                let locality = placemark.locality
+                let subLocality = placemark.subLocality
+                if let Area = placemark.administrativeArea {
+                    print(placemark.administrativeArea!)
+                    text = "\(String(country + Area + locality! + subLocality!))"
+                    compleation(text)
+                }
+                else{
+                    text = "\(String(country + locality! + subLocality!))"
+                   compleation(text)
+                }
+               
+            }
+        }
         
-          underline.backgroundColor = color
-          addSubview(underline)
-          bringSubviewToFront(underline)
-      }
-    
-    
+    }
 }
-
-

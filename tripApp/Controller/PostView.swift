@@ -15,7 +15,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
     var locationManager: CLLocationManager!
     let geocoder = CLGeocoder()
     var location:Location?
-    
+    var isLocation = false
     let textField:UITextField = {
         let tf = UITextField()
         tf.placeholder = "タイトルや場所の名前を入力してください"
@@ -74,7 +74,36 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
         
-        getimg()
+        locationManager = CLLocationManager()
+        locationManager.requestWhenInUseAuthorization()
+        if PHPhotoLibrary.authorizationStatus() != .authorized {
+            PHPhotoLibrary.requestAuthorization { [self] status in
+                        if status == .authorized {
+                            // フォトライブラリを表示する
+                            getimg()
+                           
+                        } else if status == .denied {
+                            // フォトライブラリへのアクセスが許可されていないため、アラートを表示する
+                            let alert = UIAlertController(title: "タイトル", message: "メッセージ", preferredStyle: .alert)
+                            let settingsAction = UIAlertAction(title: "設定", style: .default, handler: { (_) -> Void in
+                                guard let settingsURL = URL(string: UIApplication.openSettingsURLString ) else {
+                                    return
+                                }
+                                UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
+                            })
+                            let closeAction: UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
+                            alert.addAction(settingsAction)
+                            alert.addAction(closeAction)
+                            self.present(alert, animated: true, completion: nil)
+                        }
+                    }
+                } else {
+                    // フォトライブラリを表示する
+                    getimg()
+                   
+                }
+       
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -84,11 +113,9 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                    name: UIResponder.keyboardWillShowNotification,
                    object: nil
                  )
+       
     }
-    
-    override func viewDidLayoutSubviews() {
-        textField.setUnderLine(color:.darkGray)
-    }
+   
     func setupNavigationItems(){
         navigationController?.navigationBar.shadowImage = UIImage()
         let navigationBarAppearance = UINavigationBarAppearance()
@@ -97,7 +124,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         navigationController?.navigationBar.scrollEdgeAppearance = navigationBarAppearance
        
         let backItem  = UIBarButtonItem(title: "キャンセル", style: .plain, target: self, action: #selector(back))
-        let postItem = UIBarButtonItem(title: "投稿する", style: .plain, target: self, action: #selector(post))
+        let postItem = UIBarButtonItem(title: "送信", style: .plain, target: self, action: #selector(post))
         backItem.tintColor = .link
         postItem.tintColor = .link
         navigationItem.leftBarButtonItem = backItem
@@ -105,11 +132,16 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         
     }
     @objc  func post(){
+        if textField.text!.count > 15{
+            alert(message: "15文字以内で入力してください")
+            return
+        }
         if ((selectedIndexPath?.isEmpty) != nil),
            let title = textField.text,
-           let text = textView.text{
+           let text = textView.text,
+           isLocation{
             let image = imageArray[selectedIndexPath!.row]
-            let diary = Diary(id: String().generateID(7), image:image.convert_data(), title: title , text: text, date: Date(), location: location)
+            let diary = Diary(id: String().generateID(7), userid: nil, image:image.convert_data(), title: title , text: text, date: Date(), location: location)
                 var data = DataManager.shere.get()
                 data.append(diary)
                 DataManager.shere.save(data: data)
@@ -117,19 +149,23 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         }
         else{
             var message = ""
-            if selectedIndexPath?.isEmpty ==  true {
+            if selectedIndexPath == nil  {
                 message = "画像が選択されていません"
+                alert(message: message)
             }
             else if textField.text?.isEmpty == true {
                 message = "タイトルが入力されていません"
+                alert(message: message)
             }
             else if textView.text.isEmpty == true{
                 message = "本文が入力されていません"
+                alert(message: message)
+            }
+            else if isLocation == false {
+                alert(message: "位置情報を追加されていません")
             }
          
-            let alert = UIAlertController(title: "報告", message: message, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
+          
         }
 
        
@@ -209,6 +245,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         }
     }
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]){
+        
         let location = locations.first
         let latitude = location?.coordinate.latitude
         let longitude = location?.coordinate.longitude
@@ -221,19 +258,29 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                 print(placemark)
                 let country = String(placemark.country!)
                 let locality = placemark.locality
+                let subLocality = placemark.subLocality
                 if let Area = placemark.administrativeArea {
                     print(placemark.administrativeArea!)
-                    let text = "\(String(country + Area + locality!))"
+                    let text = "\(String(country + Area + locality! + subLocality!))"
                     locationButton.setTitle(text,for:.normal)
                 }
                 else{
-                    let text = "\(String(country + locality!))"
+                    let text = "\(String(country + locality! + subLocality!))"
                     locationButton.setTitle(text,for:.normal)
                 }
+                isLocation = true
             }
         }
     }
-
+    func alert(message: String){
+        let alert = UIAlertController(title: "報告", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+                    
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            alert.dismiss(animated: true, completion: nil)
+        }
+    }
 }
 
 
@@ -279,17 +326,20 @@ extension PostViewController:UICollectionViewDelegate,UICollectionViewDataSource
 
 extension PostViewController{
     func getimg(){
+        print("a")
         let imgManager = PHImageManager.default()
         let requestOptions = PHImageRequestOptions()
+        print("b")
         requestOptions.isSynchronous = true
         requestOptions.deliveryMode = .highQualityFormat
         let fetchOptions = PHFetchOptions()
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-
-        let assetCollections = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumRegular, options:nil)
+        print("c")
+        let assetCollections = PHAssetCollection.fetchAssetCollections(with:.smartAlbum , subtype: .smartAlbumUserLibrary, options:nil)
+        
         assetCollections.enumerateObjects { assetCollection, _, _ in
             let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-            for i in 0..<10{
+            for i in 0..<5{
                 let asset = assets.object(at: i) as PHAsset
                 imgManager.requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode:.aspectFit, options: requestOptions, resultHandler: { img, info in
                     
@@ -314,11 +364,10 @@ extension PostViewController{
                 })
                          
             }
-          
-
-            
-                  
-        self.collectionView.reloadData()
+            DispatchQueue.main.async {
+                print("dispath")
+                self.collectionView.reloadData()
+            }
         }
     }
 }

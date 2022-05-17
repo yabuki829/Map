@@ -22,7 +22,6 @@ class DataManager{
     
     func save(data:[Diary]){
         userDefalts.setCodable(data, forKey: "diary")
-        print("完了")
     }
     
     func delete(id:String){

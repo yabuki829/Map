@@ -10,6 +10,7 @@ import Foundation
 
 struct Diary:Codable,Equatable{
     let id:String
+    let userid:String?
     let image:Data
     let title:String
     let text:String?

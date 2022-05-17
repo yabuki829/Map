@@ -67,7 +67,3 @@ class ImageDetailViewContriller:UIViewController{
 }
 
 
-class imageViewLancher :NSObject{
-   
-    
-}
