@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 class DataManager{
     static let shere = DataManager()
     let userDefalts = UserDefaults.standard
@@ -35,5 +34,7 @@ class DataManager{
         }
     }
 }
+
+
 
 

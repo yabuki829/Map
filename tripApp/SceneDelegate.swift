@@ -18,11 +18,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if let windowScene = scene as? UIWindowScene {
                    let window = UIWindow(windowScene: windowScene)
-                   window.rootViewController = UINavigationController(rootViewController: MapViewController())
-                   
-                   UINavigationBar.appearance().barTintColor = .white
-                   self.window = window
-                   window.makeKeyAndVisible()
+            
+            if UserDefaults.standard.object(forKey: "userid") == nil{
+                window.rootViewController = UINavigationController(rootViewController: LoginViewController())
+                UINavigationBar.appearance().barTintColor = .white
+                self.window = window
+                window.makeKeyAndVisible()
+            }
+            else{
+                window.rootViewController = MainTabBarController()
+                UINavigationBar.appearance().barTintColor = .white
+                self.window = window
+                window.makeKeyAndVisible()
+            }
+                
                }
     }
 

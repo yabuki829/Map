@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 
-class DetailViewController:UIViewController{
+class DetailViewController:UIViewController, UITextFieldDelegate{
     
     var diary = Diary(id: "0", userid:nil, image: Data(), title: "", text: nil, date: Date(), location: nil) {
         didSet{
@@ -16,7 +16,6 @@ class DetailViewController:UIViewController{
         }
     }
     let commentArray = ["コメント","コメント","コメント","コメント"]
-//    let commentArray = [String]()
     let scrollView:UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.indexDisplayMode = .alwaysHidden
@@ -36,23 +35,13 @@ class DetailViewController:UIViewController{
         image.backgroundColor = .white
         return image
     }()
-    let textView: UITextView = {
-        let tv = UITextView()
-        tv.translatesAutoresizingMaskIntoConstraints = false
-        tv.font = UIFont.systemFont(ofSize: 18)
-        tv.textColor = .darkGray
-        tv.backgroundColor = .systemGray6
-        tv.isEditable = false
-        tv.isSelectable = true
-        
-        return tv
-    }()
+
     let textLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.textColor = .darkGray
-        label.backgroundColor = .systemGray6
+        label.backgroundColor = .white
         label.numberOfLines = 0
         return label
     }()
@@ -70,6 +59,7 @@ class DetailViewController:UIViewController{
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.translatesAutoresizingMaskIntoConstraints = false
+        cv.backgroundColor = .white
         return cv
     }()
     let fieldView :textFieldView = {
@@ -77,11 +67,14 @@ class DetailViewController:UIViewController{
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+    var textFieldViewBottomConstraint: NSLayoutConstraint!
+    var scrollViewBottomConstraint:  NSLayoutConstraint!
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGray6
+        view.backgroundColor = .white
         collectionview.delegate = self
         collectionview.dataSource = self
+        
         print("----------------------------------------------")
         view.addSubview(scrollView)
         view.addSubview(fieldView)
@@ -97,6 +90,60 @@ class DetailViewController:UIViewController{
         collectionview.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         let mytapGesture = UITapGestureRecognizer(target: self, action: #selector(tapGesture(sender:)))
         topImage.addGestureRecognizer(mytapGesture)
+        let tapScrollView = UITapGestureRecognizer(target: self, action: #selector(tapScrollView(sender:)))
+        scrollView.addGestureRecognizer(tapScrollView)
+        setting()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        NotificationCenter.default.addObserver(
+                     self,
+                     selector:#selector(keyboardWillShow(_:)),
+                     name: UIResponder.keyboardWillShowNotification,
+                     object: nil
+                   )
+                   NotificationCenter.default.addObserver(
+                     self,
+                     selector: #selector(keyboardWillHide(_:)),
+                     name: UIResponder.keyboardWillHideNotification,
+                     object: nil
+                   )
+        
+    }
+    @objc func keyboardWillShow(_ notification: Notification) {
+         
+        let info = notification.userInfo!
+        let keyboardFrame: CGRect = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        textFieldViewBottomConstraint.constant = -keyboardFrame.size.height + self.view.safeAreaInsets.bottom - 5
+        print("オープン")
+        print(textFieldViewBottomConstraint.constant)
+        UIView.animate(withDuration: 1.0, animations: { [self] () -> Void in
+            self.view.layoutIfNeeded()
+        })
+          
+    }
+    
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        print("クローズ")
+        
+        textFieldViewBottomConstraint.constant = 0
+        UIView.animate(withDuration: 1.0, animations: { [self] () -> Void in
+            self.view.layoutIfNeeded()
+        })
+    }
+    
+    @objc func tapScrollView(sender:UITapGestureRecognizer){
+        print("tap")
+        self.view.endEditing(true)
+        fieldView.textfield.resignFirstResponder()
+    }
+   
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        print("return")
+        fieldView.textfield.resignFirstResponder()
+          return true
+      }
+    func setting(){
+        fieldView.textfield.delegate = self
     }
     @objc internal func tapGesture(sender:UITapGestureRecognizer ){
         let  vc = ImageDetailViewContriller()
@@ -113,7 +160,7 @@ class DetailViewController:UIViewController{
         scrollView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 0.0).isActive = true
         scrollView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: 0.0).isActive = true
         scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0).isActive = true
-//        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0.0).isActive = true
+        scrollViewBottomConstraint = scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0)
         
         topImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 0).isActive = true
         topImage.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 0).isActive = true
@@ -142,7 +189,9 @@ class DetailViewController:UIViewController{
         fieldView.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant:10).isActive = true
         fieldView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
         fieldView.rightAnchor.constraint(equalTo:view.rightAnchor, constant: 0).isActive = true
-        fieldView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+//        fieldView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+        textFieldViewBottomConstraint =  fieldView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0)
+        textFieldViewBottomConstraint.isActive = true
         fieldView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
     }
@@ -194,15 +243,24 @@ extension DetailViewController:UICollectionViewDataSource,UICollectionViewDelega
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionview.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
-        cell.backgroundColor = .darkGray
+        cell.backgroundColor = .white
+        cell.layer.cornerRadius = 5
+        cell.layer.shadowOpacity = 0.2
+        cell.layer.shadowRadius = 12
+        cell.layer.shadowColor = UIColor.black.cgColor
+        cell.layer.shadowOffset = CGSize(width: 8, height: 8)
+        cell.layer.masksToBounds = false
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 10
     }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 10
+    }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 60)
+        return CGSize(width: view.frame.width * 0.95, height: 60)
     }
 
 
@@ -215,7 +273,11 @@ class textFieldView:UIView{
     var textfield:UITextField = {
         let textfield = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
-        textfield.backgroundColor = .systemGray5
+        textfield.backgroundColor = .systemGray6
+        textfield.layer.cornerRadius = 16
+        textfield.layer.borderWidth = 2.0
+        textfield.layer.borderColor = UIColor.systemGray2.cgColor
+        textfield.clipsToBounds = true
         return textfield
     }()
     
@@ -243,10 +305,10 @@ class textFieldView:UIView{
         addConsrtaints()
     }
     func addConsrtaints(){
-        textfield.topAnchor.constraint(equalTo: self.topAnchor, constant: 0.0).isActive = true
+        textfield.topAnchor.constraint(equalTo: self.topAnchor, constant: 2.0).isActive = true
         textfield.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 10.0).isActive = true
         textfield.rightAnchor.constraint(equalTo: sendButton.leftAnchor, constant: 0.0).isActive = true
-        textfield.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0.0).isActive = true
+        textfield.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -2.0).isActive = true
         
         sendButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 0.0).isActive = true
         sendButton.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -5.0).isActive = true
@@ -256,3 +318,4 @@ class textFieldView:UIView{
     }
  
 }
+
