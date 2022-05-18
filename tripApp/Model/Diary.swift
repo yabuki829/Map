@@ -22,10 +22,3 @@ struct Location :Codable,Equatable{
     let latitude:Double
     let longitude:Double
 }
-
-struct Comment {
-    let id:String
-    let userid:String
-    let text:String
-    let date:Date
-}

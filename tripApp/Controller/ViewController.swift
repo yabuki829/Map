@@ -91,7 +91,7 @@ class MapViewController: UIViewController {
     func addConstraintButton(){
         postButton.translatesAutoresizingMaskIntoConstraints = false
         postButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
-        postButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant:-20 ).isActive = true
+        postButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant:-20     ).isActive = true
         postButton.heightAnchor.constraint(equalToConstant: view.frame.width / 7).isActive = true
         postButton.widthAnchor.constraint(equalToConstant: view.frame.width / 7).isActive = true
         

@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		6CC5F1D1C49297D6D7AFE3CE /* Pods_tripApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E16A77EB94D39ECC61DD5E3 /* Pods_tripApp.framework */; };
+		704C69B628351D370078EA40 /* TextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704C69B528351D370078EA40 /* TextFieldView.swift */; };
+		704C69B928351EF80078EA40 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704C69B828351EF80078EA40 /* Comment.swift */; };
+		704C69BC28351F0B0078EA40 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704C69BB28351F0B0078EA40 /* Message.swift */; };
+		704C69BF28352D2C0078EA40 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704C69BE28352D2C0078EA40 /* Profile.swift */; };
+		704C69C228352F620078EA40 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704C69C128352F620078EA40 /* CommentCell.swift */; };
 		704EEB64282D4E4E0056E748 /* MenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704EEB63282D4E4E0056E748 /* MenuCell.swift */; };
 		704EEB67282D4E8C0056E748 /* BaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704EEB66282D4E8C0056E748 /* BaseCell.swift */; };
 		704EEB6A282D4ED80056E748 /* SectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704EEB69282D4ED80056E748 /* SectionCell.swift */; };
@@ -35,6 +40,11 @@
 
 /* Begin PBXFileReference section */
 		6ADC08D3C4D4E4B832F10D2B /* Pods-tripApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tripApp.debug.xcconfig"; path = "Target Support Files/Pods-tripApp/Pods-tripApp.debug.xcconfig"; sourceTree = "<group>"; };
+		704C69B528351D370078EA40 /* TextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldView.swift; sourceTree = "<group>"; };
+		704C69B828351EF80078EA40 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		704C69BB28351F0B0078EA40 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		704C69BE28352D2C0078EA40 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		704C69C128352F620078EA40 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		704EEB63282D4E4E0056E748 /* MenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuCell.swift; sourceTree = "<group>"; };
 		704EEB66282D4E8C0056E748 /* BaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCell.swift; sourceTree = "<group>"; };
 		704EEB69282D4ED80056E748 /* SectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionCell.swift; sourceTree = "<group>"; };
@@ -125,6 +135,9 @@
 			isa = PBXGroup;
 			children = (
 				709433382827DF9900A9AC3B /* Diary.swift */,
+				704C69B828351EF80078EA40 /* Comment.swift */,
+				704C69BB28351F0B0078EA40 /* Message.swift */,
+				704C69BE28352D2C0078EA40 /* Profile.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -160,7 +173,9 @@
 				70AC68492828F64F00CEC92E /* imageCell.swift */,
 				704EEB63282D4E4E0056E748 /* MenuCell.swift */,
 				704EEB66282D4E8C0056E748 /* BaseCell.swift */,
+				704C69C128352F620078EA40 /* CommentCell.swift */,
 				704EEB69282D4ED80056E748 /* SectionCell.swift */,
+				704C69B528351D370078EA40 /* TextFieldView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -292,22 +307,27 @@
 				706053E1282A92870067F63F /* DetailViewController.swift in Sources */,
 				706696CE282CC63900E8DDC1 /* SettingViewController.swift in Sources */,
 				709433062827AE9B00A9AC3B /* ViewController.swift in Sources */,
+				704C69BF28352D2C0078EA40 /* Profile.swift in Sources */,
 				70A20AC62834C9E70093FCBB /* TabBarController.swift in Sources */,
 				70A20A972834A9F40093FCBB /* LoginViewController.swift in Sources */,
 				70A20AAB2834C52D0093FCBB /* FirebaseManager.swift in Sources */,
+				704C69B628351D370078EA40 /* TextFieldView.swift in Sources */,
 				704EEB6A282D4ED80056E748 /* SectionCell.swift in Sources */,
 				70C140A3282A4D92007167A1 /* DataManager.swift in Sources */,
 				704EEB67282D4E8C0056E748 /* BaseCell.swift in Sources */,
+				704C69B928351EF80078EA40 /* Comment.swift in Sources */,
 				70A20AC92834CCE50093FCBB /* ProfileViewController.swift in Sources */,
 				70C1409D282A4CEA007167A1 /* extension.swift in Sources */,
 				709433022827AE9B00A9AC3B /* AppDelegate.swift in Sources */,
 				70A20AA82834C51E0093FCBB /* AuthManager.swift in Sources */,
 				709433042827AE9B00A9AC3B /* SceneDelegate.swift in Sources */,
 				70D614FA28281C11007E66A1 /* PostView.swift in Sources */,
+				704C69BC28351F0B0078EA40 /* Message.swift in Sources */,
 				709433392827DF9900A9AC3B /* Diary.swift in Sources */,
 				70AC684A2828F64F00CEC92E /* imageCell.swift in Sources */,
 				704EEB64282D4E4E0056E748 /* MenuCell.swift in Sources */,
 				706053E5282AAD940067F63F /* ImageDetailView.swift in Sources */,
+				704C69C228352F620078EA40 /* CommentCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

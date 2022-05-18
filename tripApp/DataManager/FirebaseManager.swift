@@ -8,15 +8,52 @@
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
-
+import Firebase
 
 class FirebaseManager{
     static let shered = FirebaseManager()
     let database = Firestore.firestore()
     func sendMessage(){}
-    func sendComment(){}
-    func setProfile(){}
+    
+    func sendComment(text:String,messageid:String){
+        print(text )
+        print(messageid)
+        let userid = Auth.auth().currentUser?.uid
+        let commentid = String().generateID(8)
+        print(userid)
+        print(commentid)
+        database.collection("Comments").document(messageid).collection("Comment").document(commentid).setData(
+            ["id":commentid,"comment":text,"userid":userid ,"created":Date()]
+        )
+    }
+    
+    func getComment(messageid:String,compleation:@escaping ([Comment]) -> Void){
+  
+        
+        database.collection("Comments").document(messageid).collection("Comment").order(by:"created", descending: false).addSnapshotListener{ (snapshot, error) in
+            var array = [Comment]()
+            print("array",array)
+            for document in snapshot!.documents {
+                let data = document.data()
+                
+                if let id = data["id"],
+                   let comment = data["comment"],
+                   let userid = data["userid"],
+                   let created = data["created"]{
+                    let date:Date = (created as AnyObject).dateValue()
+                  
+                    let newdata = Comment(id: id as! String, comment:comment as! String, userid: userid as! String, created: date)
+                    array.append(newdata)
+                }
+            }
+            DispatchQueue.main.async {
+              
+                compleation(array)
+            }
+        }
+    }
     func getMessage(){}
+    func setProfile(){}
     func setUserID(userid:String){
         let id:String = Auth.auth().currentUser!.uid
         database.collection("Users").document(userid).setData(
@@ -35,3 +72,9 @@ class FirebaseManager{
         }
     }
 }
+
+
+//commentid
+//text
+//userid
+//date

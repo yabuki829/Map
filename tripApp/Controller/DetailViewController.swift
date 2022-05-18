@@ -10,12 +10,14 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
             textLabel.text = diary.text
             titleLabel.text = diary.title
             dateLabel.text = diary.date.covertString()
+            fieldView.setupViews(messageid: diary.id)
             diary.location?.geocoding(compleation: { (text) in
                 self.navigationItem.title = text
+              
             })
         }
     }
-    let commentArray = ["コメント","コメント","コメント","コメント"]
+    var commentArray = [Comment]()
     let scrollView:UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.indexDisplayMode = .alwaysHidden
@@ -69,12 +71,12 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
     }()
     var textFieldViewBottomConstraint: NSLayoutConstraint!
     var scrollViewBottomConstraint:  NSLayoutConstraint!
+    var collectionViewHeightConstraint:NSLayoutConstraint!
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         collectionview.delegate = self
         collectionview.dataSource = self
-        
         print("----------------------------------------------")
         view.addSubview(scrollView)
         view.addSubview(fieldView)
@@ -83,18 +85,21 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
         scrollView.addSubview(textLabel)
         scrollView.addSubview(dateLabel)
         scrollView.addSubview(collectionview)
-        
+       
         addScrollViewConstraint()
-
+        
         setNav()
-        collectionview.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
+        collectionview.register(PartnerCommentCell.self, forCellWithReuseIdentifier: "Cell")
         let mytapGesture = UITapGestureRecognizer(target: self, action: #selector(tapGesture(sender:)))
         topImage.addGestureRecognizer(mytapGesture)
         let tapScrollView = UITapGestureRecognizer(target: self, action: #selector(tapScrollView(sender:)))
         scrollView.addGestureRecognizer(tapScrollView)
         setting()
+        getComment()
+        
     }
     override func viewWillAppear(_ animated: Bool) {
+        
         NotificationCenter.default.addObserver(
                      self,
                      selector:#selector(keyboardWillShow(_:)),
@@ -114,6 +119,7 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
         let info = notification.userInfo!
         let keyboardFrame: CGRect = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
         textFieldViewBottomConstraint.constant = -keyboardFrame.size.height + self.view.safeAreaInsets.bottom - 5
+       
         print("オープン")
         print(textFieldViewBottomConstraint.constant)
         UIView.animate(withDuration: 1.0, animations: { [self] () -> Void in
@@ -184,8 +190,8 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
         collectionview.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 0).isActive = true
         collectionview.rightAnchor.constraint(equalTo:scrollView.rightAnchor, constant: 0).isActive = true
         collectionview.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 0).isActive = true
-        collectionview.heightAnchor.constraint(equalToConstant: CGFloat(commentArray.count * 70)).isActive = true
-       
+        collectionViewHeightConstraint = collectionview.heightAnchor.constraint(equalToConstant: CGFloat(commentArray.count * 70))
+        collectionViewHeightConstraint.isActive = true
         fieldView.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant:10).isActive = true
         fieldView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
         fieldView.rightAnchor.constraint(equalTo:view.rightAnchor, constant: 0).isActive = true
@@ -225,6 +231,19 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
         
         navigationItem.rightBarButtonItem = deleteItem
     }
+    func getComment(){
+        
+        FirebaseManager.shered.getComment(messageid: diary.id) { data in
+            print("------------------------------------------------------")
+            print("取得完了",self.commentArray.count)
+            print("-----------------------------------------------------")
+            self.commentArray.removeAll()
+            self.commentArray = data
+            self.collectionViewHeightConstraint.constant = CGFloat(self.commentArray.count * 70)
+            self.view.layoutIfNeeded()
+            self.collectionview.reloadData()
+        }
+    }
     @objc func back(sender : UIButton){
         print("Back")
         self.navigationController?.dismiss(animated: true, completion: nil)
@@ -238,12 +257,14 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
 
 extension DetailViewController:UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print("数",commentArray.count)
         return commentArray.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionview.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
+        let cell = collectionview.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! PartnerCommentCell
         cell.backgroundColor = .white
+        cell.setCell(username: "佐藤", text: commentArray[indexPath.row].comment, date: commentArray[indexPath.row].created, image: "4")
         cell.layer.cornerRadius = 5
         cell.layer.shadowOpacity = 0.2
         cell.layer.shadowRadius = 12
@@ -267,55 +288,4 @@ extension DetailViewController:UICollectionViewDataSource,UICollectionViewDelega
 }
 
 
-
-class textFieldView:UIView{
-    
-    var textfield:UITextField = {
-        let textfield = UITextField()
-        textfield.translatesAutoresizingMaskIntoConstraints = false
-        textfield.backgroundColor = .systemGray6
-        textfield.layer.cornerRadius = 16
-        textfield.layer.borderWidth = 2.0
-        textfield.layer.borderColor = UIColor.systemGray2.cgColor
-        textfield.clipsToBounds = true
-        return textfield
-    }()
-    
-    var sendButton:UIButton = {
-        let button = UIButton()
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("送信", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        return button
-    }()
-   
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        print("A")
-        setupViews()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    func setupViews(){
-        print("B")
-        self.addSubview(textfield)
-        self.addSubview(sendButton)
-        addConsrtaints()
-    }
-    func addConsrtaints(){
-        textfield.topAnchor.constraint(equalTo: self.topAnchor, constant: 2.0).isActive = true
-        textfield.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 10.0).isActive = true
-        textfield.rightAnchor.constraint(equalTo: sendButton.leftAnchor, constant: 0.0).isActive = true
-        textfield.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -2.0).isActive = true
-        
-        sendButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 0.0).isActive = true
-        sendButton.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -5.0).isActive = true
-        sendButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0.0).isActive = true
-        sendButton.widthAnchor.constraint(equalToConstant: 60 ).isActive = true
-        print(self.frame.width)
-    }
- 
-}
 
