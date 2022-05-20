@@ -68,8 +68,8 @@ extension Date{
     func covertString() -> String{
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ja_JP")
-        formatter.dateFormat = "yyy年MM月dd日(eee) HH:MM"
-        let date = formatter.string(from: NSDate() as Date)
+        formatter.dateFormat = "yyy年MM月dd日(eee) HH:mm"
+        let date = formatter.string(from: self )
         return date
     }
 }

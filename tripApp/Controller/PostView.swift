@@ -325,6 +325,8 @@ extension PostViewController:UICollectionViewDelegate,UICollectionViewDataSource
 
 
 extension PostViewController{
+    //今後動画も取得できるようにする
+    func getMovie(){}
     func getimg(){
         print("a")
         let imgManager = PHImageManager.default()

@@ -13,3 +13,5 @@ struct Profile {
     var image:String
     var isChange = true
 }
+
+

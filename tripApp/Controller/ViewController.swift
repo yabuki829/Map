@@ -49,7 +49,7 @@ class MapViewController: UIViewController {
         view.addSubview(segumentView)
         addConstraintMapView()
         addConstraintButton()
-        
+    
         postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
         setupNavigationItems()
             }
@@ -68,6 +68,7 @@ class MapViewController: UIViewController {
         vc.diary = selectDiary!
         let nav = UINavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .fullScreen
+        nav.modalTransitionStyle = .flipHorizontal
         self.present(nav, animated: true, completion: nil)
     }
     @objc func changeSegument(sender: UISegmentedControl) {
@@ -234,4 +235,33 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
         return stackview
     }
   
+}
+
+
+class ProfileImageView:UIView{
+    let backGraundImage:UIImageView = {
+        let imageView = UIImageView()
+        return imageView
+    }()
+    let ptofileImageView:UIImageView = {
+        let imageView = UIImageView()
+        return imageView
+    }()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupViews()
+    }
+    
+    func setupViews(){
+        self.addSubview(backGraundImage)
+        self.addSubview(ptofileImageView)
+        
+    }
+    
+    func addConstraint(){
+        
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }

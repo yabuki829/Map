@@ -12,7 +12,7 @@ final class MainTabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        tabBarController?.tabBar.barTintColor = .systemGray3
         setupTab()
     }
 
@@ -20,7 +20,7 @@ final class MainTabBarController: UITabBarController {
         let firstViewController = UINavigationController(rootViewController: MapViewController())
         firstViewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "map"), selectedImage: UIImage(systemName: "map.fill"))
 
-        let secondViewController = UINavigationController(rootViewController: MapViewController())
+        let secondViewController = UINavigationController(rootViewController: ProfileViewController())
         secondViewController.tabBarItem = UITabBarItem(title:"Profile" , image: UIImage(systemName: "person.circle"), selectedImage: UIImage(systemName: "person.circle.fill"))
         
         viewControllers = [firstViewController, secondViewController]

@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class textFieldView:UIView{
+class textFieldView:UIView,UITextFieldDelegate{
     
     var textfield:UITextField = {
         let textfield = UITextField()
@@ -36,6 +36,7 @@ class textFieldView:UIView{
         textfield.leftView = paddingView
         textfield.leftViewMode = .always
         sendButton.addTarget(self, action: #selector(sendComment), for: .touchUpInside)
+        textfield.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -44,6 +45,7 @@ class textFieldView:UIView{
     func setupViews(messageid:String){
         print("B")
         messageID = messageid
+        
         self.addSubview(textfield)
         self.addSubview(sendButton)
         addConsrtaints()
@@ -53,23 +55,27 @@ class textFieldView:UIView{
         if textfield.text == ""{
             return
         }
+        
         //postID
         FirebaseManager.shered.sendComment(text: textfield.text!, messageid: messageID)
         textfield.text = ""
     }
+    
     func addConsrtaints(){
         textfield.topAnchor.constraint(equalTo: self.topAnchor, constant: 2.0).isActive = true
         textfield.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 10.0).isActive = true
         textfield.rightAnchor.constraint(equalTo: sendButton.leftAnchor, constant: 0.0).isActive = true
         textfield.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -2.0).isActive = true
-        
+       
         sendButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 0.0).isActive = true
         sendButton.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -5.0).isActive = true
         sendButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0.0).isActive = true
         sendButton.widthAnchor.constraint(equalToConstant: 60 ).isActive = true
         print(self.frame.width)
     }
- 
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+         print("変更されました")
+    }
 }
 
 

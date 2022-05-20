@@ -23,7 +23,7 @@ class FirebaseManager{
         print(userid)
         print(commentid)
         database.collection("Comments").document(messageid).collection("Comment").document(commentid).setData(
-            ["id":commentid,"comment":text,"userid":userid ,"created":Date()]
+            ["id":commentid,"comment":text,"userid":userid ,"created":FieldValue.serverTimestamp()]
         )
     }
     
@@ -39,8 +39,10 @@ class FirebaseManager{
                 if let id = data["id"],
                    let comment = data["comment"],
                    let userid = data["userid"],
-                   let created = data["created"]{
-                    let date:Date = (created as AnyObject).dateValue()
+                   let created = data["created"] as? Timestamp {
+                    let date = created.dateValue()
+                    print("---------------")
+                  print(date)
                   
                     let newdata = Comment(id: id as! String, comment:comment as! String, userid: userid as! String, created: date)
                     array.append(newdata)
@@ -72,9 +74,3 @@ class FirebaseManager{
         }
     }
 }
-
-
-//commentid
-//text
-//userid
-//date

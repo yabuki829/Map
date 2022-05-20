@@ -59,6 +59,7 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
     let baseView = UIView()
     let collectionview:UICollectionView = {
         let layout = UICollectionViewFlowLayout()
+        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.translatesAutoresizingMaskIntoConstraints = false
         cv.backgroundColor = .white
@@ -77,6 +78,7 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
         view.backgroundColor = .white
         collectionview.delegate = self
         collectionview.dataSource = self
+        collectionview.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
         print("----------------------------------------------")
         view.addSubview(scrollView)
         view.addSubview(fieldView)
@@ -90,6 +92,7 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
         
         setNav()
         collectionview.register(PartnerCommentCell.self, forCellWithReuseIdentifier: "Cell")
+        collectionview.register(MyCommentCell.self, forCellWithReuseIdentifier: "CommentCell")
         let mytapGesture = UITapGestureRecognizer(target: self, action: #selector(tapGesture(sender:)))
         topImage.addGestureRecognizer(mytapGesture)
         let tapScrollView = UITapGestureRecognizer(target: self, action: #selector(tapScrollView(sender:)))
@@ -190,12 +193,13 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
         collectionview.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 0).isActive = true
         collectionview.rightAnchor.constraint(equalTo:scrollView.rightAnchor, constant: 0).isActive = true
         collectionview.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: 0).isActive = true
-        collectionViewHeightConstraint = collectionview.heightAnchor.constraint(equalToConstant: CGFloat(commentArray.count * 70))
+        collectionViewHeightConstraint = collectionview.heightAnchor.constraint(equalToConstant: CGFloat(commentArray.count * 70) + 20)
+        
         collectionViewHeightConstraint.isActive = true
         fieldView.topAnchor.constraint(equalTo: scrollView.bottomAnchor, constant:10).isActive = true
         fieldView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
         fieldView.rightAnchor.constraint(equalTo:view.rightAnchor, constant: 0).isActive = true
-//        fieldView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+        
         textFieldViewBottomConstraint =  fieldView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0)
         textFieldViewBottomConstraint.isActive = true
         fieldView.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -239,7 +243,7 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
             print("-----------------------------------------------------")
             self.commentArray.removeAll()
             self.commentArray = data
-            self.collectionViewHeightConstraint.constant = CGFloat(self.commentArray.count * 70)
+            self.collectionViewHeightConstraint.constant = CGFloat(self.commentArray.count * 80 + 20)
             self.view.layoutIfNeeded()
             self.collectionview.reloadData()
         }
@@ -262,16 +266,20 @@ extension DetailViewController:UICollectionViewDataSource,UICollectionViewDelega
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionview.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! PartnerCommentCell
-        cell.backgroundColor = .white
-        cell.setCell(username: "佐藤", text: commentArray[indexPath.row].comment, date: commentArray[indexPath.row].created, image: "4")
-        cell.layer.cornerRadius = 5
-        cell.layer.shadowOpacity = 0.2
-        cell.layer.shadowRadius = 12
-        cell.layer.shadowColor = UIColor.black.cgColor
-        cell.layer.shadowOffset = CGSize(width: 8, height: 8)
-        cell.layer.masksToBounds = false
-        return cell
+        
+    
+            let cell = collectionview.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! PartnerCommentCell
+            cell.backgroundColor = .white
+        cell.setCell(username: "佐藤", text: commentArray[indexPath.row].comment, date: commentArray[indexPath.row].created, image: "4", width: floor(view.frame.width * 0.95))
+            cell.layer.cornerRadius = 5
+            cell.layer.shadowOpacity = 0.8
+            cell.layer.shadowRadius = 12
+            cell.layer.shadowColor = UIColor.darkGray.cgColor
+            cell.layer.shadowOffset = CGSize(width: 3, height: 3)
+            cell.layer.masksToBounds = false
+            return cell
+      
+       
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
