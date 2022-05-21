@@ -13,9 +13,9 @@ class ProfileViewController:UIViewController{
     
     let mapExpandButton:UIButton = {
         let button = UIButton()
-        button.setTitle ("拡大する", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.setTitleColor(.darkGray, for: .highlighted)
+        let image = UIImage(systemName: "arrow.up.backward.and.arrow.down.forward.circle.fill")
+        button.setBackgroundImage(image, for: .normal)
+        button.tintColor = .link
         return button
     }()
     
@@ -26,7 +26,7 @@ class ProfileViewController:UIViewController{
     }()
     let profileImage:UIImageView = {
         let imageview = UIImageView()
-        imageview.image = UIImage(named: "1")
+        imageview.image = UIImage(named: "profile")
         return imageview
     }()
     let usernameLabel:UILabel = {
@@ -37,17 +37,17 @@ class ProfileViewController:UIViewController{
         return label
     }()
     
-    let textLabel:UITextView = {
-        let label = UITextView()
-        label.text = "LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISICING ELIT, SED DO EIUSMOD TEMPOR INCIDIDUNT UT LABORE ET DOLORE MAGNA ALI"
+    let textLabel:UILabel = {
+        let label = UILabel()
+        label.text = "藪木翔大は一体どんな存在なのかをきっちりわかるのが全ての問題の解くキーとなります。 この方面から考えるなら、一般的には、 藪木翔大を発生するには、一体どうやってできるのか；一方、藪木翔大を発生させない場合、何を通じてそれをできるのでしょうか。"
         label.font = UIFont.systemFont(ofSize: 12)
         label.textColor = .darkGray
-        label.isEditable = false
+        label.numberOfLines = 0
         return label
     }()
     let mapView: MKMapView = {
         let map = MKMapView()
-        map.mapType = .standard
+        map.mapType = .satellite
         map.showsUserLocation = true
         return map
     }()
@@ -65,43 +65,63 @@ class ProfileViewController:UIViewController{
     }()
     let editButton:UIButton = {
         let button = UIButton()
-        button.setTitle ("編集する", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.setTitleColor(.darkGray, for: .highlighted)
+        let image = UIImage(systemName: "pencil.circle.fill")
+        button.setBackgroundImage(image, for: .normal)
+        button.tintColor = .link
+        
         return button
     }()
     
     var mapViewHeightConstraint: NSLayoutConstraint!
+    var mapHeight = CGFloat()
     var isExpanded = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.view.backgroundColor = .white
-        self.view.addSubview(backgraundImage)
-        self.view.addSubview(profileImage)
-        self.backgraundImage.addSubview(editButton)
-        self.view.addSubview(postStackView)
-        self.view.addSubview(friendStackView)
-        self.view.addSubview(usernameLabel)
-        self.view.addSubview(textLabel)
-        self.view.addSubview(mapView)
-        self.mapView.addSubview(mapExpandButton)
+        
+        view.addSubview(backgraundImage)
+        view.addSubview(profileImage)
+        view.addSubview(postStackView)
+        view.addSubview(friendStackView)
+        view.addSubview(usernameLabel)
+        view.addSubview(textLabel)
+        view.addSubview(mapView)
+        view.addSubview(editButton)
+        mapView.addSubview(mapExpandButton)
+        editButton.addTarget(self, action: #selector(sendEditPage(sender:)), for: .touchUpInside)
         mapExpandButton.addTarget(self, action: #selector(expand(sender:)), for: .touchUpInside)
         settingStackView()
         addConstraint()
         
     }
-    func addConstraint(){
-        
+    override func viewDidAppear(_ animated: Bool) {
+        print("mapHeight",mapHeight)
+        if mapHeight == 0.0{
+            mapHeight = mapView.frame.minY - textLabel.frame.maxY + view.frame.width / 2 - 10
+            mapViewHeightConstraint.constant =  mapHeight
+            view.layoutIfNeeded()
+        }
+     
+    }
+    
+    
+    func  addConstraint(){
+    
         backgraundImage.translatesAutoresizingMaskIntoConstraints = false
         backgraundImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
         backgraundImage.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
         backgraundImage.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
         backgraundImage.heightAnchor.constraint(equalToConstant: view.frame.width / 2  ).isActive = true
-        
+        backgraundImage.widthAnchor.constraint(equalToConstant: view.frame.width  ).isActive = true
+    
+
         editButton.translatesAutoresizingMaskIntoConstraints = false
         editButton.topAnchor.constraint(equalTo: backgraundImage.topAnchor, constant: 5).isActive = true
         editButton.rightAnchor.constraint(equalTo: backgraundImage.rightAnchor, constant: -5).isActive = true
+        editButton.widthAnchor.constraint(equalToConstant: view.frame.width / 12).isActive = true
+        editButton.heightAnchor.constraint(equalToConstant: view.frame.width / 12).isActive = true
         
         profileImage.translatesAutoresizingMaskIntoConstraints = false
         profileImage.topAnchor.constraint(equalTo: backgraundImage.bottomAnchor, constant: -view.frame.width / 4 / 2 ).isActive = true
@@ -110,43 +130,46 @@ class ProfileViewController:UIViewController{
         profileImage.widthAnchor.constraint(equalToConstant: view.frame.width / 4).isActive = true
         profileImage.layer.cornerRadius = view.frame.width / 4 / 2
         profileImage.clipsToBounds = true
-        mapView.translatesAutoresizingMaskIntoConstraints = false
         
+        mapView.translatesAutoresizingMaskIntoConstraints = false
+
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
         usernameLabel.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 0).isActive = true
         usernameLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
         usernameLabel.rightAnchor.constraint(equalTo:view.rightAnchor, constant: -10).isActive = true
         usernameLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        
+
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant:0).isActive = true
-        textLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
-        textLabel.rightAnchor.constraint(equalTo:view.rightAnchor, constant: -10).isActive = true
-        textLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -view.frame.width / 2).isActive = true
+        textLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
+        textLabel.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
+//        textLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant:0).isActive = true
         
         postStackView.translatesAutoresizingMaskIntoConstraints = false
         postStackView.topAnchor.constraint(equalTo: backgraundImage.bottomAnchor, constant: 20).isActive = true
         postStackView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
         postStackView.rightAnchor.constraint(equalTo: profileImage.leftAnchor, constant: -5).isActive = true
-        
+
         friendStackView.translatesAutoresizingMaskIntoConstraints = false
         friendStackView.topAnchor.constraint(equalTo: backgraundImage.bottomAnchor, constant: 20).isActive = true
         friendStackView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -10).isActive = true
         friendStackView.leftAnchor.constraint(equalTo: profileImage.rightAnchor, constant: 5).isActive = true
+
         
-        
-        mapView.rightAnchor.constraint(equalTo: view.rightAnchor, constant:0).isActive = true
-        mapView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
+        mapView.rightAnchor.constraint(equalTo: view.rightAnchor, constant:1).isActive = true
+        mapView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: -1).isActive = true
         mapView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
         mapViewHeightConstraint = mapView.heightAnchor.constraint(equalToConstant: view.frame.width / 2)
         mapViewHeightConstraint.isActive = true
-        
+
         mapView.layer.borderWidth = 2
         mapView.layer.borderColor = UIColor.systemGray3.cgColor
         
         mapExpandButton.translatesAutoresizingMaskIntoConstraints = false
         mapExpandButton.topAnchor.constraint(equalTo: mapView.topAnchor, constant: 0).isActive = true
         mapExpandButton.rightAnchor.constraint(equalTo: mapView.rightAnchor, constant: 0).isActive = true
+        mapExpandButton.widthAnchor.constraint(equalToConstant: view.frame.width / 12).isActive = true
+        mapExpandButton.heightAnchor.constraint(equalToConstant: view.frame.width / 12).isActive = true
     }
     func settingStackView(){
         let titleLabel = UILabel()
@@ -183,32 +206,41 @@ class ProfileViewController:UIViewController{
         friendStackView.addArrangedSubview(subTitleLabel2)
         
     }
+    @objc internal func sendEditPage(sender: UIButton) {
+        print("Edit")
+        let vc = EditViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        nav.modalTransitionStyle = .flipHorizontal
+        self.present(nav, animated: true, completion: nil)
+    }
     @objc internal func expand(sender: UIButton) {
         isExpanded = !isExpanded
         if isExpanded{
-            print("EXPAND")
-            mapExpandButton.setTitle("縮小する", for: .normal)
+            print("EXPANDED")
             
+            let image = UIImage(systemName: "arrow.down.right.and.arrow.up.left.circle.fill")
+            mapExpandButton.setBackgroundImage(image, for: .normal)
             
-            let statusbarHeight = view.window?.windowScene?.statusBarManager?.statusBarFrame.height
-            let navigationbarHeight = (self.navigationController?.navigationBar.frame.size.height)!
-            let tabbarHeight = tabBarController!.tabBar.frame.size.height
-            
+            let mapMinY = mapView.frame.minY
+            let profileImageY = profileImage.frame.maxY
+            print("--------------")
+            print(mapMinY)
+            print(profileImageY)
             UIView.animate(withDuration:0.5) { [self] in
-                mapViewHeightConstraint.constant = view.frame.height - tabbarHeight - navigationbarHeight - statusbarHeight!
-                friendStackView.isHidden = true
-                postStackView.isHidden = true
+                mapViewHeightConstraint.constant = mapMinY - profileImageY + mapHeight - 10
                 view.layoutIfNeeded()
             }
           
         }
         else{
-            print("No EXPAND")
-            mapExpandButton.setTitle("拡大する", for: .normal)
-            friendStackView.isHidden = false
-            postStackView.isHidden = false
+            print("No EXPANDED")
+            let image = UIImage(systemName: "arrow.up.backward.and.arrow.down.forward.circle.fill")
+            mapExpandButton.setBackgroundImage(image, for: .normal)
             UIView.animate(withDuration: 0.2) { [self] in
-                mapViewHeightConstraint.constant = view.frame.width / 2
+                
+                mapViewHeightConstraint.constant = mapHeight
+                
                 view.layoutIfNeeded()
             }
            
@@ -216,6 +248,10 @@ class ProfileViewController:UIViewController{
            
         }
       }
+    
+    func getMyPost(){
+        
+    }
 }
 
 

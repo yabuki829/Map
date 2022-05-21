@@ -103,3 +103,19 @@ extension Location{
         
     }
 }
+
+
+
+
+extension UITextField {
+    func setUnderLine(color:UIColor) {
+        borderStyle = .none
+        let underline = UIView()
+        // heightにはアンダーラインの高さを入れる
+        underline.frame = CGRect(x: 0, y: frame.height, width: frame.width, height: 0.5)
+        // 枠線の色
+        underline.backgroundColor = color
+        addSubview(underline)
+        bringSubviewToFront(underline)
+    }
+}

@@ -32,6 +32,7 @@
 		70A20AAB2834C52D0093FCBB /* FirebaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A20AAA2834C52D0093FCBB /* FirebaseManager.swift */; };
 		70A20AC62834C9E70093FCBB /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A20AC52834C9E70093FCBB /* TabBarController.swift */; };
 		70A20AC92834CCE50093FCBB /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A20AC82834CCE50093FCBB /* ProfileViewController.swift */; };
+		70A94C2228388B4F004E5123 /* EditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A94C2128388B4F004E5123 /* EditViewController.swift */; };
 		70AC684A2828F64F00CEC92E /* imageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70AC68492828F64F00CEC92E /* imageCell.swift */; };
 		70C1409D282A4CEA007167A1 /* extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C1409C282A4CE9007167A1 /* extension.swift */; };
 		70C140A3282A4D92007167A1 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70C140A2282A4D92007167A1 /* DataManager.swift */; };
@@ -66,6 +67,7 @@
 		70A20AAA2834C52D0093FCBB /* FirebaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseManager.swift; sourceTree = "<group>"; };
 		70A20AC52834C9E70093FCBB /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		70A20AC82834CCE50093FCBB /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		70A94C2128388B4F004E5123 /* EditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditViewController.swift; sourceTree = "<group>"; };
 		70AC68492828F64F00CEC92E /* imageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = imageCell.swift; sourceTree = "<group>"; };
 		70C1409C282A4CE9007167A1 /* extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extension.swift; sourceTree = "<group>"; };
 		70C140A2282A4D92007167A1 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
@@ -131,6 +133,15 @@
 			path = tripApp;
 			sourceTree = "<group>";
 		};
+		70A94C1F28388B32004E5123 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				70A20AC82834CCE50093FCBB /* ProfileViewController.swift */,
+				70A94C2128388B4F004E5123 /* EditViewController.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
 		70AC68462828DCE700CEC92E /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -145,6 +156,7 @@
 		70AC68472828DD0B00CEC92E /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				70A94C1F28388B32004E5123 /* Profile */,
 				70D614F928281C11007E66A1 /* PostView.swift */,
 				709433052827AE9B00A9AC3B /* ViewController.swift */,
 				706053E4282AAD940067F63F /* ImageDetailView.swift */,
@@ -152,7 +164,6 @@
 				706696CD282CC63900E8DDC1 /* SettingViewController.swift */,
 				70A20A962834A9F40093FCBB /* LoginViewController.swift */,
 				70A20AC52834C9E70093FCBB /* TabBarController.swift */,
-				70A20AC82834CCE50093FCBB /* ProfileViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -304,6 +315,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70A94C2228388B4F004E5123 /* EditViewController.swift in Sources */,
 				706053E1282A92870067F63F /* DetailViewController.swift in Sources */,
 				706696CE282CC63900E8DDC1 /* SettingViewController.swift in Sources */,
 				709433062827AE9B00A9AC3B /* ViewController.swift in Sources */,

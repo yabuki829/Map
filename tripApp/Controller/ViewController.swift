@@ -133,24 +133,22 @@ class MapViewController: UIViewController {
         titleLabel.text = "mapapp"
         titleLabel.tintColor = .darkGray
         navigationItem.titleView = titleLabel
-        
               
-              
-              let accountImage = UIImage(systemName: "text.justify")
+        let accountImage = UIImage(systemName: "text.justify")
              
-              let accountItem = UIBarButtonItem(image: accountImage, style: .plain, target: self, action: #selector(tapSettingIcon))
+        let accountItem = UIBarButtonItem(image: accountImage, style: .plain, target: self, action: #selector(tapSettingIcon))
               
-              navigationItem.rightBarButtonItems = [accountItem]
-              navigationController?.navigationBar.tintColor = .darkGray
+        navigationItem.rightBarButtonItems = [accountItem]
+        navigationController?.navigationBar.tintColor = .darkGray
     }
     @objc  func search(){
        print("Post")
      }
     @objc func tapSettingIcon(){
-            let layout = UICollectionViewFlowLayout()
-            let nav = UINavigationController(rootViewController: SettingViewController(collectionViewLayout: layout))
-            nav.modalPresentationStyle = .fullScreen
-            self.present(nav, animated: true, completion: nil)
+        let layout = UICollectionViewFlowLayout()
+        let nav = UINavigationController(rootViewController: SettingViewController(collectionViewLayout: layout))
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
      }
 
 }
@@ -235,33 +233,4 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
         return stackview
     }
   
-}
-
-
-class ProfileImageView:UIView{
-    let backGraundImage:UIImageView = {
-        let imageView = UIImageView()
-        return imageView
-    }()
-    let ptofileImageView:UIImageView = {
-        let imageView = UIImageView()
-        return imageView
-    }()
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupViews()
-    }
-    
-    func setupViews(){
-        self.addSubview(backGraundImage)
-        self.addSubview(ptofileImageView)
-        
-    }
-    
-    func addConstraint(){
-        
-    }
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
 }
