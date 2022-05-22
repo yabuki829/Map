@@ -9,5 +9,6 @@ target 'tripApp' do
   pod 'FirebaseAnalytics'
   pod 'Firebase/Firestore’
   pod 'Firebase/Auth’
-
+  pod 'Firebase/Storage'
+  pod 'CropViewController'
 end

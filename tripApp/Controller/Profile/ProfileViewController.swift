@@ -8,9 +8,16 @@
 import Foundation
 import UIKit
 import MapKit
+
 //https://images.app.goo.gl/85uSkPvJTkX3FFf38  edit　画面
 class ProfileViewController:UIViewController{
-    
+    var profile: Profile?{
+        didSet{
+            setupImage()
+            usernameLabel.text = profile?.username
+            textLabel.text = profile?.text
+        }
+    }
     let mapExpandButton:UIButton = {
         let button = UIButton()
         let image = UIImage(systemName: "arrow.up.backward.and.arrow.down.forward.circle.fill")
@@ -22,11 +29,13 @@ class ProfileViewController:UIViewController{
     let backgraundImage:UIImageView = {
         let imageview = UIImageView()
         imageview.image = UIImage(named: "3")
+        
         return imageview
     }()
     let profileImage:UIImageView = {
         let imageview = UIImageView()
         imageview.image = UIImage(named: "profile")
+        imageview.backgroundColor = .white
         return imageview
     }()
     let usernameLabel:UILabel = {
@@ -48,7 +57,6 @@ class ProfileViewController:UIViewController{
     let mapView: MKMapView = {
         let map = MKMapView()
         map.mapType = .satellite
-        map.showsUserLocation = true
         return map
     }()
     
@@ -96,6 +104,11 @@ class ProfileViewController:UIViewController{
         addConstraint()
         
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        profile = DataManager.shere.getProfile()
+        
+    }
     override func viewDidAppear(_ animated: Bool) {
         print("mapHeight",mapHeight)
         if mapHeight == 0.0{
@@ -105,7 +118,38 @@ class ProfileViewController:UIViewController{
         }
      
     }
-    
+    func setupImage(){
+        
+        if let imageurl = profile?.profileUrl{
+            
+            let urlDefault = URL(string:DataManager.shere.defaultProfileImage )
+            let urlmyprofile =  URL(string:imageurl)
+            if urlDefault == urlmyprofile{
+                print("こっちA")
+                profileImage.image = UIImage(named: "profile")
+            }
+            else{
+                print("こっちa")
+                profileImage.loadImageUsingUrlString(urlString: imageurl)
+            }
+           
+        }
+        
+        if let imageurl = profile?.bgUrl{
+            let urlDefault = URL(string:DataManager.shere.defaultBgImage )
+            let urlmyprofile =  URL(string:imageurl)
+            
+            if urlDefault == urlmyprofile {
+                print("こっちB")
+                backgraundImage.image = UIImage(named: "background")
+            }
+            else{
+                print("こっちb")
+                backgraundImage.loadImageUsingUrlString(urlString: imageurl)
+            }
+           
+        }
+    }
     
     func  addConstraint(){
     
@@ -227,14 +271,20 @@ class ProfileViewController:UIViewController{
             print("--------------")
             print(mapMinY)
             print(profileImageY)
+            editButton.isHidden = true
             UIView.animate(withDuration:0.5) { [self] in
-                mapViewHeightConstraint.constant = mapMinY - profileImageY + mapHeight - 10
+           
+            //mapViewHeightConstraint.constant = mapMinY - profileImageY + mapHeight - 10 　//TextViewの下までマップを広げる
+
+                mapViewHeightConstraint.constant = view.frame.height
+                    - (self.view.window?.windowScene?.statusBarManager?.statusBarFrame.height)!  - 84 - (self.navigationController?.navigationBar.frame.size.height)!
                 view.layoutIfNeeded()
             }
           
         }
         else{
             print("No EXPANDED")
+            editButton.isHidden = false
             let image = UIImage(systemName: "arrow.up.backward.and.arrow.down.forward.circle.fill")
             mapExpandButton.setBackgroundImage(image, for: .normal)
             UIView.animate(withDuration: 0.2) { [self] in

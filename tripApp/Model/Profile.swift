@@ -8,9 +8,11 @@
 import Foundation
 
 
-struct Profile {
+struct Profile :Codable,Equatable{
     var username:String
-    var image:String
+    var text:String?
+    var bgUrl:String?
+    var profileUrl:String?
     var isChange = true
 }
 

@@ -119,3 +119,26 @@ extension UITextField {
         bringSubviewToFront(underline)
     }
 }
+
+
+let imageCache = NSCache<AnyObject, UIImage>()
+extension UIImageView{
+
+    func loadImageUsingUrlString(urlString:String){
+        image = nil
+        let url = URL(string: urlString)
+        var request = URLRequest(url: url!)
+        request.httpMethod = "GET"
+            
+        let task = URLSession.shared.dataTask(with: url!) {  (data, response, error) in
+            if error != nil{
+                return
+            }
+            DispatchQueue.main.async {
+                self.image = UIImage(data: data!)
+            }
+          
+        }
+        task.resume()
+    }
+}
