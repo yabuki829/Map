@@ -166,10 +166,9 @@ class DetailViewController:UIViewController, UITextFieldDelegate{
         
         
         scrollView.flashScrollIndicators()
+        scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0).isActive = true
         scrollView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 0.0).isActive = true
         scrollView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: 0.0).isActive = true
-        scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0).isActive = true
-        scrollViewBottomConstraint = scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0)
         
         topImage.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 0).isActive = true
         topImage.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: 0).isActive = true
@@ -270,7 +269,7 @@ extension DetailViewController:UICollectionViewDataSource,UICollectionViewDelega
     
             let cell = collectionview.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! PartnerCommentCell
             cell.backgroundColor = .white
-        cell.setCell(username: "佐藤", text: commentArray[indexPath.row].comment, date: commentArray[indexPath.row].created, image: "4", width: floor(view.frame.width * 0.95))
+            cell.setCell(username: "佐藤", text: commentArray[indexPath.row].comment, date: commentArray[indexPath.row].created, image: "4", width: floor(view.frame.width * 0.95))
             cell.layer.cornerRadius = 5
             cell.layer.shadowOpacity = 0.8
             cell.layer.shadowRadius = 12

@@ -60,7 +60,7 @@ class FirebaseManager{
         StorageManager.shered.uploadProfile(text: text, username: username, bgImage: bgImage, proImage: proImage) { (profile) in
             let userid = Auth.auth().currentUser?.uid
             self.database.collection("Profile").document(userid!).setData(
-                ["username":profile.username, "text": profile.text!, "backgroundImage": profile.bgUrl ?? "","profileImage":profile.profileUrl ?? ""]
+                ["username":profile.username, "text": profile.text!, "backgroundImage": profile.backgroundImage ?? "","profileImage":profile.profileImage ?? ""]
             )
             //userdefaltsに保存する　profileを
             DataManager.shere.setProfile(profile: profile)
@@ -100,34 +100,31 @@ class StorageManager{
         
         if bgImage?.isEmpty == true  && proImage?.isEmpty == true{
             print("A")
-            let profile = Profile(username: username, text: text, bgUrl: nil, profileUrl: nil, isChange: false)
+            let profile = Profile(username: username, text: text, backgroundImage: nil, profileImage: nil, isChange: true)
             compleation(profile)
         }
         
         if bgImage?.isEmpty == false && proImage?.isEmpty == true {
             print("B")
-            uploadBackgroundImage(imageData: bgImage!) { (url) in
-                let urlString = url.absoluteString
-                let profile = Profile(username: username, text: text, bgUrl: urlString, profileUrl: nil, isChange: false)
+            uploadBackgroundImage(imageData: bgImage!) { (data) in
+                let profile = Profile(username: username, text: text, backgroundImage: ProfileImage(imageUrl: data.imageUrl, name: data.name), profileImage: nil, isChange: true)
                 compleation(profile)
             }
         }
         if proImage?.isEmpty == false && bgImage?.isEmpty == true{
             print("C")
-            uploadPofileImage(imageData: proImage!) { (url) in
-                let urlString = url.absoluteString
-                let profile = Profile(username: username, text: text, bgUrl: nil, profileUrl: urlString, isChange: false)
+            uploadPofileImage(imageData: proImage!) { (data) in
+                
+                let profile = Profile(username: username, text: text, backgroundImage: nil, profileImage: ProfileImage(imageUrl: data.imageUrl, name: data.name), isChange: true)
                 compleation(profile)
             }
         }
         
         if proImage?.isEmpty == false && bgImage?.isEmpty == false{
             print("D")
-            StorageManager.shered.uploadBackgroundImage(imageData: bgImage!) { [self] (backgroudnUrl) in
-                uploadPofileImage(imageData: proImage!) { (profileUrl) in
-                    let bgUrlString = backgroudnUrl.absoluteString
-                    let profileUrlString = profileUrl.absoluteString
-                    let profile = Profile(username: username, text: text, bgUrl: bgUrlString, profileUrl: profileUrlString, isChange: false)
+            StorageManager.shered.uploadBackgroundImage(imageData: bgImage!) { [self] (backgroundimage) in
+                uploadPofileImage(imageData: proImage!) { (profileimage) in
+                    let profile = Profile(username: username, text: text, backgroundImage: ProfileImage(imageUrl: backgroundimage.imageUrl, name: backgroundimage.name), profileImage: ProfileImage(imageUrl: profileimage.imageUrl, name: profileimage.name), isChange: true)
                     compleation(profile)
                         
                 }
@@ -135,10 +132,27 @@ class StorageManager{
             }
         }
     }
+    func delete(_ name: String){
+        let storage = Storage.storage()
+        let storageRef = storage.reference()
+
+        //Removes image from storage
+        let desertRef = storageRef.child("desert.jpg")
+
+        // Delete the file
+        desertRef.delete { error in
+          if let error = error {
+            // Uh-oh, an error occurred!
+          } else {
+            // File deleted successfully
+          }
+        }
+            
+    }
     
-    private func uploadPofileImage(imageData:Data,compleation:@escaping (URL) -> Void){
+    private func uploadPofileImage(imageData:Data,compleation:@escaping (ProfileImage) -> Void){
         
-        let filename = String().generateID(5)
+        let filename = String().generateID(10)
         let imageRef = Storage.storage().reference().child("/profileimage/\(filename).jpg")
         imageRef.putData(imageData, metadata: nil) { (_, error) in
             if let error = error {
@@ -152,15 +166,15 @@ class StorageManager{
             return
             }
             guard let url = url else { return }
-            
-            let urlString = url.absoluteURL
-            compleation(urlString)
+            let urlString = url.absoluteString
+            let data = ProfileImage(imageUrl: urlString, name: filename)
+            compleation(data)
             }
         }
         
     }
-    private func uploadBackgroundImage(imageData:Data,compleation:@escaping (URL) -> Void){
-        let filename = String().generateID(5)
+    private func uploadBackgroundImage(imageData:Data,compleation:@escaping (ProfileImage) -> Void){
+        let filename = String().generateID(10)
         let imageRef = Storage.storage().reference().child("/backgroundimage/\(filename).jpg")
         imageRef.putData(imageData, metadata: nil) { (_, error) in
             if let error = error {
@@ -175,8 +189,9 @@ class StorageManager{
             }
             guard let url = url else { return }
             
-            let urlString = url.absoluteURL
-            compleation(urlString)
+            let urlString = url.absoluteString
+            let data = ProfileImage(imageUrl: urlString, name: filename)
+            compleation(data)
             }
         }
     }

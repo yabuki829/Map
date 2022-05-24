@@ -15,7 +15,7 @@ class ProfileViewController:UIViewController{
         didSet{
             setupImage()
             usernameLabel.text = profile?.username
-            textLabel.text = profile?.text
+//            textLabel.text = profile?.text
         }
     }
     let mapExpandButton:UIButton = {
@@ -80,51 +80,66 @@ class ProfileViewController:UIViewController{
         return button
     }()
     
+    let collectionView:UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.estimatedItemSize = .zero
+        let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
+        collecitonview.isScrollEnabled = false
+        return collecitonview
+    }()
+    
+    let menuBar = MenuBar()
+    let scrollview = UIScrollView()
     var mapViewHeightConstraint: NSLayoutConstraint!
-    var mapHeight = CGFloat()
-    var isExpanded = false
+    var scrollViewBottomConstraint:  NSLayoutConstraint!
+    var cvHeight = CGFloat()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.view.backgroundColor = .white
         
-        view.addSubview(backgraundImage)
-        view.addSubview(profileImage)
-        view.addSubview(postStackView)
-        view.addSubview(friendStackView)
-        view.addSubview(usernameLabel)
-        view.addSubview(textLabel)
-        view.addSubview(mapView)
-        view.addSubview(editButton)
-        mapView.addSubview(mapExpandButton)
+        view.addSubview(scrollview)
+        scrollview.addSubview(backgraundImage)
+        scrollview.addSubview(profileImage)
+        scrollview.addSubview(postStackView)
+        scrollview.addSubview(friendStackView)
+        scrollview.addSubview(usernameLabel)
+        scrollview.addSubview(textLabel)
+        scrollview.addSubview(editButton)
+        scrollview.addSubview(menuBar)
+        scrollview.addSubview(collectionView)
+        aaa()
+  
         editButton.addTarget(self, action: #selector(sendEditPage(sender:)), for: .touchUpInside)
-        mapExpandButton.addTarget(self, action: #selector(expand(sender:)), for: .touchUpInside)
-        settingStackView()
-        addConstraint()
         
+        settingStackView()
+        settingCollectionView()
     }
     
+    override func viewDidLayoutSubviews() {
+        if menuBar.selectedIndexPath?.row == 0{
+           
+            let menubarMaxY = menuBar.frame.maxY 
+            scrollview.contentSize = CGSize(width: view.frame.width, height: menubarMaxY + view.frame.width )
+         
+            
+        }
+      
+    }
     override func viewWillAppear(_ animated: Bool) {
         profile = DataManager.shere.getProfile()
         
     }
-    override func viewDidAppear(_ animated: Bool) {
-        print("mapHeight",mapHeight)
-        if mapHeight == 0.0{
-            mapHeight = mapView.frame.minY - textLabel.frame.maxY + view.frame.width / 2 - 10
-            mapViewHeightConstraint.constant =  mapHeight
-            view.layoutIfNeeded()
-        }
-     
-    }
+
     func setupImage(){
         
-        if let imageurl = profile?.profileUrl{
+        if let imageurl = profile?.profileImage?.imageUrl{
             
-            let urlDefault = URL(string:DataManager.shere.defaultProfileImage )
-            let urlmyprofile =  URL(string:imageurl)
-            if urlDefault == urlmyprofile{
+            let urlDefault = "defaultsPRO"
+            print("A:",imageurl)
+            if urlDefault == imageurl{
                 print("こっちA")
                 profileImage.image = UIImage(named: "profile")
             }
@@ -135,11 +150,11 @@ class ProfileViewController:UIViewController{
            
         }
         
-        if let imageurl = profile?.bgUrl{
-            let urlDefault = URL(string:DataManager.shere.defaultBgImage )
-            let urlmyprofile =  URL(string:imageurl)
+        if let imageurl = profile?.backgroundImage?.imageUrl{
+            let urlDefault = "defaultsBG"
+            print("B:",imageurl)
             
-            if urlDefault == urlmyprofile {
+            if urlDefault == imageurl {
                 print("こっちB")
                 backgraundImage.image = UIImage(named: "background")
             }
@@ -150,11 +165,27 @@ class ProfileViewController:UIViewController{
            
         }
     }
+    func settingCollectionView(){
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
+        
+        collectionView.register(MapCell.self, forCellWithReuseIdentifier: "MapCell")
+        collectionView.backgroundColor = .white
+        menuBar.delegate = self
+    }
     
-    func  addConstraint(){
-    
+    func aaa(){
+        scrollview.flashScrollIndicators()
+        scrollview.contentSize = CGSize(width: view.frame.width, height: view.frame.height)
+        scrollview.translatesAutoresizingMaskIntoConstraints = false
+        scrollview.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        scrollview.rightAnchor.constraint(equalTo:view.safeAreaLayoutGuide.rightAnchor, constant:0).isActive = true
+        scrollview.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 0).isActive = true
+        scrollview.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+        
         backgraundImage.translatesAutoresizingMaskIntoConstraints = false
-        backgraundImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        backgraundImage.topAnchor.constraint(equalTo: scrollview.topAnchor, constant: 0).isActive = true
         backgraundImage.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
         backgraundImage.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
         backgraundImage.heightAnchor.constraint(equalToConstant: view.frame.width / 2  ).isActive = true
@@ -169,7 +200,7 @@ class ProfileViewController:UIViewController{
         
         profileImage.translatesAutoresizingMaskIntoConstraints = false
         profileImage.topAnchor.constraint(equalTo: backgraundImage.bottomAnchor, constant: -view.frame.width / 4 / 2 ).isActive = true
-        profileImage.leftAnchor.constraint(equalTo: view.leftAnchor, constant: view.frame.width / 2 - view.frame.width / 4 / 2).isActive = true
+        profileImage.leftAnchor.constraint(equalTo: scrollview.leftAnchor, constant: view.frame.width / 2 - view.frame.width / 4 / 2).isActive = true
         profileImage.heightAnchor.constraint(equalToConstant: view.frame.width / 4).isActive = true
         profileImage.widthAnchor.constraint(equalToConstant: view.frame.width / 4).isActive = true
         profileImage.layer.cornerRadius = view.frame.width / 4 / 2
@@ -179,42 +210,41 @@ class ProfileViewController:UIViewController{
 
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
         usernameLabel.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 0).isActive = true
-        usernameLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
-        usernameLabel.rightAnchor.constraint(equalTo:view.rightAnchor, constant: -10).isActive = true
+        usernameLabel.leftAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.leftAnchor, constant: 10).isActive = true
+        usernameLabel.rightAnchor.constraint(equalTo:scrollview.safeAreaLayoutGuide.rightAnchor, constant: -10).isActive = true
         usernameLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
 
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant:0).isActive = true
-        textLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
-        textLabel.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
-//        textLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant:0).isActive = true
+        textLabel.leftAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.leftAnchor, constant: 20).isActive = true
+        textLabel.rightAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.rightAnchor, constant: -20).isActive = true
+        textLabel.bottomAnchor.constraint(equalTo: menuBar.topAnchor, constant: 0).isActive = true
+        
+        menuBar.translatesAutoresizingMaskIntoConstraints = false
+        menuBar.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 0).isActive = true
+        menuBar.leftAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.leftAnchor, constant: 0).isActive = true
+        menuBar.rightAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.rightAnchor, constant: 0).isActive = true
+//        menuBar.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: 0).isActive = true
+        menuBar.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
         postStackView.translatesAutoresizingMaskIntoConstraints = false
         postStackView.topAnchor.constraint(equalTo: backgraundImage.bottomAnchor, constant: 20).isActive = true
-        postStackView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
-        postStackView.rightAnchor.constraint(equalTo: profileImage.leftAnchor, constant: -5).isActive = true
+        postStackView.rightAnchor.constraint(equalTo: profileImage.leftAnchor, constant: -20).isActive = true
+        postStackView.leftAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.leftAnchor, constant: 20).isActive = true
 
         friendStackView.translatesAutoresizingMaskIntoConstraints = false
         friendStackView.topAnchor.constraint(equalTo: backgraundImage.bottomAnchor, constant: 20).isActive = true
-        friendStackView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -10).isActive = true
-        friendStackView.leftAnchor.constraint(equalTo: profileImage.rightAnchor, constant: 5).isActive = true
-
+        friendStackView.leftAnchor.constraint(equalTo: profileImage.rightAnchor, constant: 20).isActive = true
+        friendStackView.rightAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.rightAnchor, constant: 20).isActive = true
         
-        mapView.rightAnchor.constraint(equalTo: view.rightAnchor, constant:1).isActive = true
-        mapView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: -1).isActive = true
-        mapView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-        mapViewHeightConstraint = mapView.heightAnchor.constraint(equalToConstant: view.frame.width / 2)
-        mapViewHeightConstraint.isActive = true
-
-        mapView.layer.borderWidth = 2
-        mapView.layer.borderColor = UIColor.systemGray3.cgColor
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.topAnchor.constraint(equalTo: menuBar.bottomAnchor, constant: 10).isActive = true
+        collectionView.rightAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.rightAnchor, constant:0).isActive = true
+        collectionView.leftAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.leftAnchor, constant: 0).isActive = true
+        collectionView.bottomAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
         
-        mapExpandButton.translatesAutoresizingMaskIntoConstraints = false
-        mapExpandButton.topAnchor.constraint(equalTo: mapView.topAnchor, constant: 0).isActive = true
-        mapExpandButton.rightAnchor.constraint(equalTo: mapView.rightAnchor, constant: 0).isActive = true
-        mapExpandButton.widthAnchor.constraint(equalToConstant: view.frame.width / 12).isActive = true
-        mapExpandButton.heightAnchor.constraint(equalToConstant: view.frame.width / 12).isActive = true
     }
+
     func settingStackView(){
         let titleLabel = UILabel()
             titleLabel.text = "19"
@@ -258,56 +288,86 @@ class ProfileViewController:UIViewController{
         nav.modalTransitionStyle = .flipHorizontal
         self.present(nav, animated: true, completion: nil)
     }
-    @objc internal func expand(sender: UIButton) {
-        isExpanded = !isExpanded
-        if isExpanded{
-            print("EXPANDED")
-            
-            let image = UIImage(systemName: "arrow.down.right.and.arrow.up.left.circle.fill")
-            mapExpandButton.setBackgroundImage(image, for: .normal)
-            
-            let mapMinY = mapView.frame.minY
-            let profileImageY = profileImage.frame.maxY
-            print("--------------")
-            print(mapMinY)
-            print(profileImageY)
-            editButton.isHidden = true
-            UIView.animate(withDuration:0.5) { [self] in
-           
-            //mapViewHeightConstraint.constant = mapMinY - profileImageY + mapHeight - 10 　//TextViewの下までマップを広げる
+}
 
-                mapViewHeightConstraint.constant = view.frame.height
-                    - (self.view.window?.windowScene?.statusBarManager?.statusBarFrame.height)!  - 84 - (self.navigationController?.navigationBar.frame.size.height)!
-                view.layoutIfNeeded()
-            }
-          
+extension ProfileViewController:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,reloadDelegate{
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if indexPath.row == 0{
+            //マップを表示する　MapCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MapCell", for: indexPath) as! MapCell
+            cell.backgroundColor = .link
+            return cell
         }
         else{
-            print("No EXPANDED")
-            editButton.isHidden = false
-            let image = UIImage(systemName: "arrow.up.backward.and.arrow.down.forward.circle.fill")
-            mapExpandButton.setBackgroundImage(image, for: .normal)
-            UIView.animate(withDuration: 0.2) { [self] in
-                
-                mapViewHeightConstraint.constant = mapHeight
-                
-                view.layoutIfNeeded()
-            }
-           
-          
-           
+            //今までの投稿一覧を表示する DiscriptionCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath)
+            cell.backgroundColor = .orange
+            return cell
         }
-      }
-    
-    func getMyPost(){
         
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if indexPath.row == 0{
+            return CGSize(width: view.frame.width, height: view.frame.width)
+        }
+        else{
+            return CGSize(width: view.frame.width, height:view.frame.height)
+        }
+        
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    func reload() {
+        print("リロード")
+        if menuBar.selectedIndexPath?.row == 0{
+            //map
+          
+            self.collectionView.selectItem(at:menuBar.selectedIndexPath , animated: true, scrollPosition: .left)
+            let menubarMaxY = menuBar.frame.maxY
+            scrollview.contentSize = CGSize(width: view.frame.width, height: menubarMaxY + view.frame.width )
+         
+            
+        }
+        else{
+            //description
+            let statusBarHeight = self.view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+            let navigationBarHeight = self.navigationController?.navigationBar.frame.height ?? 0
+            let tabbarHeight = tabBarController!.tabBar.frame.size.height
+           
+            self.collectionView.selectItem(at:menuBar.selectedIndexPath , animated: true, scrollPosition: .left)
+            let defalutHeight = view.frame.height - statusBarHeight - tabbarHeight - navigationBarHeight
+            scrollview.contentSize.height = defalutHeight  + menuBar.frame.minY + 5
+            print("コレクション",collectionView.frame.height, scrollview.frame.height)
+            
+        }
     }
 }
 
 
-//"<NSLayoutConstraint:0x600003a8b9d0 MKMapView:0x7fc626077400.bottom == UILayoutGuide:0x600002093480'UIViewSafeAreaLayoutGuide'.bottom   (active)>",
-//"<NSLayoutConstraint:0x600003a8b930 MKMapView:0x7fc626077400.height == 214   (active)>",
-//"<NSLayoutConstraint:0x600003a919f0 MKMapView:0x7fc626077400.top == UILayoutGuide:0x600002093480'UIViewSafeAreaLayoutGuide'.top   (active)>",
-//"<NSLayoutConstraint:0x600003a86030 'UIView-Encapsulated-Layout-Height' UIView:0x7fc623c4ba60.height == 926   (active)>",
-//"<NSLayoutConstraint:0x600003a8fa70 'UIViewSafeAreaLayoutGuide-bottom' V:[UILayoutGuide:0x600002093480'UIViewSafeAreaLayoutGuide']-(83)-|   (active, names: '|':UIView:0x7fc623c4ba60 )>",
-//"<NSLayoutConstraint:0x600003a8fb10 'UIViewSafeAreaLayoutGuide-top' V:|-(91)-[UILayoutGuide:0x600002093480'UIViewSafeAreaLayoutGuide']   (active, names: '|':UIView:0x7fc623c4ba60 )>"
+class MapCell: BaseCell{
+    let mapView: MKMapView = {
+        let map = MKMapView()
+//        map.mapType = .satelliteFlyover
+        return map
+    }()
+    override func setupViews() {
+        addSubview(mapView)
+        addConstraint()
+    }
+    func addConstraint(){
+        mapView.translatesAutoresizingMaskIntoConstraints = false
+        mapView.topAnchor.constraint(equalTo: self.topAnchor, constant:0).isActive = true
+        mapView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 0).isActive = true
+        mapView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: 0).isActive = true
+        mapView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0).isActive = true
+    }
+}

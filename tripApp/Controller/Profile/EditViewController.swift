@@ -12,6 +12,7 @@ import FirebaseStorage
 class EditViewController : UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate,CropViewControllerDelegate{
     
     let storege = Storage.storage().reference()
+    
     let backgraundImage:UIImageView = {
         let imageview = UIImageView()
         imageview.image = UIImage(named: "3")

@@ -141,4 +141,14 @@ extension UIImageView{
         }
         task.resume()
     }
+    func center(inView view: UIView, yConstant: CGFloat? = 0) {
+        translatesAutoresizingMaskIntoConstraints = false
+        centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: yConstant!).isActive = true
+    }
+    func setDimensions(width: CGFloat, height: CGFloat) {
+            translatesAutoresizingMaskIntoConstraints = false
+            widthAnchor.constraint(equalToConstant: width).isActive = true
+            heightAnchor.constraint(equalToConstant: height).isActive = true
+        }
 }

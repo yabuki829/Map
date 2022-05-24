@@ -11,9 +11,14 @@ import Foundation
 struct Profile :Codable,Equatable{
     var username:String
     var text:String?
-    var bgUrl:String?
-    var profileUrl:String?
+    var backgroundImage:ProfileImage?
+    var profileImage   :ProfileImage?
     var isChange = true
+}
+
+struct ProfileImage :Codable,Equatable{
+    var imageUrl:  String?
+    var name    : String?
 }
 
 
