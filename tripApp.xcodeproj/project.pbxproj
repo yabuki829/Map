@@ -20,6 +20,9 @@
 		706053E5282AAD940067F63F /* ImageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706053E4282AAD940067F63F /* ImageDetailView.swift */; };
 		706696CE282CC63900E8DDC1 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706696CD282CC63900E8DDC1 /* SettingViewController.swift */; };
 		706C2421283C76AC00CA084A /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706C2420283C76AC00CA084A /* MenuBar.swift */; };
+		707278EC28407579009567C1 /* FriendListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707278EB28407579009567C1 /* FriendListViewController.swift */; };
+		707278F028407883009567C1 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707278EF28407883009567C1 /* StorageManager.swift */; };
+		707278F328409720009567C1 /* FriendListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 707278F228409720009567C1 /* FriendListCell.swift */; };
 		709433022827AE9B00A9AC3B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709433012827AE9B00A9AC3B /* AppDelegate.swift */; };
 		709433042827AE9B00A9AC3B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709433032827AE9B00A9AC3B /* SceneDelegate.swift */; };
 		709433062827AE9B00A9AC3B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709433052827AE9B00A9AC3B /* ViewController.swift */; };
@@ -27,6 +30,7 @@
 		7094330B2827AEA000A9AC3B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7094330A2827AEA000A9AC3B /* Assets.xcassets */; };
 		7094330E2827AEA000A9AC3B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7094330C2827AEA000A9AC3B /* LaunchScreen.storyboard */; };
 		709433392827DF9900A9AC3B /* Diary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709433382827DF9900A9AC3B /* Diary.swift */; };
+		709C26A9283E0A4B00696EEE /* FriendSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709C26A8283E0A4B00696EEE /* FriendSearchViewController.swift */; };
 		70A20A8C28349D0D0093FCBB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 70A20A8B28349D0D0093FCBB /* GoogleService-Info.plist */; };
 		70A20A972834A9F40093FCBB /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A20A962834A9F40093FCBB /* LoginViewController.swift */; };
 		70A20AA82834C51E0093FCBB /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70A20AA72834C51E0093FCBB /* AuthManager.swift */; };
@@ -54,6 +58,9 @@
 		706053E4282AAD940067F63F /* ImageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetailView.swift; sourceTree = "<group>"; };
 		706696CD282CC63900E8DDC1 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		706C2420283C76AC00CA084A /* MenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBar.swift; sourceTree = "<group>"; };
+		707278EB28407579009567C1 /* FriendListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendListViewController.swift; sourceTree = "<group>"; };
+		707278EF28407883009567C1 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
+		707278F228409720009567C1 /* FriendListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendListCell.swift; sourceTree = "<group>"; };
 		709432FE2827AE9B00A9AC3B /* tripApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tripApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		709433012827AE9B00A9AC3B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		709433032827AE9B00A9AC3B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -63,6 +70,7 @@
 		7094330D2827AEA000A9AC3B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7094330F2827AEA000A9AC3B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		709433382827DF9900A9AC3B /* Diary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Diary.swift; sourceTree = "<group>"; };
+		709C26A8283E0A4B00696EEE /* FriendSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendSearchViewController.swift; sourceTree = "<group>"; };
 		70A20A8B28349D0D0093FCBB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		70A20A962834A9F40093FCBB /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		70A20AA72834C51E0093FCBB /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
@@ -140,6 +148,8 @@
 			children = (
 				70A20AC82834CCE50093FCBB /* ProfileViewController.swift */,
 				70A94C2128388B4F004E5123 /* EditViewController.swift */,
+				707278EB28407579009567C1 /* FriendListViewController.swift */,
+				709C26A8283E0A4B00696EEE /* FriendSearchViewController.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -176,6 +186,7 @@
 				70C140A2282A4D92007167A1 /* DataManager.swift */,
 				70A20AA72834C51E0093FCBB /* AuthManager.swift */,
 				70A20AAA2834C52D0093FCBB /* FirebaseManager.swift */,
+				707278EF28407883009567C1 /* StorageManager.swift */,
 			);
 			path = DataManager;
 			sourceTree = "<group>";
@@ -190,6 +201,7 @@
 				704EEB69282D4ED80056E748 /* SectionCell.swift */,
 				704C69B528351D370078EA40 /* TextFieldView.swift */,
 				706C2420283C76AC00CA084A /* MenuBar.swift */,
+				707278F228409720009567C1 /* FriendListCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -321,13 +333,17 @@
 				70A94C2228388B4F004E5123 /* EditViewController.swift in Sources */,
 				706053E1282A92870067F63F /* DetailViewController.swift in Sources */,
 				706696CE282CC63900E8DDC1 /* SettingViewController.swift in Sources */,
+				707278EC28407579009567C1 /* FriendListViewController.swift in Sources */,
 				709433062827AE9B00A9AC3B /* ViewController.swift in Sources */,
+				707278F028407883009567C1 /* StorageManager.swift in Sources */,
 				704C69BF28352D2C0078EA40 /* Profile.swift in Sources */,
+				707278F328409720009567C1 /* FriendListCell.swift in Sources */,
 				70A20AC62834C9E70093FCBB /* TabBarController.swift in Sources */,
 				70A20A972834A9F40093FCBB /* LoginViewController.swift in Sources */,
 				706C2421283C76AC00CA084A /* MenuBar.swift in Sources */,
 				70A20AAB2834C52D0093FCBB /* FirebaseManager.swift in Sources */,
 				704C69B628351D370078EA40 /* TextFieldView.swift in Sources */,
+				709C26A9283E0A4B00696EEE /* FriendSearchViewController.swift in Sources */,
 				704EEB6A282D4ED80056E748 /* SectionCell.swift in Sources */,
 				70C140A3282A4D92007167A1 /* DataManager.swift in Sources */,
 				704EEB67282D4E8C0056E748 /* BaseCell.swift in Sources */,

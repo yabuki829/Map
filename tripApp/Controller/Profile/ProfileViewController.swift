@@ -9,13 +9,12 @@ import Foundation
 import UIKit
 import MapKit
 
-//https://images.app.goo.gl/85uSkPvJTkX3FFf38  edit　画面
 class ProfileViewController:UIViewController{
     var profile: Profile?{
         didSet{
             setupImage()
             usernameLabel.text = profile?.username
-//            textLabel.text = profile?.text
+            textLabel.text = profile?.text
         }
     }
     let mapExpandButton:UIButton = {
@@ -38,6 +37,7 @@ class ProfileViewController:UIViewController{
         imageview.backgroundColor = .white
         return imageview
     }()
+    
     let usernameLabel:UILabel = {
         let label = UILabel()
         label.textAlignment = .center
@@ -48,7 +48,7 @@ class ProfileViewController:UIViewController{
     
     let textLabel:UILabel = {
         let label = UILabel()
-        label.text = "藪木翔大は一体どんな存在なのかをきっちりわかるのが全ての問題の解くキーとなります。 この方面から考えるなら、一般的には、 藪木翔大を発生するには、一体どうやってできるのか；一方、藪木翔大を発生させない場合、何を通じてそれをできるのでしょうか。"
+        label.text = "Learn from the mistakes of others. You can’t live long enough to make them all yourself."
         label.font = UIFont.systemFont(ofSize: 12)
         label.textColor = .darkGray
         label.numberOfLines = 0
@@ -88,7 +88,7 @@ class ProfileViewController:UIViewController{
         collecitonview.isScrollEnabled = false
         return collecitonview
     }()
-    
+    var messageItem = UIBarButtonItem()
     let menuBar = MenuBar()
     let scrollview = UIScrollView()
     var mapViewHeightConstraint: NSLayoutConstraint!
@@ -111,8 +111,14 @@ class ProfileViewController:UIViewController{
         scrollview.addSubview(menuBar)
         scrollview.addSubview(collectionView)
         aaa()
-  
+        setNav()
         editButton.addTarget(self, action: #selector(sendEditPage(sender:)), for: .touchUpInside)
+        
+        let tapFriend = UITapGestureRecognizer(target: self, action: #selector(tapFriendList(sender:)))
+        friendStackView.addGestureRecognizer(tapFriend)
+        
+        let tapPost = UITapGestureRecognizer(target: self, action: #selector(tapPost(sender:)))
+        postStackView.addGestureRecognizer(tapPost)
         
         settingStackView()
         settingCollectionView()
@@ -120,11 +126,8 @@ class ProfileViewController:UIViewController{
     
     override func viewDidLayoutSubviews() {
         if menuBar.selectedIndexPath?.row == 0{
-           
-            let menubarMaxY = menuBar.frame.maxY 
-            scrollview.contentSize = CGSize(width: view.frame.width, height: menubarMaxY + view.frame.width )
-         
-            
+            let menubarMaxY = menuBar.frame.maxY
+            scrollview.contentSize = CGSize(width: view.frame.width, height: menubarMaxY + view.frame.width + 10)
         }
       
     }
@@ -224,18 +227,18 @@ class ProfileViewController:UIViewController{
         menuBar.topAnchor.constraint(equalTo: textLabel.bottomAnchor, constant: 0).isActive = true
         menuBar.leftAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.leftAnchor, constant: 0).isActive = true
         menuBar.rightAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.rightAnchor, constant: 0).isActive = true
-//        menuBar.bottomAnchor.constraint(equalTo: collectionView.topAnchor, constant: 0).isActive = true
         menuBar.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
         postStackView.translatesAutoresizingMaskIntoConstraints = false
         postStackView.topAnchor.constraint(equalTo: backgraundImage.bottomAnchor, constant: 20).isActive = true
         postStackView.rightAnchor.constraint(equalTo: profileImage.leftAnchor, constant: -20).isActive = true
         postStackView.leftAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.leftAnchor, constant: 20).isActive = true
-
+        
+        
         friendStackView.translatesAutoresizingMaskIntoConstraints = false
         friendStackView.topAnchor.constraint(equalTo: backgraundImage.bottomAnchor, constant: 20).isActive = true
         friendStackView.leftAnchor.constraint(equalTo: profileImage.rightAnchor, constant: 20).isActive = true
-        friendStackView.rightAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.rightAnchor, constant: 20).isActive = true
+        friendStackView.rightAnchor.constraint(equalTo: scrollview.safeAreaLayoutGuide.rightAnchor, constant: -20).isActive = true  
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.topAnchor.constraint(equalTo: menuBar.bottomAnchor, constant: 10).isActive = true
@@ -288,6 +291,41 @@ class ProfileViewController:UIViewController{
         nav.modalTransitionStyle = .flipHorizontal
         self.present(nav, animated: true, completion: nil)
     }
+    
+    func setNav(){
+        self.title = "Profile"
+        let searchButton = UIImage(systemName: "magnifyingglass")
+        let searchItem = UIBarButtonItem(image:searchButton, style: .plain, target: self, action: #selector(search(sender:)))
+        searchItem.tintColor = .link
+        navigationItem.leftBarButtonItem = searchItem
+        
+        
+        messageItem = UIBarButtonItem(title: "Message", style: .plain, target: self, action:#selector(message(sender:)) )
+        messageItem.tintColor = .link
+        navigationItem.rightBarButtonItem = messageItem
+    }
+    @objc internal func tapFriendList(sender:UITapGestureRecognizer ){
+        print("友達一覧に遷移する")
+        let  vc = FriendListViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        self.present(nav, animated: true, completion: nil)
+    }
+    @objc internal func tapPost(sender:UITapGestureRecognizer ){
+        print("投稿一覧")
+        collectionView.selectItem(at:IndexPath(row: 1, section: 0) , animated: true, scrollPosition: .left)
+        menuBar.menubarCell?.isSelected = true
+    }
+ 
+    @objc func message(sender : UIButton){
+        print("Message")
+    }
+    @objc func search(sender : UIButton){
+       print("search")
+        let vc = FriendSearchViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        self.present(nav, animated: true, completion: nil)
+        
+    }
 }
 
 extension ProfileViewController:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,reloadDelegate{
@@ -333,7 +371,7 @@ extension ProfileViewController:UICollectionViewDelegate,UICollectionViewDataSou
           
             self.collectionView.selectItem(at:menuBar.selectedIndexPath , animated: true, scrollPosition: .left)
             let menubarMaxY = menuBar.frame.maxY
-            scrollview.contentSize = CGSize(width: view.frame.width, height: menubarMaxY + view.frame.width )
+            scrollview.contentSize = CGSize(width: view.frame.width, height: menubarMaxY + view.frame.width + 10)
          
             
         }
@@ -346,7 +384,6 @@ extension ProfileViewController:UICollectionViewDelegate,UICollectionViewDataSou
             self.collectionView.selectItem(at:menuBar.selectedIndexPath , animated: true, scrollPosition: .left)
             let defalutHeight = view.frame.height - statusBarHeight - tabbarHeight - navigationBarHeight
             scrollview.contentSize.height = defalutHeight  + menuBar.frame.minY + 5
-            print("コレクション",collectionView.frame.height, scrollview.frame.height)
             
         }
     }

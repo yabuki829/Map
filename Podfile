@@ -11,4 +11,5 @@ target 'tripApp' do
   pod 'Firebase/Auth’
   pod 'Firebase/Storage'
   pod 'CropViewController'
+  pod 'PKHUD', '~> 5.0'
 end

@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import CropViewController
 import FirebaseStorage
+
 class EditViewController : UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate,CropViewControllerDelegate{
     
     let storege = Storage.storage().reference()
@@ -35,7 +36,7 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     }()
     let textView:UITextView = {
         let textview = UITextView()
-        textview.text = "藪木翔大は一体どんな存在なのかをきっちりわかるのが全ての問題の解くキーとなります。 この方面から考えるなら、一般的には、 藪木翔大を発生するには、一体どうやってできるのか；一方、藪木翔大を発生させない場合、何を通じてそれをできるのでしょうか。"
+        textview.text = "Learn from the mistakes of others. You can’t live long enough to make them all yourself."
         return textview
     }()
     let textfield:UITextField = {

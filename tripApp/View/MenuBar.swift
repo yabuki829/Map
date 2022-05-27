@@ -1,10 +1,3 @@
-//
-//  MenuView.swift
-//  tripApp
-//
-//  Created by Yabuki Shodai on 2022/05/24.
-//
-
 import Foundation
 import UIKit
 
@@ -14,10 +7,9 @@ public let menuBarTitleArray = ["map","house"]
 class MenuBar:UIView, UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
     
     var selectedIndexPath: IndexPath?
-    
+    var menubarCell: MenuBarCell?
     lazy var collectionView:UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-//        layout.scrollDirection = .horizontal
         
         let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
         collecitonview.dataSource = self
@@ -55,10 +47,11 @@ class MenuBar:UIView, UICollectionViewDataSource, UICollectionViewDelegate,UICol
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! MenuBarCell
         cell.setCell(title: menuBarTitleArray[indexPath.row])
+       
         if  selectedIndexPath?.row == indexPath.row{
                 cell.isSelected = true
         }
-        
+        menubarCell = cell
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -92,13 +85,13 @@ class MenuBarCell:BaseCell{
     
     override var isSelected: Bool{
         didSet{
-            imageView.tintColor = isSelected ? .darkGray : .lightGray
+            imageView.tintColor = isSelected ? .darkGray : .systemGray3
         }
     }
     
     let imageView :UIImageView = {
         let imageview = UIImageView()
-        imageview.tintColor = .lightGray
+        imageview.tintColor = .systemGray3
         
         return imageview
     }()

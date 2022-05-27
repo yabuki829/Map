@@ -9,6 +9,7 @@ import Foundation
 
 
 struct Profile :Codable,Equatable{
+    var userid: String
     var username:String
     var text:String?
     var backgroundImage:ProfileImage?

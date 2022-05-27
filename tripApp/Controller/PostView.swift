@@ -142,6 +142,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
            isLocation{
             let image = imageArray[selectedIndexPath!.row]
             let diary = Diary(id: String().generateID(7), userid: nil, image:image.convert_data(), title: title , text: text, date: Date(), location: location)
+            
                 var data = DataManager.shere.get()
                 data.append(diary)
                 DataManager.shere.save(data: data)

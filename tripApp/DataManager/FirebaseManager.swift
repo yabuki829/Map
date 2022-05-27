@@ -8,28 +8,40 @@
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
-import Firebase
-import FirebaseStorage
+
 
 class FirebaseManager{
     static let shered = FirebaseManager()
     let database = Firestore.firestore()
     func sendMessage(){}
     
-    func sendComment(text:String,messageid:String){
-        print(text )
-        print(messageid)
+    func postDiscription(title:String,text:String,location:Location){
+        //友達全員に送信する for i in 友達の数
+        //userid title text image postid ,location
         let userid = Auth.auth().currentUser?.uid
-        let commentid = String().generateID(8)
-        print(userid)
-        print(commentid)
+        let id = String(7)
+        database.collection("Users").document(userid!).collection("MyDiscription").document().setData(
+            ["id":id,"userid":userid,"text":text,"latitude":location.latitude,"longitude":location.longitude,"created":FieldValue.serverTimestamp()]
+        )
+        
+    }
+    
+    func getDiscription(){
+        let userid = Auth.auth().currentUser?.uid
+        database.collection("Users").document(userid!).collection("Discription").addSnapshotListener { (snapshot, error) in
+            
+        }
+    }
+   
+    func sendComment(text:String,messageid:String){
+        let userid = Auth.auth().currentUser!.uid
+        let commentid = String().generateID(5)
         database.collection("Comments").document(messageid).collection("Comment").document(commentid).setData(
             ["id":commentid,"comment":text,"userid":userid ,"created":FieldValue.serverTimestamp()]
         )
     }
     
     func getComment(messageid:String,compleation:@escaping ([Comment]) -> Void){
-  
         
         database.collection("Comments").document(messageid).collection("Comment").order(by:"created", descending: false).addSnapshotListener{ (snapshot, error) in
             var array = [Comment]()
@@ -54,13 +66,15 @@ class FirebaseManager{
             }
         }
     }
-    func getMessage(){}
+    func getMessage(){
+        
+    }
     
     func editProfile(text:String?,username:String,bgImage:Data?,proImage:Data?,compleation:@escaping (Bool) -> Void){
         StorageManager.shered.uploadProfile(text: text, username: username, bgImage: bgImage, proImage: proImage) { (profile) in
-            let userid = Auth.auth().currentUser?.uid
-            self.database.collection("Profile").document(userid!).setData(
-                ["username":profile.username, "text": profile.text!, "backgroundImage": profile.backgroundImage ?? "","profileImage":profile.profileImage ?? ""]
+            let userid = Auth.auth().currentUser!.uid
+            self.database.collection("Profile").document(userid).setData(
+                ["userid":userid,"username":profile.username, "text": profile.text!, "backgroundImage": profile.backgroundImage?.imageUrl ?? "","profileImage":profile.profileImage?.imageUrl ?? ""]
             )
             //userdefaltsに保存する　profileを
             DataManager.shere.setProfile(profile: profile)
@@ -75,124 +89,79 @@ class FirebaseManager{
         )
     }
     func getUserID(userid:String,compleation:@escaping (String) -> Void){
-        
+        print("useridを検索中")
         database.collection("Users").document(userid).getDocument { (result, error) in
-            if result != nil{
+            if error != nil{
                 return
             }
-            let data = result!.data()
-            if let id = data!["userid"]{
+            print(result?.data()?.isEmpty )
+        
+            let data = result?.data()
+            if let id = data?["userid"]{
+                print("見つかりました")
                 compleation(id as! String)
             }
+            else{
+                compleation("idが正しくありません")
+            }
         }
     }
-}
-
-
-class StorageManager{
-    static let shered = StorageManager()
-
-    func uploadProfile(text:String?,username:String,bgImage:Data?,proImage:Data?,compleation:@escaping (Profile) -> Void){
-        //1. 画像のみ更新する場合
-        //2. バックグラウンド画像を更新する場合
-        //3. プロフィール画像を更新する場合
-        //4. 両方の画像を更新する
-        
-        if bgImage?.isEmpty == true  && proImage?.isEmpty == true{
-            print("A")
-            let profile = Profile(username: username, text: text, backgroundImage: nil, profileImage: nil, isChange: true)
-            compleation(profile)
-        }
-        
-        if bgImage?.isEmpty == false && proImage?.isEmpty == true {
-            print("B")
-            uploadBackgroundImage(imageData: bgImage!) { (data) in
-                let profile = Profile(username: username, text: text, backgroundImage: ProfileImage(imageUrl: data.imageUrl, name: data.name), profileImage: nil, isChange: true)
-                compleation(profile)
-            }
-        }
-        if proImage?.isEmpty == false && bgImage?.isEmpty == true{
-            print("C")
-            uploadPofileImage(imageData: proImage!) { (data) in
+    func getProfile(userid:String,compleation:@escaping (Profile) -> Void){
+        self.database.collection("Profile").document(userid).addSnapshotListener { (snapshot, error) in
+            let data = snapshot!.data()
+            if let userid       = data!["userid"],
+               let username     = data!["username"],
+               let profileimage = data!["profileImage"],
+               let bgimage      = data!["backgroundImage"],
+               let text         = data!["text"]{
                 
-                let profile = Profile(username: username, text: text, backgroundImage: nil, profileImage: ProfileImage(imageUrl: data.imageUrl, name: data.name), isChange: true)
+                let profile = Profile(userid: userid as! String, username: username as! String, text: text as? String, backgroundImage: ProfileImage(imageUrl: bgimage as? String, name: nil), profileImage:ProfileImage(imageUrl: profileimage as? String, name: nil), isChange: true)
                 compleation(profile)
+                
+            }
+            else{
+                compleation(Profile(userid: FirebaseManager.shered.getMyUserid(), username: "プロフィールが登録されていません"))
             }
         }
-        
-        if proImage?.isEmpty == false && bgImage?.isEmpty == false{
-            print("D")
-            StorageManager.shered.uploadBackgroundImage(imageData: bgImage!) { [self] (backgroundimage) in
-                uploadPofileImage(imageData: proImage!) { (profileimage) in
-                    let profile = Profile(username: username, text: text, backgroundImage: ProfileImage(imageUrl: backgroundimage.imageUrl, name: backgroundimage.name), profileImage: ProfileImage(imageUrl: profileimage.imageUrl, name: profileimage.name), isChange: true)
-                    compleation(profile)
-                        
+    }
+    func getMyUserid() -> String{
+        return Auth.auth().currentUser!.uid
+    }
+    func getFriendProfile(friendList: [String],compleation:@escaping ([Profile]) -> Void){
+        var profileList = [Profile]()
+        print(friendList.count,"回")
+        for i in 0..<friendList.count{
+            print(i + 1 , "回目")
+            let userid = friendList[i]
+            self.database.collection("Profile").document(userid).addSnapshotListener { (snapshot, error) in
+                if let error = error{
+                    print(error)
+                    return
                 }
-                
+                let data = snapshot!.data()
+                if let userid       = data!["userid"],
+                   let username     = data!["username"],
+                   let profileimage = data!["profileImage"],
+                   let bgimage      = data!["backgroundImage"],
+                   let text         = data!["text"]{
+                    print("OK")
+                    let profile = Profile(userid: userid as! String, username: username as! String, text: text as? String, backgroundImage: ProfileImage(imageUrl: bgimage as? String, name: nil), profileImage:ProfileImage(imageUrl: profileimage as? String, name: nil), isChange: true)
+                    profileList.append(profile)
+                    print("4")
+                }
+                print("3")
+                DispatchQueue.main.async {
+                    if i == friendList.count - 1{
+                        compleation(profileList)
+                    }
+                }
             }
-        }
-    }
-    func delete(_ name: String){
-        let storage = Storage.storage()
-        let storageRef = storage.reference()
-
-        //Removes image from storage
-        let desertRef = storageRef.child("desert.jpg")
-
-        // Delete the file
-        desertRef.delete { error in
-          if let error = error {
-            // Uh-oh, an error occurred!
-          } else {
-            // File deleted successfully
-          }
-        }
             
-    }
-    
-    private func uploadPofileImage(imageData:Data,compleation:@escaping (ProfileImage) -> Void){
-        
-        let filename = String().generateID(10)
-        let imageRef = Storage.storage().reference().child("/profileimage/\(filename).jpg")
-        imageRef.putData(imageData, metadata: nil) { (_, error) in
-            if let error = error {
-                print(error)
-            return
-           }
 
-        imageRef.downloadURL { (url, error) in
-            if let error = error {
-                print(error)
-            return
-            }
-            guard let url = url else { return }
-            let urlString = url.absoluteString
-            let data = ProfileImage(imageUrl: urlString, name: filename)
-            compleation(data)
-            }
+            print("2")
         }
-        
-    }
-    private func uploadBackgroundImage(imageData:Data,compleation:@escaping (ProfileImage) -> Void){
-        let filename = String().generateID(10)
-        let imageRef = Storage.storage().reference().child("/backgroundimage/\(filename).jpg")
-        imageRef.putData(imageData, metadata: nil) { (_, error) in
-            if let error = error {
-                print(error)
-            return
-           }
-
-        imageRef.downloadURL { (url, error) in
-            if let error = error {
-                print(error)
-            return
-            }
-            guard let url = url else { return }
-            
-            let urlString = url.absoluteString
-            let data = ProfileImage(imageUrl: urlString, name: filename)
-            compleation(data)
-            }
-        }
+        print("1")
     }
 }
+
+
