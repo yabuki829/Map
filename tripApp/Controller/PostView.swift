@@ -141,11 +141,14 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
            let text = textView.text,
            isLocation{
             let image = imageArray[selectedIndexPath!.row]
-            let diary = Diary(id: String().generateID(7), userid: nil, image:image.convert_data(), title: title , text: text, date: Date(), location: location)
+            let userid = FirebaseManager.shered.getMyUserid()
+            let diary = Diary(id: String().generateID(20), userid: userid, image:image.convert_data(), title: title , text: text, date: Date(), location: location)
             
                 var data = DataManager.shere.get()
                 data.append(diary)
                 DataManager.shere.save(data: data)
+                FirebaseManager.shered.postDiscription(diary: diary)
+            
                 self.presentingViewController?.dismiss(animated: true, completion: nil)
         }
         else{

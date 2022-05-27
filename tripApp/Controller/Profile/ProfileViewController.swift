@@ -17,13 +17,6 @@ class ProfileViewController:UIViewController{
             textLabel.text = profile?.text
         }
     }
-    let mapExpandButton:UIButton = {
-        let button = UIButton()
-        let image = UIImage(systemName: "arrow.up.backward.and.arrow.down.forward.circle.fill")
-        button.setBackgroundImage(image, for: .normal)
-        button.tintColor = .link
-        return button
-    }()
     
     let backgraundImage:UIImageView = {
         let imageview = UIImageView()
@@ -111,6 +104,10 @@ class ProfileViewController:UIViewController{
         scrollview.addSubview(menuBar)
         scrollview.addSubview(collectionView)
         aaa()
+    
+        if profile?.userid == nil{
+            profile = DataManager.shere.getProfile()
+        }
         setNav()
         editButton.addTarget(self, action: #selector(sendEditPage(sender:)), for: .touchUpInside)
         
@@ -132,10 +129,10 @@ class ProfileViewController:UIViewController{
       
     }
     override func viewWillAppear(_ animated: Bool) {
-        profile = DataManager.shere.getProfile()
+       
         
     }
-
+   
     func setupImage(){
         
         if let imageurl = profile?.profileImage?.imageUrl{
@@ -157,7 +154,7 @@ class ProfileViewController:UIViewController{
             let urlDefault = "defaultsBG"
             print("B:",imageurl)
             
-            if urlDefault == imageurl {
+            if urlDefault == imageurl || imageurl == ""  {
                 print("こっちB")
                 backgraundImage.image = UIImage(named: "background")
             }
@@ -250,7 +247,7 @@ class ProfileViewController:UIViewController{
 
     func settingStackView(){
         let titleLabel = UILabel()
-            titleLabel.text = "19"
+            titleLabel.text = String(DataManager.shere.get().count)
             titleLabel.font = UIFont.boldSystemFont(ofSize: 16.0)
             titleLabel.textAlignment = .center
             titleLabel.textColor = .link
@@ -267,7 +264,7 @@ class ProfileViewController:UIViewController{
 
         
         let titleLabel2 = UILabel()
-            titleLabel2.text = "10"
+            titleLabel2.text = String(DataManager.shere.getFollow().count)
             titleLabel2.font = UIFont.boldSystemFont(ofSize: 16.0)
             titleLabel2.textAlignment = .center
             titleLabel2.textColor = .link
@@ -291,29 +288,64 @@ class ProfileViewController:UIViewController{
         nav.modalTransitionStyle = .flipHorizontal
         self.present(nav, animated: true, completion: nil)
     }
+    func isMyProfile() -> Bool{
+        //自分のprofile画面かどうか
+        print("profile",profile?.userid)
+        if profile?.userid == FirebaseManager.shered.getMyUserid() || profile?.userid == ""{
+            return true
+        }
+        return false
+    }
+    
     
     func setNav(){
         self.title = "Profile"
-        let searchButton = UIImage(systemName: "magnifyingglass")
-        let searchItem = UIBarButtonItem(image:searchButton, style: .plain, target: self, action: #selector(search(sender:)))
-        searchItem.tintColor = .link
-        navigationItem.leftBarButtonItem = searchItem
+        if isMyProfile() {
+            print("自分のProfile")
+            let searchButton = UIImage(systemName: "magnifyingglass")
+            let searchItem = UIBarButtonItem(image:searchButton, style: .plain, target: self, action: #selector(search(sender:)))
+            searchItem.tintColor = .link
+            navigationItem.leftBarButtonItem = searchItem
+            
+            messageItem = UIBarButtonItem(title: "Message", style: .plain, target: self, action:#selector(message(sender:)) )
+            messageItem.tintColor = .link
+            navigationItem.rightBarButtonItem = messageItem
+            
+            friendStackView.isUserInteractionEnabled = true
+            editButton.isHidden = false
+            editButton.isEnabled = true
+        }
+        else{
+            print("友達のプロフィール")
+            let backButton = UIImage(systemName: "chevron.left")
+            let backItem = UIBarButtonItem(image: backButton, style: .plain, target: self, action: #selector(back(sender:)))
+            backItem.tintColor = .darkGray
+            navigationItem.leftBarButtonItem = backItem
+            
+            friendStackView.isUserInteractionEnabled = false
+            
+            editButton.isHidden = true
+            editButton.isEnabled = false
+        }
         
         
-        messageItem = UIBarButtonItem(title: "Message", style: .plain, target: self, action:#selector(message(sender:)) )
-        messageItem.tintColor = .link
-        navigationItem.rightBarButtonItem = messageItem
+      
+    }
+    @objc func back(sender : UIButton){
+        print("Back")
+        self.navigationController?.dismiss(animated: true, completion: nil)
     }
     @objc internal func tapFriendList(sender:UITapGestureRecognizer ){
         print("友達一覧に遷移する")
         let  vc = FriendListViewController()
         let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true, completion: nil)
     }
     @objc internal func tapPost(sender:UITapGestureRecognizer ){
         print("投稿一覧")
-        collectionView.selectItem(at:IndexPath(row: 1, section: 0) , animated: true, scrollPosition: .left)
-        menuBar.menubarCell?.isSelected = true
+//        menuBar.selectedIndexPath = IndexPath(row: 1, section: 0)
+//        collectionView.selectItem(at:menuBar.selectedIndexPath , animated: true, scrollPosition: .left)
     }
  
     @objc func message(sender : UIButton){

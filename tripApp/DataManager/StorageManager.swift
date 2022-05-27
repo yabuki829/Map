@@ -115,4 +115,28 @@ class StorageManager{
             }
         }
     }
+    func uploadImage(imageData:Data,compleation:@escaping (ProfileImage) -> Void){
+        let filename = String().generateID(7)
+        let userid = FirebaseManager.shered.getMyUserid()
+        let imageRef = Storage.storage().reference().child("/users/\(userid)/\(filename).jpg")
+        
+        imageRef.putData(imageData, metadata: nil) { (_, error) in
+            if let error = error {
+                print(error)
+            return
+           }
+
+        imageRef.downloadURL { (url, error) in
+            if let error = error {
+                print(error)
+            return
+            }
+            guard let url = url else { return }
+            
+            let urlString = url.absoluteString
+            let data = ProfileImage(imageUrl: urlString, name: filename)
+            compleation(data)
+            }
+        }
+    }
 }

@@ -37,6 +37,7 @@ class FriendListViewController:UIViewController{
         //インディケーター回す
         print("取得します")
         let friendList = DataManager.shere.getFollow()
+        print(friendList)
         FirebaseManager.shered.getFriendProfile(friendList: friendList ) { (result) in
             //インディケーターを止める
             self.profileList = result
@@ -63,6 +64,15 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.width, height: view.frame.height / 12)
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //遷移する
+        let vc = ProfileViewController()
+        vc.profile = profileList[indexPath.row]
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+
     }
     
 }

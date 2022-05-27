@@ -115,17 +115,20 @@ class FollowManager {
         let follower = getFollow()
         for i in 0..<follower.count{
             if follower[i] == userid{
-                return false
+                print("フォローしています")
+                return true
             }
         }
-        return true
+        return false
     }
     func isME(userid:String) -> Bool{
         let myuserid = FirebaseManager.shered.getMyUserid()
         if userid == myuserid {
+            print("自分のアカウント")
             return true
         }
         else{
+            print("友達のアカウント")
             return false
         }
     }

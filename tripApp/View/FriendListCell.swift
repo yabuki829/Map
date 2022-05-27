@@ -36,14 +36,14 @@ class FriendListCell:BaseCell{
         textLabel.text = text
     }
     func addConstraint(){
-        userImageView.anchor(top:self.safeAreaLayoutGuide.topAnchor,paddingTop: 5,  left: self.leftAnchor,paddingLeft: 10, bottom: self.bottomAnchor,paddingBottom: 5,  width:self.frame.height,height:self.frame.height)
+        userImageView.anchor(top:self.safeAreaLayoutGuide.topAnchor,paddingTop: 0,  left: self.leftAnchor,paddingLeft: 10, bottom: self.bottomAnchor,paddingBottom: 0,  width:self.frame.height , height:self.frame.height)
         
         usernameLabel.anchor(top:self.safeAreaLayoutGuide.topAnchor,paddingTop: 5,left: userImageView.rightAnchor,paddingLeft: 10,right: self.rightAnchor,paddingRight: 10)
         textLabel.anchor(top:usernameLabel.bottomAnchor,paddingTop:0,left: userImageView.rightAnchor,paddingLeft: 10,right: self.rightAnchor,paddingRight: 10,bottom: self.bottomAnchor,paddingBottom: 5)
         
     }
     func settingUserImageView(){
-        userImageView.layer.cornerRadius = self.frame.height / 2
+        userImageView.layer.cornerRadius = self.frame.height / 2 
         userImageView.clipsToBounds = true
     }
 }

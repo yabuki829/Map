@@ -15,17 +15,24 @@ class FirebaseManager{
     let database = Firestore.firestore()
     func sendMessage(){}
     
-    func postDiscription(title:String,text:String,location:Location){
-        //友達全員に送信する for i in 友達の数
-        //userid title text image postid ,location
-        let userid = Auth.auth().currentUser?.uid
-        let id = String(7)
-        database.collection("Users").document(userid!).collection("MyDiscription").document().setData(
-            ["id":id,"userid":userid,"text":text,"latitude":location.latitude,"longitude":location.longitude,"created":FieldValue.serverTimestamp()]
-        )
+    func postDiscription(diary:Diary){
+        
+        StorageManager.shered.uploadImage(imageData:diary.image) { [self] (result) in
+            
+            database.collection("Users").document(diary.userid!).collection("MyDiscription").document(diary.id).setData(
+                ["id":diary.id,"userid":diary.userid,"text":diary.text,"latitude":diary.location?.latitude,"longitude":diary.location?.longitude,"created":FieldValue.serverTimestamp(),"imageurl":result.imageUrl]
+            )
+            
+            let friendList = DataManager.shere.getFollow()
+            for i in 0..<friendList.count{
+                let frienduserid = friendList[i]
+                database.collection("Users").document(frienduserid).collection("FriendDiscription").document(diary.id).setData(
+                    ["id":diary.id,"userid":diary.userid,"text":diary.text,"latitude":diary.location?.latitude,"longitude":diary.location?.longitude,"created":FieldValue.serverTimestamp(),"imageurl":result.imageUrl]
+                )
+            }
+        }
         
     }
-    
     func getDiscription(){
         let userid = Auth.auth().currentUser?.uid
         database.collection("Users").document(userid!).collection("Discription").addSnapshotListener { (snapshot, error) in

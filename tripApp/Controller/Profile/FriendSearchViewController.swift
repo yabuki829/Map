@@ -13,6 +13,7 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     var profile: Profile?{
         didSet{
             
+            //自分のprofileじゃない　かつ　フォローしていない
             if FollowManager.shere.isME(userid: profile!.userid) == false && FollowManager.shere.isFollow(userid: profile!.userid) == false{
                 followButton.isHidden = false
                 messageLabel.isHidden = true
@@ -134,7 +135,7 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     @objc internal func Follow(sender: UIButton) {
         print("Follow")
         //userdefaultsにuseridを保存する
-        DataManager.shere.follow(userid: FirebaseManager.shered.getMyUserid())
+        DataManager.shere.follow(userid: profile!.userid)
         
 
     }
