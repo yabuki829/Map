@@ -29,7 +29,7 @@ class ImageDetailViewContriller:UIViewController{
         settingNav()
     }
     func addConstraint(){
-        imageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
+        imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
         imageView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
         imageView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
         imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true

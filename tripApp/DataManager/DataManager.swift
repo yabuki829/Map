@@ -13,16 +13,16 @@ class DataManager{
     
 
     
-    func get() -> [Diary]{
-        var diary = [Diary]()
-        if let data:[Diary] = userDefalts.codable(forKey: "diary")  {
+    func get() -> [Discription]{
+        var diary = [Discription]()
+        if let data:[Discription] = userDefalts.codable(forKey: "discription")  {
             diary = data
         }
         return diary
     }
     
-    func save(data:[Diary]){
-        userDefalts.setCodable(data, forKey: "diary")
+    func save(data:[Discription]){
+        userDefalts.setCodable(data, forKey: "discription")
     }
     
     func delete(id:String){
@@ -35,19 +35,7 @@ class DataManager{
             }
         }
     }
-    func setProfile(profile:Profile){
-        userDefalts.setCodable(profile, forKey: "profile")
-    }
-    func getProfile() -> Profile{
-      
-    
-        var profile = Profile(userid: FirebaseManager.shered.getMyUserid(), username: "No Name", text: "Learn from the mistakes of others. You can’t live long enough to make them all yourself.", backgroundImage: ProfileImage(imageUrl: "defaultsBG", name: "background"), profileImage: ProfileImage(imageUrl: "defaultsPRO", name: "profile"), isChange: false)
-        
-        if let data:Profile = userDefalts.codable(forKey: "profile")  {
-            profile = data
-        }
-        return profile
-    }
+
     func follow(userid:String){
         var follower = getFollow()
         follower.append(userid)
@@ -115,7 +103,6 @@ class FollowManager {
         let follower = getFollow()
         for i in 0..<follower.count{
             if follower[i] == userid{
-                print("フォローしています")
                 return true
             }
         }
@@ -124,13 +111,32 @@ class FollowManager {
     func isME(userid:String) -> Bool{
         let myuserid = FirebaseManager.shered.getMyUserid()
         if userid == myuserid {
-            print("自分のアカウント")
             return true
         }
         else{
-            print("友達のアカウント")
             return false
         }
     }
 }
 
+
+extension DataManager {
+    func setMyProfile(profile:myProfile){
+        userDefalts.setCodable(profile, forKey: "myprofile")
+    }
+    
+    func getMyProfile() -> myProfile {
+        var profile = myProfile(userid: FirebaseManager.shered.getMyUserid(),
+                                username: "No Name",
+                                text: "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
+                                backgroundImage: imageData(imageData: Data(), name: "background", url: "background" ),
+                                profileImage: imageData(imageData: Data(), name: "person.crop.circle.fill", url: "background"))
+        
+        if let data:myProfile = userDefalts.codable(forKey: "myprofile")  {
+            profile = data
+        }
+        return profile
+    }
+    
+    
+}

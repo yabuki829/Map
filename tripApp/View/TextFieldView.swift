@@ -24,8 +24,8 @@ class textFieldView:UIView,UITextFieldDelegate{
     var sendButton:UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("送信", for: .normal)
-        button.setTitleColor(.black, for: .normal)
+        button.setImage(UIImage(systemName: "paperplane.fill"), for: .normal)
+        button.tintColor = .link
         return button
     }()
     var messageID = String()
@@ -62,16 +62,17 @@ class textFieldView:UIView,UITextFieldDelegate{
     }
     
     func addConsrtaints(){
-        textfield.topAnchor.constraint(equalTo: self.topAnchor, constant: 2.0).isActive = true
-        textfield.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 10.0).isActive = true
-        textfield.rightAnchor.constraint(equalTo: sendButton.leftAnchor, constant: 0.0).isActive = true
-        textfield.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -2.0).isActive = true
-       
-        sendButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 0.0).isActive = true
-        sendButton.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -5.0).isActive = true
-        sendButton.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 0.0).isActive = true
-        sendButton.widthAnchor.constraint(equalToConstant: 60 ).isActive = true
-        print(self.frame.width)
+        print("TextFielddddddddddddddd")
+        
+        textfield.anchor(top: topAnchor, paddingTop: 2.0,
+                         left:leftAnchor, paddingLeft: 10.0,
+                         right: sendButton.leftAnchor, paddingRight: 0.0,
+                         bottom: bottomAnchor, paddingBottom: 2.0)
+        
+        sendButton.anchor(top: topAnchor, paddingTop: 2.0,
+                          right: rightAnchor, paddingRight: 5.0,
+                          bottom:bottomAnchor, paddingBottom: 0.0,
+                          width: 60)
     }
     func textFieldDidChangeSelection(_ textField: UITextField) {
          print("変更されました")

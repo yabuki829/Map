@@ -31,7 +31,9 @@ class FriendListCell:BaseCell{
         settingUserImageView()
     }
     func setCell(imageurl:String,username:String,text:String){
-        userImageView.loadImageUsingUrlString(urlString: imageurl)
+        if imageurl != "" || imageurl.isEmpty == false {
+            userImageView.loadImageUsingUrlString(urlString: imageurl)
+        }
         usernameLabel.text = username
         textLabel.text = text
     }
@@ -43,7 +45,7 @@ class FriendListCell:BaseCell{
         
     }
     func settingUserImageView(){
-        userImageView.layer.cornerRadius = self.frame.height / 2 
+        userImageView.layer.cornerRadius = self.frame.height / 2
         userImageView.clipsToBounds = true
     }
 }

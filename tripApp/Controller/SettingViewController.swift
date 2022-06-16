@@ -26,9 +26,10 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
     let settingdata = [
         menuItem(name: "お問い合わせ", icon: "mail"),
         menuItem(name: "レビューを書く", icon: "pencil"),
+        menuItem(name: "サインアウト", icon: "rectangle.portrait.and.arrow.right"),
+        menuItem(name: "アカウントの削除", icon: "trash"),
         menuItem(name: "comming soon", icon: "questionmark.circle"),
         menuItem(name: "開発者のその他アプリ", icon: "pencil"),
-        menuItem(name: "瞬間日記", icon: "doc"),
         menuItem(name: "TasksTodo", icon: "doc"),
     ]
        
@@ -68,7 +69,7 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
        
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print(indexPath.row)
-        if indexPath.row == 3{
+        if indexPath.row == 5{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "section", for: indexPath) as! SectionCell
             
             return cell
@@ -101,17 +102,17 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
             //レビューを書く
         }
         else if indexPath.row == 2{
-            //ヘルプ
+            //sign out ここから
+            
+             
         }
-        else if indexPath.row == 4{
-            //瞬間日記開く
-            openApp("id1587134775")
+        else if indexPath.row == 3{
+            //アカウント削除　ここから
         }
+        
         else if indexPath.row == 5{
-            //taskstodo開く
+            //瞬間日記開く
             openApp("id1592943322")
-            
-            
         }
     }
        

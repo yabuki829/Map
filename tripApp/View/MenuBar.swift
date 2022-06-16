@@ -2,44 +2,38 @@ import Foundation
 import UIKit
 
 import UIKit
-public let menuBarTitleArray = ["map","house"]
+public let menuBarTitleArray = ["squareshape.split.3x3","map"]
 
-class MenuBar:UIView, UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
-    
+class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
     var selectedIndexPath: IndexPath?
-    var menubarCell: MenuBarCell?
+    private let underlineView: UIView = {
+         let view = UIView()
+         return view
+     }()
     lazy var collectionView:UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         
         let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
         collecitonview.dataSource = self
         collecitonview.delegate = self
-        collecitonview.backgroundColor = .white
+        collecitonview.isScrollEnabled = false
         return collecitonview
     }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override func setupViews() {
         addSubview(collectionView)
         addCollectionViewConstaraiont()
+        backgroundColor = .red
         self.backgroundColor = .white
         collectionView.register(MenuBarCell.self, forCellWithReuseIdentifier: "Cell")
         
+        
         let indexPath:IndexPath = NSIndexPath(row: 0, section: 0) as IndexPath
         self.selectedIndexPath = indexPath
+        
         DispatchQueue.main.async {
             self.collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
         }
-
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    
-    
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return menuBarTitleArray.count
     }
@@ -48,10 +42,10 @@ class MenuBar:UIView, UICollectionViewDataSource, UICollectionViewDelegate,UICol
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! MenuBarCell
         cell.setCell(title: menuBarTitleArray[indexPath.row])
        
-        if  selectedIndexPath?.row == indexPath.row{
+        if  selectedIndexPath?.row == indexPath.row {
                 cell.isSelected = true
         }
-        menubarCell = cell
+        
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -61,54 +55,54 @@ class MenuBar:UIView, UICollectionViewDataSource, UICollectionViewDelegate,UICol
         return 0
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width:collectionView.frame.width / 2, height: frame.height)
+        return CGSize(width:collectionView.frame.width / 2, height: frame.height )
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         selectedIndexPath = indexPath
         delegate?.reload()
     }
  
     func addCollectionViewConstaraiont(){
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.topAnchor.constraint(equalTo: self.topAnchor, constant: 5.0).isActive = true
-        collectionView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 0.0).isActive = true
-        collectionView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: 0.0).isActive = true
-        collectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: 5.0).isActive = true
+        collectionView.anchor(top: topAnchor, paddingTop: 0.0,
+                              left: leftAnchor, paddingLeft: 0.0,
+                              right: rightAnchor, paddingRight:0.0,
+                              bottom: bottomAnchor, paddingBottom: 0.0)
     }
     weak var delegate:reloadDelegate? = nil
 }
 
-
-
 class MenuBarCell:BaseCell{
-    
     override var isSelected: Bool{
-        didSet{
-            imageView.tintColor = isSelected ? .darkGray : .systemGray3
-        }
-    }
-    
-    let imageView :UIImageView = {
-        let imageview = UIImageView()
-        imageview.tintColor = .systemGray3
-        
-        return imageview
-    }()
-    
-    override func  setupViews(){
-        addSubview(imageView)
-        imageView.setDimensions(width: 24, height: 24)
-        imageView.center(inView: self)
-    }
+          didSet{
+              imageView.tintColor = isSelected ? .systemGray6 : .systemGray2
+              backgroundColor = isSelected ? .systemGray2 : .systemGray6
+          }
+      }
+      
+      let imageView :UIImageView = {
+          let imageview = UIImageView()
+          imageview.tintColor = .systemGray4
+          
+          return imageview
+      }()
+      
+      override func  setupViews(){
+          addSubview(imageView)
+         
+          imageView.setDimensions(width: 24, height: 24)
+          imageView.center(inView: self)
+      }
 
-    func setCell(title:String){
-        imageView.image = UIImage(systemName: title)
-    }
-    
+      func setCell(title:String){
+          imageView.image = UIImage(systemName: title)
+      }
+      
 
         
 }
 protocol reloadDelegate: class  {
     func reload()
 }
+

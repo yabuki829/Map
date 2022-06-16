@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-
+import PKHUD
 class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     
     var profile: Profile?{
@@ -17,11 +17,11 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
             if FollowManager.shere.isME(userid: profile!.userid) == false && FollowManager.shere.isFollow(userid: profile!.userid) == false{
                 followButton.isHidden = false
                 messageLabel.isHidden = true
-                if profile?.profileImage?.imageUrl == ""{
-                    profileImage.image = UIImage(named: "profile")
+                if profile?.profileImageUrl == "person.crop.circle.fill"{
+                    profileImage.image = UIImage(named: "person.crop.circle.fill")
                 }
                 else{
-                    profileImage.loadImageUsingUrlString(urlString: (profile?.profileImage?.imageUrl)!)
+                    profileImage.loadImageUsingUrlString(urlString: profile!.profileImageUrl)
                 }
                 if profile?.username == ""{
                     usernameLabel.text = "No Name"
@@ -111,8 +111,8 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         
         followButton.translatesAutoresizingMaskIntoConstraints = false
         followButton.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: 10).isActive = true
-        followButton.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 150).isActive = true
-        followButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -150).isActive = true
+        followButton.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 120).isActive = true
+        followButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -120).isActive = true
         
         
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -127,6 +127,12 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         let backItem = UIBarButtonItem(image: backButton, style: .plain, target: self, action: #selector(back(sender:)))
         backItem.tintColor = .darkGray
         navigationItem.leftBarButtonItem = backItem
+        
+        
+        
+        let showFriendIdItem = UIBarButtonItem(title: "FriendID", style: .plain, target: self, action: #selector(showFriendId))
+        showFriendIdItem.tintColor = .link
+        navigationItem.rightBarButtonItem = showFriendIdItem
     }
     @objc func back(sender : UIButton){
         print("Back")
@@ -135,29 +141,43 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     @objc internal func Follow(sender: UIButton) {
         print("Follow")
         //userdefaultsにuseridを保存する
-        DataManager.shere.follow(userid: profile!.userid)
-        
-
+        if profile?.userid != "" || profile?.userid.isEmpty == false{
+            DataManager.shere.follow(userid: profile!.userid)
+            FirebaseManager.shered.follow(friendid: profile!.userid)
+            followButton.setTitle("友達になりました", for: .normal)
+            followButton.isEnabled = false
+        }
+    }
+    @objc func showFriendId(){
+        print("Show Friend ID")
+        present(AlertManager.shared.showFriendID(), animated: false)
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField.text == "" {
             return false
         }
-        
+        HUD.show(.progress)
         FirebaseManager.shered.getUserID(userid: textField.text!) { (userid) in
             print("userid 取得完了")
             if userid == "idが正しくありません"{
+                HUD.hide()
                 self.messageLabel.text = "入力したFriendIDが正しくない、もしくは存在しないFriendIDです"
                 self.messageLabel.isHidden = false
                 return
                 
             }else{
                 FirebaseManager.shered.getProfile(userid: userid) { (data) in
+                    HUD.hide()
                     print("取得完了")
-                    if data.username == "プロフィールが登録されていません"{
+                    if data.username == "プロフィールが登録されていません" {
                         //alert プロフィールが登録されていません
+                        self.messageLabel.text = "Profileが設定されていないUserです"
                     }
-                    self.profile = data
+                    else{
+                        self.profile = data
+                    }
+                    
+                  
                 }
             }
           
@@ -165,4 +185,37 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         
         return true
     }
+    
+   
+   
+}
+
+
+
+//ZnA0aQbRZBaU7GSOfWVO
+
+
+class AlertManager{
+    static let shared = AlertManager()
+    func showFriendID() -> UIAlertController{
+           
+           let id = UserDefaults.standard.object(forKey: "userid")
+           let alert = UIAlertController(title: "your FriendID" , message:id as? String, preferredStyle: .alert)
+
+           let selectAction = UIAlertAction(title: "Copy", style: .default, handler: { _ in
+               let pasteboard = UIPasteboard.general
+               pasteboard.string = id as? String
+
+                 let generator = UISelectionFeedbackGenerator()
+                 generator.prepare()
+                 generator.selectionChanged()
+              
+           })
+           let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+
+           alert.addAction(selectAction)
+           alert.addAction(cancelAction)
+           return alert
+       
+       }
 }

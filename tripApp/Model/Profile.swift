@@ -12,14 +12,33 @@ struct Profile :Codable,Equatable{
     var userid: String
     var username:String
     var text:String?
-    var backgroundImage:ProfileImage?
-    var profileImage   :ProfileImage?
-    var isChange = true
+    var backgroundImageUrl:String
+    var profileImageUrl   :String
 }
+
+
+
+
 
 struct ProfileImage :Codable,Equatable{
-    var imageUrl:  String?
-    var name    : String?
+    var imageUrl:  String
+    var name    : String
+    
 }
 
 
+
+
+struct myProfile:Codable,Equatable{
+    var userid: String
+    var username:String
+    var text:String
+    var backgroundImage:imageData
+    var profileImage   :imageData
+}
+
+struct imageData:Codable,Equatable{
+    var imageData:  Data
+    var name    : String
+    var url     : String
+}

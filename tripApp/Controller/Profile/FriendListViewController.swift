@@ -5,6 +5,7 @@
 //  Created by Yabuki Shodai on 2022/05/27.
 //
 
+
 import Foundation
 import UIKit
 
@@ -22,6 +23,7 @@ class FriendListViewController:UIViewController{
         return collecitonview
     }()
     var profileList = [Profile]()
+    
     override func viewDidLoad() {
         print("フレンド一覧")
         view.backgroundColor = .white
@@ -39,6 +41,7 @@ class FriendListViewController:UIViewController{
         let friendList = DataManager.shere.getFollow()
         print(friendList)
         FirebaseManager.shered.getFriendProfile(friendList: friendList ) { (result) in
+            print("取得完了")
             //インディケーターを止める
             self.profileList = result
             self.collectionView.reloadData()
@@ -59,7 +62,7 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListCell", for: indexPath) as! FriendListCell
-        cell.setCell(imageurl: (profileList[indexPath.row].profileImage?.imageUrl)!, username: profileList[indexPath.row].username, text: profileList[indexPath.row].text!)
+        cell.setCell(imageurl: profileList[indexPath.row].profileImageUrl, username: profileList[indexPath.row].username, text: profileList[indexPath.row].text!)
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -67,11 +70,14 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //遷移する
-        let vc = ProfileViewController()
+        let layout = UICollectionViewFlowLayout()
+       
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = .zero
+        
+        let vc = profileViewController(collectionViewLayout: layout)
         vc.profile = profileList[indexPath.row]
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
+        navigationController?.pushViewController(vc, animated: true)
 
     }
     
@@ -99,7 +105,7 @@ extension FriendListViewController{
     
     @objc func back(sender : UIButton){
         print("Back")
-        self.navigationController?.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
 }
 

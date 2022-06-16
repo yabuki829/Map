@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import CoreLocation
+import CryptoKit
 extension Encodable {
 
     var json: Data? {
@@ -72,6 +73,28 @@ extension Date{
         let date = formatter.string(from: self )
         return date
     }
+    
+   
+    func toString() -> String{
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .long
+        formatter.locale = .current
+        formatter.dateFormat = "yyyMMddeeeHHmm"
+        let date = formatter.string(from: self )
+        return date
+    }
+}
+extension String{
+    func toDate() -> Date{
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .long
+        formatter.locale = .current
+        formatter.dateFormat = "yyyMMddeeeHHmm"
+        let date = formatter.date(from: self )
+        return date ?? Date()
+    }
 }
 
 
@@ -122,8 +145,9 @@ extension UITextField {
 
 
 let imageCache = NSCache<AnyObject, UIImage>()
-extension UIImageView{
 
+extension UIImageView{
+    
     func loadImageUsingUrlString(urlString:String){
         image = nil
         let url = URL(string: urlString)
@@ -131,6 +155,41 @@ extension UIImageView{
         request.httpMethod = "GET"
             
         let task = URLSession.shared.dataTask(with: url!) {  (data, response, error) in
+            if error != nil{
+                return
+            }
+            DispatchQueue.main.async {
+                self.image = UIImage(data: data!)
+            }
+          
+        }
+        task.resume()
+    }
+    func loadImageUsingUrlString(urlString:String,compleation:@escaping (UIImage?) -> Void){
+        image = nil
+        let url = URL(string: urlString)
+        var request = URLRequest(url: url!)
+        request.httpMethod = "GET"
+            
+        let task = URLSession.shared.dataTask(with: url!) {  (data, response, error) in
+            if error != nil{
+                compleation(nil)
+                return
+            }
+            DispatchQueue.main.async {
+                self.image = UIImage(data: data!)
+                compleation(self.image)
+            }
+          
+        }
+        task.resume()
+    }
+    func loadImageUsingUrl(url:URL){
+        image = nil
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+            
+        let task = URLSession.shared.dataTask(with: url) {  (data, response, error) in
             if error != nil{
                 return
             }
@@ -219,5 +278,20 @@ extension UIView{
     func addConstraintsToFillView(_ view: UIView) {
         translatesAutoresizingMaskIntoConstraints = false
         anchor(top: topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: bottomAnchor)
+    }
+}
+
+
+
+extension String {
+
+    func sha_256() -> String {
+        let data = Data(self.utf8)
+        let hashedData = SHA256.hash(data: data)
+        let result = hashedData.compactMap {
+            String(format: "%02x", $0)
+        }.joined()
+
+        return result
     }
 }

@@ -1,28 +1,21 @@
-//
-//  EditViewController.swift
-//  tripApp
-//
-//  Created by Yabuki Shodai on 2022/05/21.
-//
-
 import Foundation
 import UIKit
 import CropViewController
 import FirebaseStorage
-
+import PKHUD
 class EditViewController : UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate,CropViewControllerDelegate{
     
     let storege = Storage.storage().reference()
-    
+   
     let backgraundImage:UIImageView = {
         let imageview = UIImageView()
-        imageview.image = UIImage(named: "3")
+        imageview.image = UIImage(named: "person.crop.circle.fill")
         imageview.isUserInteractionEnabled = true
         return imageview
     }()
     let profileImage:UIImageView = {
         let imageview = UIImageView()
-        imageview.image = UIImage(named: "profile")
+        imageview.image = UIImage(named: "backgorund")
         imageview.isUserInteractionEnabled = true
         imageview.backgroundColor = .white
         return imageview
@@ -44,8 +37,30 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
         textfield.placeholder = "Name.."
         return textfield
     }()
-    var profileimagedata = Data()
-    var backgroundimagedata = Data()
+    var profileimagedata : Data?
+    var isChangedProfileImage = false
+    
+    var backgroundimagedata : Data?
+    var isChangedBackgroundImage = false
+    
+    var profile:myProfile? {
+        didSet{
+            if profile?.backgroundImage.name == "background"{
+                backgraundImage.image = UIImage(named: "background")
+            }
+            else{
+                backgraundImage.image = UIImage(data: profile!.backgroundImage.imageData)
+            }
+            if profile?.profileImage.name == "person.crop.circle.fill" {
+                profileImage.image =  UIImage(systemName:"person.crop.circle.fill")
+            }
+            else{
+                profileImage.image = UIImage(data: profile!.profileImage.imageData)
+            }
+            textfield.text = profile?.username
+            textView.text = profile?.text
+        }
+    }
     override func viewDidLoad() {
         view.backgroundColor = .white
         view.addSubview(backgraundImage)
@@ -55,7 +70,7 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
         setNav()
         addConstraint()
         tapSetting()
-        
+        profile = DataManager.shere.getMyProfile()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidDisappear(animated)
@@ -125,48 +140,91 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     @objc func edit(sender : UIButton){
         print("Edit")
         print("profile",profileimagedata,"backimage",backgroundimagedata)
+        //リファクタリング　あんど　コードの見直し　ここから
         if textfield.text == ""{
             return
         }
         //　インゲーターを回す
-        FirebaseManager.shered.editProfile(text: textView.text, username: textfield.text!, bgImage: backgroundimagedata, proImage: profileimagedata) { (result) in
-            if result {
-                //　インゲーターを回す　止める
-                self.navigationController?.dismiss(animated: true, completion: nil)
+        HUD.show(.progress)
+        
+        if isChangedProfileImage || isChangedBackgroundImage{
+            
+            print("新しい画像")
+            // 両方からじゃない 両方新しい画像
+            if  isChangedProfileImage && isChangedBackgroundImage{
+                print("両方新しい画像")
+                //前の画像を削除する
+                if profile?.profileImage.name != "person.crop.circle.fill" {
+                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
+                    
+                }
+                
+                if profile?.backgroundImage.name != "background"{
+                    StorageManager.shered.deleteProfileImage(name: (profile?.profileImage.name)!)
+                }
+                //両方とも新しい画像
+                FirebaseManager.shered.editProfileA(text: textView.text,
+                                                   username: textfield.text!,
+                                                   bgImagedata: backgroundimagedata,
+                                                   proImagedata: profileimagedata) { result in
+                    HUD.hide()
+                    if result {
+                        self.navigationController?.dismiss(animated: true, completion: nil)
+                    }
+                }
             }
-            else{
-                print("失敗しました")
+            //profileが新しい
+            if isChangedProfileImage {
+                print("profile")
+                if profile?.profileImage.name != "person.crop.circle.fill" {
+                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
+                    
+                }
+                    //profile画像を変更する　ここ
+                FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: nil, proImagedata: profileimagedata, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl: (profile?.profileImage.url)!) { result in
+                    HUD.hide()
+                    if result {
+                        self.navigationController?.dismiss(animated: true, completion: nil)
+                    }
+                }
             }
+            //  profileImageData  が空 backgroundだけを変更する
+            if isChangedBackgroundImage {
+                print("バックグラんど画像を変更する")
+                if profile?.profileImage.name != "person.crop.circle.fill" {
+                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
+                }
+                FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: backgroundimagedata, proImagedata: nil, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl:  (profile?.profileImage.url)!) { result in
+                    HUD.hide()
+                    if result {
+                        self.navigationController?.dismiss(animated: true, completion: nil)
+                    }
+                }
+      
+            }
+          
         }
+        else{
+            //profileに画像が入っていない　かつ　backgroundに画像が入ってない　場合 -> デフォルトの画像
+            
+            print("名前とテキストを変更する")
+            FirebaseManager.shered.editProfileC(text: textView.text!, username: textfield.text!, backgroundImageUrl: profile?.backgroundImage.url, profileImageUrl: profile?.profileImage.url){ result in
+            
+                    HUD.hide()
+                    if result{
+                        self.navigationController?.dismiss(animated: true, completion: nil)
+                    }
+                  
+                }
+
+        }
+        
        
     }
 
 }
 
 extension EditViewController {
-    func uploadImage(imageData:Data){
-        let filename = String().generateID(16)
-        let imageRef = Storage.storage().reference().child("/profileimage/\(filename).jpg")
-        // 4：データをアップロード
-        imageRef.putData(imageData, metadata: nil) { (_, error) in
-            if let error = error {
-                print(error)
-            return
-           }
-
-        // 5：画像がアップロードされたら、ダウンロードURLを取得
-        imageRef.downloadURL { (url, error) in
-            if let error = error {
-                print(error)
-            return
-            }
-            guard let url = url else { return }
-            
-            print(url.absoluteURL)
-            }
-        }
-        
-    }
     
     @objc func tapBackgroundImage(sender:UITapGestureRecognizer){
         print("Tap Backgraund Image")
@@ -192,7 +250,7 @@ extension EditViewController {
             guard let imageData = image.jpegData(compressionQuality: 0.25) else {  return }
             profileImage.image = UIImage(data: imageData)
             profileimagedata = imageData
-            
+            isChangedProfileImage = true
             picker.dismiss(animated: true, completion: nil)
             
         }else{
@@ -216,6 +274,7 @@ extension EditViewController {
     
         backgroundimagedata = imageData
         backgraundImage.image =  UIImage(data: imageData)
+        isChangedBackgroundImage = true
         cropViewController.dismiss(animated: true, completion: nil)
     }
     

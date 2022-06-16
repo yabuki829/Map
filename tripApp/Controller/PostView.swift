@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import CoreLocation
 import Photos
+import PKHUD
 
 class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDelegate{
     var selectedIndexPath: IndexPath?
@@ -142,14 +143,18 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
            isLocation{
             let image = imageArray[selectedIndexPath!.row]
             let userid = FirebaseManager.shered.getMyUserid()
-            let diary = Diary(id: String().generateID(20), userid: userid, image:image.convert_data(), title: title , text: text, date: Date(), location: location)
+            HUD.show(.progress)
             
+            StorageManager.shered.uploadImage(imageData: image.convert_data()) { [self] (result) in
+                let disc = Discription(id: String().generateID(10), userid: userid, title: title, text: text, location: location, image: ProfileImage(imageUrl:result.imageUrl, name: result.name), created: Date())
                 var data = DataManager.shere.get()
-                data.append(diary)
+                data.append(disc)
                 DataManager.shere.save(data: data)
-                FirebaseManager.shered.postDiscription(diary: diary)
-            
+                FirebaseManager.shered.postDiscription(disc: disc)
+                HUD.hide()
                 self.presentingViewController?.dismiss(animated: true, completion: nil)
+            }
+               
         }
         else{
             var message = ""

@@ -6,10 +6,16 @@ target 'tripApp' do
   use_frameworks!
 
   # Pods for tripApp
+  pod 'FirebaseMessaging'
   pod 'FirebaseAnalytics'
   pod 'Firebase/Firestore’
   pod 'Firebase/Auth’
   pod 'Firebase/Storage'
   pod 'CropViewController'
   pod 'PKHUD', '~> 5.0'
+  pod 'MessageKit'
+  pod 'SDWebImage'
+  pod 'Firebase/Database'
+  pod 'IQKeyboardManagerSwift'
+  
 end

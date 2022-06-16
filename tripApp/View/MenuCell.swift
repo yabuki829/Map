@@ -13,6 +13,7 @@ class menubarCell:BaseCell{
             }
         }
     }
+    
     let title:UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -26,7 +27,7 @@ class menubarCell:BaseCell{
         image.translatesAutoresizingMaskIntoConstraints = false
         image.contentMode = .scaleAspectFill
         image.image = UIImage(named:"tv")
-        image.tintColor = .darkGray
+        image.tintColor = .link
         return image
     }()
 

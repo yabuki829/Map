@@ -3,6 +3,8 @@ import UIKit
 import MapKit
 import CoreLocation
 import Photos
+import PKHUD
+
 class MapViewController: UIViewController {
     let segumentView: UISegmentedControl = {
         let params = ["標準", "航空写真"]
@@ -29,12 +31,13 @@ class MapViewController: UIViewController {
         return button
     }()
     var locationManager:CLLocationManager!
-    
-    var array = [Diary]()
-    var selectDiary:Diary?
+    var array = [Discription]()
+    var selectDiary:Discription?
+    var selectImage = UIImage()
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
+        view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = .white
 
         segumentView.addTarget(self, action: #selector(changeSegument), for: UIControl.Event.valueChanged)
@@ -52,10 +55,11 @@ class MapViewController: UIViewController {
     
         postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
         setupNavigationItems()
-            }
+        
+    }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        setData()
+//        setData()
     }
     
     @objc internal func sendtoPostView(sender: UIButton) {
@@ -64,12 +68,10 @@ class MapViewController: UIViewController {
         self.present(nav, animated: true, completion: nil)
       }
     @objc internal func sendtoDetailView(sender: UIButton) {
-        let vc = DetailViewController()
-        vc.diary = selectDiary!
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .fullScreen
-        nav.modalTransitionStyle = .flipHorizontal
-        self.present(nav, animated: true, completion: nil)
+        let vc = detailViewController()
+        vc.discription = selectDiary!
+        vc.discriptionImage = selectImage
+        navigationController?.pushViewController(vc, animated: true)
     }
     @objc func changeSegument(sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
@@ -100,7 +102,6 @@ class MapViewController: UIViewController {
         segumentView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
         segumentView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 5).isActive = true
         segumentView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: -5).isActive = true
-        
         segumentView.heightAnchor.constraint(equalToConstant:30 ).isActive = true
        
         
@@ -108,29 +109,36 @@ class MapViewController: UIViewController {
     
     func focusMyLocation(){
         mapView.setCenter(mapView.userLocation.coordinate, animated: true)
+        
     }
     
     func setData(){
-        array = DataManager.shere.get()
-        mapView.removeAnnotations(mapView.annotations)
-        for i in 0..<array.count{
-            let annotation = MKPointAnnotation()
-            if array[i].location != nil{
-                annotation.coordinate = CLLocationCoordinate2DMake(array[i].location!.latitude,array[i].location!.longitude)
-                annotation.title = array[i].title
-                
-                annotation.subtitle = array[i].text
-                self.mapView.addAnnotation(annotation)
+        HUD.show(.progress)
+        FirebaseManager.shered.getFriendDiscription { [self] (data) in
+            array = DataManager.shere.get()
+            array.append(contentsOf: data)
+            mapView.removeAnnotations(mapView.annotations)
+            for i in 0..<array.count{
+                print(i,"ばんめ",array[i].title)
+                let annotation = MKPointAnnotation()
+                if array[i].location != nil{
+                    annotation.coordinate = CLLocationCoordinate2DMake(array[i].location!.latitude,array[i].location!.longitude)
+                    annotation.title = array[i].title
+                    
+                    annotation.subtitle = array[i].text
+                    self.mapView.addAnnotation(annotation)
+                }
             }
+            HUD.hide()
         }
+       
     }
 
-    
     func setupNavigationItems(){
         
         let titleLabel = UILabel(frame: CGRect(x: 30, y: 0, width: view.frame.width - 32, height: view.frame.height))
         titleLabel.font = UIFont(name: "AlNile-Bold", size: 20)
-        titleLabel.text = "mapapp"
+        titleLabel.text = "PhotoShare"
         titleLabel.tintColor = .darkGray
         navigationItem.titleView = titleLabel
               
@@ -158,15 +166,11 @@ class MapViewController: UIViewController {
 extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-//        let region = MKCoordinateRegion(center: view.annotation!.coordinate, span: mapView.region.span)
-//
-//        mapView.setRegion(region, animated: true)
         for i in 0..<array.count{
             if view.annotation?.title == array[i].title && view.annotation?.subtitle == array[i].text{
                 selectDiary = array[i]
-              
+                
             
-              
                 break
             }
         }
@@ -174,17 +178,17 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
     }
     func locationManager(_ manager: CLLocationManager,didChangeAuthorization status: CLAuthorizationStatus) {
                switch status {
-               case .notDetermined:
-                   manager.requestWhenInUseAuthorization()
-               case .restricted, .denied:
-                   break
-               case .authorizedAlways, .authorizedWhenInUse:
-                   manager.startUpdatingLocation()
-                   break
-               default:
-                   break
+                   case .notDetermined:
+                       manager.requestWhenInUseAuthorization()
+                   case .restricted, .denied:
+                       break
+                   case .authorizedAlways, .authorizedWhenInUse:
+                       manager.startUpdatingLocation()
+                       break
+                   default:
+                       break
                }
-           }
+    }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation {
@@ -194,31 +198,54 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
         let pinView =  MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
         pinView.canShowCallout = true
         
-        for i in 0..<array.count{
+        outLoop: for i in 0..<array.count{
             if annotation.title == array[i].title && annotation.subtitle == array[i].text{
+                if array[i].userid == FirebaseManager.shered.getMyUserid(){
+                    pinView.pinTintColor = .link
+                }
+                
                 let stackview = setStackView()
                 let textLabel = UILabel()
-                let imageView = UIImageView(image: UIImage(data:array[i].image))
-                let button = UIButton()
-                textLabel.text = array[i].text
-                textLabel.numberOfLines = 3
-                button.setTitle("＞＞", for: .normal)
-                button.setTitleColor(.darkGray, for: .normal)
-                button.setTitleColor(.systemGray3, for: .highlighted)
-                button.contentHorizontalAlignment = .right
-                button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
-               
-                stackview.addArrangedSubview(imageView)
-                stackview.addArrangedSubview(textLabel)
-                stackview.addArrangedSubview(button)
-                stackview.translatesAutoresizingMaskIntoConstraints = false
+                let imageView = UIImageView()
+                let tapStackView = UITapGestureRecognizer(target: self, action: #selector(sendtoDetailView(sender:)))
+                stackview.isUserInteractionEnabled = true
+                stackview.addGestureRecognizer(tapStackView)
+                imageView.loadImageUsingUrlString(urlString: array[i].image.imageUrl) { [self] image in
+                    if  image != nil {
+                        print("aaaaaa")
+                        selectImage = image!
+                        let button = UIButton()
+                            textLabel.text = array[i].text
+                            textLabel.numberOfLines = 3
+                            button.setTitle("＞＞", for: .normal)
+                            button.setTitleColor(.darkGray, for: .normal)
+                            button.setTitleColor(.systemGray3, for: .highlighted)
+                            button.contentHorizontalAlignment = .right
+                            button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
+                    
+                            stackview.addArrangedSubview(imageView)
+                            stackview.addArrangedSubview(textLabel)
+                            stackview.addArrangedSubview(button)
+                            stackview.translatesAutoresizingMaskIntoConstraints = false
+                          
+                            let gcd = MathManager.shered.getGreatestCommonDivisor(Int((image?.size.width)!), Int((image?.size.height)!))
+                            let ration = MathManager.shered.calcAspectRation(Double(image!.size.width) ,Double(image!.size.height) , gcd: gcd)
+                            let times = MathManager.shered.howmanyTimes(aspectRation: ration)
+                            let width = self.view.frame.width / 3 * 2
+                            imageView.anchor(height: width * times)
+                            
+                            let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: view.frame.width / 3 * 2)
+                               stackview.addConstraint(widthConstraint)
+                            
+                            pinView.detailCalloutAccessoryView = stackview
+                            
+                    }
                 
-                let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: view.frame.width / 3 * 2)
-                   stackview.addConstraint(widthConstraint)
-                let heightConstraint = NSLayoutConstraint(item: stackview, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: view.frame.width / 3 * 2)
-                   stackview.addConstraint(heightConstraint)
-              
-                pinView.detailCalloutAccessoryView = stackview
+                }
+                
+                break outLoop
+                
+             
             }
         }
 
