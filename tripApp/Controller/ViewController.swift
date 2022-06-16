@@ -5,17 +5,58 @@ import CoreLocation
 import Photos
 import PKHUD
 
-class MapViewController: UIViewController {
-    let segumentView: UISegmentedControl = {
-        let params = ["標準", "航空写真"]
-        let segumentView = UISegmentedControl(items: params)
-        segumentView.selectedSegmentIndex = 0
-        segumentView.backgroundColor = .systemGray5
-        segumentView.backgroundImage(for: .normal, barMetrics: .compact)
-     
-        return segumentView
+class MenuView:UIView{
+    let mapSateliteButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("衛生写真", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 12)
+        return button
     }()
-    
+    let mapNomalButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("デフォルト", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 12)
+        return button
+    }()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupViews()
+    }
+
+  
+    func setupViews(){
+        addSubview(mapSateliteButton)
+        addSubview(mapNomalButton)
+        backgroundColor = UIColor(white: 0, alpha: 0.3)
+        mapNomalButton.anchor(top: topAnchor, paddingTop: 10,
+                              left: leftAnchor, paddingLeft: 20,
+                              right: rightAnchor, paddingRight: 20)
+        mapSateliteButton.anchor(top: mapNomalButton.bottomAnchor, paddingTop: 10,
+                              left: leftAnchor, paddingLeft: 20,
+                              right: rightAnchor, paddingRight:20,
+                              bottom: bottomAnchor,paddingBottom: 10)
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+
+class MapViewController: UIViewController {
+    let menuButton: UIButton = {
+        let button = UIButton()
+        button.setBackgroundImage(UIImage(systemName: "map"), for: .normal)
+        button.tintColor = .lightGray
+        return button
+    }()
+    var menuView:MenuView = {
+        let mv = MenuView()
+        mv.isHidden = true
+        return mv
+    }()
+   
     let mapView: MKMapView = {
         let map = MKMapView()
         map.mapType = .standard
@@ -23,6 +64,7 @@ class MapViewController: UIViewController {
        
         return map
     }()
+    
     var postButton:UIButton = {
         let button = UIButton()
         let image = UIImage(systemName: "pencil.circle.fill")
@@ -34,32 +76,31 @@ class MapViewController: UIViewController {
     var array = [Discription]()
     var selectDiary:Discription?
     var selectImage = UIImage()
+    var isOpen = false
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
         view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = .white
 
-        segumentView.addTarget(self, action: #selector(changeSegument), for: UIControl.Event.valueChanged)
-        segumentView.layer.cornerRadius = 0
-        segumentView.clipsToBounds = true
-        segumentView.layer.borderWidth = 2
-        segumentView.layer.borderColor = UIColor.systemGray5.cgColor
-        segumentView.layer.masksToBounds = true
-        
+    
         view.addSubview(mapView)
         view.addSubview(postButton)
-        view.addSubview(segumentView)
+        view.addSubview(menuButton)
+        view.addSubview(menuView)
         addConstraintMapView()
         addConstraintButton()
-    
+        menuButton.addTarget(self, action: #selector(changeMap(sender:)), for: .touchUpInside)
         postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
+        
+        menuView.mapNomalButton.addTarget(self, action: #selector(toDefalutsMap(sender:)), for: .touchUpInside)
+        menuView.mapSateliteButton.addTarget(self, action: #selector(toSateliteMap(sender:)), for: .touchUpInside)
         setupNavigationItems()
         
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-//        setData()
+        setData()
     }
     
     @objc internal func sendtoPostView(sender: UIButton) {
@@ -73,16 +114,37 @@ class MapViewController: UIViewController {
         vc.discriptionImage = selectImage
         navigationController?.pushViewController(vc, animated: true)
     }
-    @objc func changeSegument(sender: UISegmentedControl) {
-        switch sender.selectedSegmentIndex {
-            case 0:
-                mapView.mapType = .standard
-            case 1:
-                mapView.mapType = .hybridFlyover
-            default:
-                break
+    @objc internal func toDefalutsMap(sender: UIButton) {
+        //衛生写真に変更する
+        print("デフォルト")
+        mapView.mapType = .standard
+        menuView.isHidden = true
+        isOpen = false
+        menuButton.isHidden = false
+        
+    }
+    @objc internal func toSateliteMap(sender: UIButton) {
+        //デフォルトに変更する
+        print("衛生写真")
+        mapView.mapType = .satelliteFlyover
+        menuView.isHidden = true
+        isOpen = false
+        menuButton.isHidden = false
+    }
+    @objc internal func changeMap(sender: UIButton) {
+        print(sender.isSelected)
+        isOpen = !isOpen
+        if isOpen {            //メニューを開く
+            menuView.isHidden = false
+            menuButton.isHidden = true
+        }
+        else{
+            //menuを閉じる
+            menuView.isHidden = true
+            menuButton.isHidden = true
         }
     }
+   
     func addConstraintMapView(){
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
@@ -98,12 +160,11 @@ class MapViewController: UIViewController {
         postButton.heightAnchor.constraint(equalToConstant: view.frame.width / 7).isActive = true
         postButton.widthAnchor.constraint(equalToConstant: view.frame.width / 7).isActive = true
         
-        segumentView.translatesAutoresizingMaskIntoConstraints = false
-        segumentView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        segumentView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 5).isActive = true
-        segumentView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: -5).isActive = true
-        segumentView.heightAnchor.constraint(equalToConstant:30 ).isActive = true
-       
+        menuButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 2,
+                          right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 2)
+        
+        menuView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
+                        right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 0)
         
     }
     

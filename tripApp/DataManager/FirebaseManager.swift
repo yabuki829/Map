@@ -93,7 +93,8 @@ class FirebaseManager{
         print("両方変更する")
         let userid = Auth.auth().currentUser!.uid
         StorageManager.shered.uploadPofileImage(imageData: proImagedata!) { (profileimagedata) in
-            StorageManager.shered.uploadPofileImage(imageData: bgImagedata!) { (backgroundimagedata) in
+            StorageManager.shered.uploadBackgroundImage(imageData: bgImagedata!) { (backgroundimagedata) in
+                
                 self.database.collection("Profile").document(userid).setData(
                     ["userid":userid,"username":username,
                      "text":text ?? "",
@@ -101,9 +102,15 @@ class FirebaseManager{
                      "profileImage":profileimagedata.imageUrl
                     ]
                 )
+                var profile = DataManager.shere.getMyProfile()
+                profile.profileImage = imageData(imageData: proImagedata!, name: profileimagedata.name, url: profileimagedata.imageUrl)
+                profile.backgroundImage = imageData(imageData: bgImagedata!, name: backgroundimagedata.name, url: backgroundimagedata.imageUrl)
+                DataManager.shere.setMyProfile(profile: profile)
+                compleation(true)
             }
         }
     }
+    
   
     func editProfileB(text:String?,username:String,bgImagedata:Data?,proImagedata:Data?,backgroundimageurl:String,profileimageurl:String,compleation:@escaping (Bool) -> Void){
         let userid = Auth.auth().currentUser!.uid
@@ -131,7 +138,7 @@ class FirebaseManager{
         //proImagedataが空
         if proImagedata == nil {
             print("Backgroundの画像を変更する")
-            StorageManager.shered.uploadPofileImage(imageData: bgImagedata!) { (result) in
+            StorageManager.shered.uploadBackgroundImage(imageData: bgImagedata!) { (result) in
                 self.database.collection("Profile").document(userid).setData(
                     ["userid":userid,
                      "username":username,
@@ -203,12 +210,15 @@ class FirebaseManager{
     
     func getProfile(userid:String,compleation:@escaping (Profile) -> Void){
         self.database.collection("Profile").document(userid).addSnapshotListener { (snapshot, error) in
+            if let error = error {
+                return
+            }
             let data = snapshot!.data()
-            if let userid       = data!["userid"],
-               let username     = data!["username"],
-               let profileimage = data!["profileImage"],
-               let backgroundimage = data!["backgroundImage"],
-               let text         = data!["text"]{
+            if let userid       = data?["userid"],
+               let username     = data?["username"],
+               let profileimage = data?["profileImage"],
+               let backgroundimage = data?["backgroundImage"],
+               let text         = data?["text"]{
                 
                 let profile = Profile(userid: userid as! String,
                                       username: username as! String,

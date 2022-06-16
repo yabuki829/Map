@@ -25,7 +25,6 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
         collecitonview.dataSource = self
         collecitonview.delegate = self
-        collecitonview.backgroundColor = .white
         collecitonview.isScrollEnabled = false
         collecitonview.automaticallyAdjustsScrollIndicatorInsets = false
         return collecitonview
@@ -45,7 +44,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         collectionView.anchor(top: topAnchor, paddingTop: 0.0,
                               left: leftAnchor, paddingLeft: 0.0,
                               right: rightAnchor, paddingRight:0.0,
-                              bottom: bottomAnchor, paddingBottom: 5.0)
+                              bottom: bottomAnchor, paddingBottom: 0.0)
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 2

@@ -159,19 +159,29 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         HUD.show(.progress)
         FirebaseManager.shered.getUserID(userid: textField.text!) { (userid) in
             print("userid 取得完了")
+            HUD.hide()
             if userid == "idが正しくありません"{
-                HUD.hide()
+              
+                self.messageLabel.textAlignment = .left
                 self.messageLabel.text = "入力したFriendIDが正しくない、もしくは存在しないFriendIDです"
                 self.messageLabel.isHidden = false
                 return
                 
-            }else{
+            }
+            else if userid == FirebaseManager.shered.getMyUserid(){
+                self.messageLabel.text = "ご自身のアカウントです"
+                self.messageLabel.textAlignment = .center
+                self.messageLabel.isHidden = false
+                return
+            }
+            else{
                 FirebaseManager.shered.getProfile(userid: userid) { (data) in
-                    HUD.hide()
                     print("取得完了")
-                    if data.username == "プロフィールが登録されていません" {
-                        //alert プロフィールが登録されていません
+                    print(data)
+                    if data.userid == "error"{
                         self.messageLabel.text = "Profileが設定されていないUserです"
+                        self.messageLabel.textAlignment = .center
+                        self.messageLabel.isHidden = false
                     }
                     else{
                         self.profile = data

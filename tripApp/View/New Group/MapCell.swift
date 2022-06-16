@@ -10,27 +10,81 @@ import UIKit
 import MapKit
 
 class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
+    let menuButton: UIButton = {
+        let button = UIButton()
+        button.setBackgroundImage(UIImage(systemName: "map"), for: .normal)
+        button.tintColor = .lightGray
+        return button
+    }()
+    var menuView:MenuView = {
+        let mv = MenuView()
+        mv.isHidden = true
+        return mv
+    }()
+    
     var descriptionList = [Discription]()
     var mapView =  MKMapView()
     var selectDiary:Discription?
+    var isOpen = false
     override func setupViews() {
         backgroundColor = .black
+        mapView.delegate = self
         addSubview(mapView)
+        addSubview(menuButton)
+        addSubview(menuView)
         addConstraint()
-        settingMapView()
         getData()
+        
+        menuButton.addTarget(self, action: #selector(changeMap(sender:)), for: .touchUpInside)
+        menuView.mapNomalButton.addTarget(self, action: #selector(toDefalutsMap(sender:)), for: .touchUpInside)
+        menuView.mapSateliteButton.addTarget(self, action: #selector(toSateliteMap(sender:)), for: .touchUpInside)
+        
     }
     func addConstraint(){
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant:0).isActive = true
         mapView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 0).isActive = true
         mapView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: 0).isActive = true
-        mapView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+        mapView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0).isActive = true
+        
+        menuButton.anchor(top: safeAreaLayoutGuide.topAnchor, paddingTop: 2,
+                          right: safeAreaLayoutGuide.rightAnchor, paddingRight: 2)
+        
+        menuView.anchor(top: safeAreaLayoutGuide.topAnchor, paddingTop: 0,
+                        right: safeAreaLayoutGuide.rightAnchor, paddingRight: 0)
+       
     }
-    func settingMapView(){
-//        mapView.mapType = .satelliteFlyover
-        mapView.delegate = self
+    @objc internal func toDefalutsMap(sender: UIButton) {
+        //衛生写真に変更する
+        print("デフォルト")
+        mapView.mapType = .standard
+        menuView.isHidden = true
+        isOpen = false
+        menuButton.isHidden = false
+        
     }
+    @objc internal func toSateliteMap(sender: UIButton) {
+        //デフォルトに変更する
+        print("衛生写真")
+        mapView.mapType = .satelliteFlyover
+        menuView.isHidden = true
+        isOpen = false
+        menuButton.isHidden = false
+    }
+    @objc internal func changeMap(sender: UIButton) {
+        print(sender.isSelected)
+        isOpen = !isOpen
+        if isOpen {            //メニューを開く
+            menuView.isHidden = false
+            menuButton.isHidden = true
+        }
+        else{
+            //menuを閉じる
+            menuView.isHidden = true
+            menuButton.isHidden = true
+        }
+    }
+   
     func getData(){
         print("取得します")
         FirebaseManager.shered.getDiscription(userid:FirebaseManager.shered.getMyUserid() ) { (result) in

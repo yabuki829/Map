@@ -74,9 +74,9 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
        
         layout.scrollDirection = .vertical
         layout.estimatedItemSize = .zero
-        
         let vc = profileViewController(collectionViewLayout: layout)
         vc.profile = profileList[indexPath.row]
+        vc.isMyProfile = false
         navigationController?.pushViewController(vc, animated: true)
 
     }

@@ -90,7 +90,7 @@ class MenuBarCell:BaseCell{
       
       override func  setupViews(){
           addSubview(imageView)
-         
+          backgroundColor = .systemGray6
           imageView.setDimensions(width: 24, height: 24)
           imageView.center(inView: self)
       }

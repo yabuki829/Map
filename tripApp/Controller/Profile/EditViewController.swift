@@ -149,18 +149,18 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
         
         if isChangedProfileImage || isChangedBackgroundImage{
             
-            print("新しい画像")
-            // 両方からじゃない 両方新しい画像
+            // プロフィール画像とバックグラウンド画像を変更する場合
             if  isChangedProfileImage && isChangedBackgroundImage{
-                print("両方新しい画像")
                 //前の画像を削除する
                 if profile?.profileImage.name != "person.crop.circle.fill" {
-                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
+                
+                    StorageManager.shered.deleteProfileImage(name: (profile?.profileImage.name)!)
+                   
                     
                 }
                 
                 if profile?.backgroundImage.name != "background"{
-                    StorageManager.shered.deleteProfileImage(name: (profile?.profileImage.name)!)
+                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
                 }
                 //両方とも新しい画像
                 FirebaseManager.shered.editProfileA(text: textView.text,
@@ -170,12 +170,12 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
                     HUD.hide()
                     if result {
                         self.navigationController?.dismiss(animated: true, completion: nil)
+                        return
                     }
                 }
             }
-            //profileが新しい
-            if isChangedProfileImage {
-                print("profile")
+            else if isChangedProfileImage{
+                //プロフィール画像を変更する場合
                 if profile?.profileImage.name != "person.crop.circle.fill" {
                     StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
                     
@@ -185,34 +185,35 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
                     HUD.hide()
                     if result {
                         self.navigationController?.dismiss(animated: true, completion: nil)
+                        return
                     }
                 }
             }
-            //  profileImageData  が空 backgroundだけを変更する
-            if isChangedBackgroundImage {
-                print("バックグラんど画像を変更する")
-                if profile?.profileImage.name != "person.crop.circle.fill" {
-                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
-                }
-                FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: backgroundimagedata, proImagedata: nil, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl:  (profile?.profileImage.url)!) { result in
-                    HUD.hide()
-                    if result {
-                        self.navigationController?.dismiss(animated: true, completion: nil)
+            else{
+                //バックグランド画像を変更する場合
+                if isChangedBackgroundImage  {
+                    if profile?.profileImage.name != "person.crop.circle.fill" {
+                        StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
+                    }
+                    FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: backgroundimagedata, proImagedata: nil, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl:  (profile?.profileImage.url)!) { result in
+                        HUD.hide()
+                        if result {
+                            self.navigationController?.dismiss(animated: true, completion: nil)
+                            return
+                        }
                     }
                 }
-      
             }
           
         }
         else{
-            //profileに画像が入っていない　かつ　backgroundに画像が入ってない　場合 -> デフォルトの画像
-            
-            print("名前とテキストを変更する")
+            //画像を変更しない場合
             FirebaseManager.shered.editProfileC(text: textView.text!, username: textfield.text!, backgroundImageUrl: profile?.backgroundImage.url, profileImageUrl: profile?.profileImage.url){ result in
             
                     HUD.hide()
                     if result{
                         self.navigationController?.dismiss(animated: true, completion: nil)
+                        return
                     }
                   
                 }
