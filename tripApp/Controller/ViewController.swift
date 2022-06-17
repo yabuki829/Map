@@ -296,6 +296,7 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
                             imageView.anchor(height: width * times)
                             
                             let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: view.frame.width / 3 * 2)
+                        
                                stackview.addConstraint(widthConstraint)
                             
                             pinView.detailCalloutAccessoryView = stackview

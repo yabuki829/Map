@@ -131,7 +131,7 @@ class detailViewController:UIViewController{
 extension detailViewController:UITableViewDelegate,UITableViewDataSource,profileCellDelegate{
     @objc func back(sender : UIButton){
         self.navigationController?.popViewController(animated: true)
-        self.presentingViewController?.dismiss(animated: true, completion: nil)
+//        self.presentingViewController?.dismiss(animated: true, completion: nil)
 
     }
     func toDetail(image: UIImage) {

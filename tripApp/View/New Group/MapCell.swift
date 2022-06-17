@@ -10,6 +10,7 @@ import UIKit
 import MapKit
 
 class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
+    weak var delegateWithMapCell:mapCellDelegate? = nil
     let menuButton: UIButton = {
         let button = UIButton()
         button.setBackgroundImage(UIImage(systemName: "map"), for: .normal)
@@ -23,9 +24,11 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     }()
     
     var descriptionList = [Discription]()
+    var selectImage = UIImage()
     var mapView =  MKMapView()
     var selectDiary:Discription?
     var isOpen = false
+    var viewWidth = CGFloat()
     override func setupViews() {
         backgroundColor = .black
         mapView.delegate = self
@@ -124,39 +127,57 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         let pinView =  MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
         pinView.canShowCallout = true
         
-        for i in 0..<descriptionList.count{
-            print("タイトル",descriptionList[i].title)
-            if annotation.title == descriptionList[i].title && annotation.subtitle == descriptionList[i].text{
-                let stackview = setStackView()
-                let textLabel = UILabel()
-                let imageView = UIImageView()
-                imageView.loadImageUsingUrlString(urlString: descriptionList[i].image.imageUrl)
-                
-                let button = UIButton()
-                    textLabel.text = descriptionList[i].text
-                    textLabel.numberOfLines = 3
-                    button.setTitle("＞＞", for: .normal)
-                    button.setTitleColor(.darkGray, for: .normal)
-                    button.setTitleColor(.systemGray3, for: .highlighted)
-                    button.contentHorizontalAlignment = .right
-                    button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
-                
-                    stackview.addArrangedSubview(imageView)
-                    stackview.addArrangedSubview(textLabel)
-                    stackview.addArrangedSubview(button)
-                    stackview.translatesAutoresizingMaskIntoConstraints = false
-                    
-                let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: self.frame.width / 3 * 2)
-                       stackview.addConstraint(widthConstraint)
-                let heightConstraint = NSLayoutConstraint(item: stackview, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: self.frame.width / 3 * 2)
-                       stackview.addConstraint(heightConstraint)
-                  
-                    pinView.detailCalloutAccessoryView = stackview
-                
-             
+    outLoop: for i in 0..<descriptionList.count{
+        if annotation.title == descriptionList[i].title && annotation.subtitle == descriptionList[i].text{
+            if descriptionList[i].userid == FirebaseManager.shered.getMyUserid(){
+                pinView.pinTintColor = .link
             }
+            
+            let stackview = setStackView()
+            let textLabel = UILabel()
+            let imageView = UIImageView()
+            let tapStackView = UITapGestureRecognizer(target: self, action: #selector(sendtoDetailView(sender:)))
+            stackview.isUserInteractionEnabled = true
+            stackview.addGestureRecognizer(tapStackView)
+            imageView.loadImageUsingUrlString(urlString: descriptionList[i].image.imageUrl) { [self] image in
+                if  image != nil {
+                    
+                    selectImage = image!
+                    let button = UIButton()
+                        textLabel.text = descriptionList[i].text
+                        textLabel.numberOfLines = 3
+                        button.setTitle("＞＞", for: .normal)
+                        button.setTitleColor(.darkGray, for: .normal)
+                        button.setTitleColor(.systemGray3, for: .highlighted)
+                        button.contentHorizontalAlignment = .right
+                        button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
+                
+                        stackview.addArrangedSubview(imageView)
+                        stackview.addArrangedSubview(textLabel)
+                        stackview.addArrangedSubview(button)
+                        stackview.translatesAutoresizingMaskIntoConstraints = false
+                      
+                        let gcd = MathManager.shered.getGreatestCommonDivisor(Int((image?.size.width)!), Int((image?.size.height)!))
+                        let ration = MathManager.shered.calcAspectRation(Double(image!.size.width) ,Double(image!.size.height) , gcd: gcd)
+                        let times = MathManager.shered.howmanyTimes(aspectRation: ration)
+                        let width = viewWidth / 3 * 2
+                  
+                        imageView.anchor(height: width * times)
+                        
+                    let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 3 * 2)
+                           stackview.addConstraint(widthConstraint)
+                        
+                        pinView.detailCalloutAccessoryView = stackview
+                        
+                }
+            
+            }
+            
+            break outLoop
+            
+         
         }
-
+    }
         return pinView
     }
     
@@ -171,7 +192,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         print("aaaaaaaa")
         if selectDiary != nil{
             print("tap")
-            delegateWithMapCell?.toDetail(discription: selectDiary! )
+            delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, selectImage: selectImage)
         }
     }
     func setData(){
@@ -187,9 +208,10 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             }
         }
     }
-    weak var delegateWithMapCell:mapCellDelegate? = nil
+
+   
 }
 
 protocol mapCellDelegate: class  {
-    func toDetail(discription:Discription)
+    func toDetailWithMapCell(discription:Discription,selectImage:UIImage)
 }

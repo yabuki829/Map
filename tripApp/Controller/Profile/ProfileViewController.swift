@@ -137,13 +137,23 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
         collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
     }
     
-    func toDetail(discription: Discription) {
-        print("コレクションビューの画像が押されました")
+    func toDetailWithMapCell(discription: Discription,selectImage:UIImage){
+        print("mapから遷移します")
+//        let vc = detailViewController()
+//        vc.discription = discription
+//        let nav = UINavigationController(rootViewController: vc)
+//        nav.modalPresentationStyle = .fullScreen
+//        self.present(nav, animated: true, completion: nil)
         let vc = detailViewController()
         vc.discription = discription
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
+        vc.discriptionImage = selectImage
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.discriptionImage = selectImage
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     func toFriendList() {
@@ -196,8 +206,9 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
             cell.mapCell.delegateWithMapCell = self
             
             cell.discriptionList = discriptionList
+            cell.viewWidth = view.frame.width
             mapAndDiscriptionCell = cell
-            
+            mapAndDiscriptionCell?.mapCell.delegateWithMapCell = self
             return cell
         }
     }

@@ -17,7 +17,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
     var userid = String()
     var discriptioncell = discriptionCell()
     var mapCell = MapCell()
-    
+    var viewWidth = CGFloat()
     lazy var collectionView:UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -60,7 +60,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         }
         else{
             mapCell.descriptionList = discriptionList
-
+            mapCell.viewWidth = viewWidth
             return mapCell
         }
     }

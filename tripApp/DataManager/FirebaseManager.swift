@@ -382,7 +382,7 @@ class FirebaseManager{
     func deleteUserid(){
         //friendid を　取得して削除する
         let id = UserDefaults.standard.object(forKey: "userid")
-        database.collection(userid).document(id).delete()
+        database.collection("userid").document(id as! String).delete()
     }
     func deleteDiscription(postID:String){
         //MyDiscriptionを削除する
@@ -397,7 +397,7 @@ class FirebaseManager{
         deleteComment(postID: postID)
     }
     func deleteAllDiscriptions(userID:String){
-        database.collection("Users").document(userid).collection("FriendDiscription").getDocuments { (snapshot, error) in
+        database.collection("Users").document(userID).collection("FriendDiscription").getDocuments { (snapshot, error) in
             if let error = error{
                 print("エラー",error)
                 return
@@ -407,7 +407,7 @@ class FirebaseManager{
                 document.reference.delete()
             }
         }
-        database.collection("Users").document(userid).collection("MyDiscription").getDocuments { (snapshot, error) in
+        database.collection("Users").document(userID).collection("MyDiscription").getDocuments { (snapshot, error) in
             if let error = error{
                 print("エラー",error)
                 return

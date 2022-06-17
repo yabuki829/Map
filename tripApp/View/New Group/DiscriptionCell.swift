@@ -67,7 +67,6 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DiscriptionImageCell", for: indexPath) as! DiscriptionImageCell
         
         cell.imageView.loadImageUsingUrlString(urlString:discriptionList![indexPath.row].image.imageUrl)
-       
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -81,8 +80,8 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-       
-        delegate?.toDetail(discription: discriptionList![indexPath.row] )
+        let cell = collectionView.cellForItem(at: indexPath) as! DiscriptionImageCell
+        delegate?.toDetailWithDiscriptionpCell(discription:  discriptionList![indexPath.row], selectImage: cell.imageView.image!)
         
     }
  
@@ -101,7 +100,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
 }
 
 protocol transitionDelegate: class  {
-    func toDetail(discription:Discription)
+    func toDetailWithDiscriptionpCell(discription:Discription,selectImage:UIImage)
     func toFriendList()
     func scroll()
 }
