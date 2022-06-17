@@ -49,11 +49,12 @@ class profileViewController:UICollectionViewController{
         //自分の投稿なのか　友達の投稿なのか
         if isMyProfile{
             //自分の投稿
+            discriptionList.removeAll()
+            followUserIdList.removeAll()
             print("プロフィール取得する")
             myprofile = DataManager.shere.getMyProfile()
             discriptionList = DataManager.shere.get().reversed()
             followUserIdList = DataManager.shere.getFollow()
-            print("discriptionList",discriptionList)
             collectionView.reloadData()
         }
         else{

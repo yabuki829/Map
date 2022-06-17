@@ -114,6 +114,7 @@ class detailViewController:UIViewController{
             self.commentList.removeAll()
             self.commentList = data
             self.tableView.reloadData()
+            
         }
     }
     func setNav(){
