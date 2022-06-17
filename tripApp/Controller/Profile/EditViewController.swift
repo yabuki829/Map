@@ -140,7 +140,6 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     @objc func edit(sender : UIButton){
         print("Edit")
         print("profile",profileimagedata,"backimage",backgroundimagedata)
-        //リファクタリング　あんど　コードの見直し　ここから
         if textfield.text == ""{
             return
         }

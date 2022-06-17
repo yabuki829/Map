@@ -350,6 +350,7 @@ class FirebaseManager{
             ["FriendID":friendid]
         )
     }
+    
     func getFriendIdList(userid:String,compleation:@escaping ([String]) -> Void){
         var friendIdList = [String]()
         database.collection("Users").document(userid).collection("FriendIdList").addSnapshotListener { (snapshot, error) in
@@ -364,6 +365,25 @@ class FirebaseManager{
             }
         }
     }
+    func deleteAllFollow(userid:String){
+        
+        database.collection("Users").document(userid).collection("FriendIdList").getDocuments { (snapshot, error) in
+            if let error = error{
+                print("エラー",error)
+                return
+            }
+            
+            for document in snapshot!.documents{
+                document.reference.delete()
+            }
+            
+        }
+    }
+    func deleteUserid(){
+        //friendid を　取得して削除する
+        let id = UserDefaults.standard.object(forKey: "userid")
+        database.collection(userid).document(id).delete()
+    }
     func deleteDiscription(postID:String){
         //MyDiscriptionを削除する
         let userid = Auth.auth().currentUser!.uid
@@ -375,6 +395,29 @@ class FirebaseManager{
         }
         //commentを削除する
         deleteComment(postID: postID)
+    }
+    func deleteAllDiscriptions(userID:String){
+        database.collection("Users").document(userid).collection("FriendDiscription").getDocuments { (snapshot, error) in
+            if let error = error{
+                print("エラー",error)
+                return
+            }
+            
+            for document in snapshot!.documents{
+                document.reference.delete()
+            }
+        }
+        database.collection("Users").document(userid).collection("MyDiscription").getDocuments { (snapshot, error) in
+            if let error = error{
+                print("エラー",error)
+                return
+            }
+            
+            for document in snapshot!.documents{
+                document.reference.delete()
+            }
+        }
+        
     }
     private func deleteComment(postID:String){
         database.collection("Comments").document(postID).collection("Comment").getDocuments { (snapshot, error) in

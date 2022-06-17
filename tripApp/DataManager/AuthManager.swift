@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
 
 class AuthManager{
     static let shered = AuthManager()
@@ -73,12 +74,39 @@ class AuthManager{
         }
     }
     
-    func loginOut(){
+    func logOut(){
         let firebaseAuth = Auth.auth()
         do {
             try firebaseAuth.signOut()
+            FirebaseManager.shered.deleteUserid()
+            UserDefaults.standard.removeObject(forKey: "userid")
         } catch let signOutError as NSError {
             print("Error signing out: %@", signOutError)
         }
+    }
+    func deleteAccount(compleation:@escaping (Bool) -> Void){
+        //1.accountの削除
+        let user = Auth.auth().currentUser
+        user?.delete { error in
+            if let error = error {
+            print(error)
+            print("アカウント削除に失敗しました")
+            } else {
+            print("アカウントを削除しました")
+            }
+        }
+        //2.profileの削除
+        Firestore.firestore().collection("Profile").document(user!.uid).delete()
+        //3.friendidを取得して　useridを削除する
+        FirebaseManager.shered.deleteUserid()
+        //4.friend id List を削除
+        FirebaseManager.shered.deleteAllFollow(userid: user!.uid)
+        
+        //5.discription　frienddiscription mydiscription の削除
+        FirebaseManager.shered.deleteAllDiscriptions(userID: user!.uid)
+        //6.userdefailtsの削除
+        let appDomain = Bundle.main.bundleIdentifier
+        UserDefaults.standard.removePersistentDomain(forName: appDomain!)
+        compleation(true)
     }
 }
