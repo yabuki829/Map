@@ -20,10 +20,8 @@ class AuthManager{
                 compleation(false)
                 return
             }
-            //useridを保存する
             let userid = String().generateID(20)
             FirebaseManager.shered.setUserID(userid: userid)
-//            FirebaseManager.shered.setUseridToRDatabase(userid: Auth.auth().currentUser!.uid)
             UserDefaults.standard.setValue(userid, forKey: "userid")
             compleation(true)
         }
@@ -36,7 +34,6 @@ class AuthManager{
             }
             let userid = String().generateID(20)
             FirebaseManager.shered.setUserID(userid: userid)
-//            FirebaseManager.shered.setUseridToRDatabase(userid: Auth.auth().currentUser!.uid)
             UserDefaults.standard.setValue(userid, forKey: "userid")
             compleation(true)
         }
@@ -64,7 +61,7 @@ class AuthManager{
                 compleation(false)
                 return
             }
-            print(authResult)
+            
             let userid = String().generateID(20)
             FirebaseManager.shered.setUserID(userid: userid)
             UserDefaults.standard.setValue(userid, forKey: "userid")
@@ -74,14 +71,19 @@ class AuthManager{
         }
     }
     
-    func logOut(){
+    func logout(compleation:@escaping (Bool) -> Void){
         let firebaseAuth = Auth.auth()
         do {
+            print("logout")
             try firebaseAuth.signOut()
-            FirebaseManager.shered.deleteUserid()
-            UserDefaults.standard.removeObject(forKey: "userid")
+                FirebaseManager.shered.deleteUserid()
+                UserDefaults.standard.removeObject(forKey: "userid")
+                compleation(true)
+            
         } catch let signOutError as NSError {
+            print("logoutに失敗しました")
             print("Error signing out: %@", signOutError)
+            compleation(false)
         }
     }
     func deleteAccount(compleation:@escaping (Bool) -> Void){

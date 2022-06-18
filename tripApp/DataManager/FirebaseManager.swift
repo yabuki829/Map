@@ -302,10 +302,19 @@ class FirebaseManager{
         }
     }
    
+    
+    
     func getFriendDiscription(compleation:@escaping ([Discription]) -> Void){
         print("友達の投稿を取得します")
         let userid = getMyUserid()
         var discriptionList = [Discription]()
+        //24時間以内の投稿を取得する　todo
+        let startDate = Date()
+        database.collection("cities")
+            .order(by: "serverDate")
+            .start(at: [startDate])
+            .end(at: <#T##[Any]#>)
+        
         database.collection("Users").document(userid).collection("FriendDiscription").order(by:"created", descending: false).getDocuments{ (snapshot, error) in
             if let error = error {
                 print("エラー",error)

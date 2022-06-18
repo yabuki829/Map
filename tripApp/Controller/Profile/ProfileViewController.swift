@@ -30,7 +30,9 @@ class profileViewController:UICollectionViewController{
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        getDiscription()
+        if isMyProfile{
+            myprofile = DataManager.shere.getMyProfile()
+        }
     }
     func settingCollectionView(){
         collectionView.delegate = self
@@ -64,16 +66,11 @@ class profileViewController:UICollectionViewController{
             FirebaseManager.shered.getDiscription(userid: profile.userid) { [weak self](discriptions) in
                 FirebaseManager.shered.getFriendIdList(userid: (self?.profile.userid)!) { (followList) in
                     HUD.hide()
-                    print("discriptionLost",discriptions)
+                    print("discriptionLost",discriptions.count)
                     print("follow",followList)
                     self?.discriptionList = discriptions.reversed()
                     self?.followUserIdList = followList
-                  
-                    if discriptions.count != 0{
-                        self?.collectionView.reloadData()
-                        print("リロード")
-                    }
-                    print("------------------------------------")
+                    self?.collectionView.reloadData()
                 }
              
                
@@ -133,17 +130,11 @@ class profileViewController:UICollectionViewController{
 
 extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegate,transitionDelegate,mapCellDelegate{
     func scroll() {
-        print("スクロール")
         collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
     }
     
     func toDetailWithMapCell(discription: Discription,selectImage:UIImage){
         print("mapから遷移します")
-//        let vc = detailViewController()
-//        vc.discription = discription
-//        let nav = UINavigationController(rootViewController: vc)
-//        nav.modalPresentationStyle = .fullScreen
-//        self.present(nav, animated: true, completion: nil)
         let vc = detailViewController()
         vc.discription = discription
         vc.discriptionImage = selectImage
@@ -177,7 +168,7 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print("cellsakusei")
+        print(indexPath.row + 1 , "回目")
         if indexPath.row == 0{
             // Profile
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
@@ -204,7 +195,7 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MapAndDiscriptionCell", for: indexPath) as! MapAndDiscriptionCell
             cell.discriptioncell.delegate = self
             cell.mapCell.delegateWithMapCell = self
-            
+            print(discriptionList)
             cell.discriptionList = discriptionList
             cell.viewWidth = view.frame.width
             mapAndDiscriptionCell = cell

@@ -23,7 +23,11 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         return mv
     }()
     
-    var descriptionList = [Discription]()
+    var descriptionList : [Discription]?{
+        didSet {
+            setData()
+        }
+    }
     var selectImage = UIImage()
     var mapView =  MKMapView()
     var selectDiary:Discription?
@@ -36,8 +40,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         addSubview(menuButton)
         addSubview(menuView)
         addConstraint()
-        getData()
-        
+//        getData()
         menuButton.addTarget(self, action: #selector(changeMap(sender:)), for: .touchUpInside)
         menuView.mapNomalButton.addTarget(self, action: #selector(toDefalutsMap(sender:)), for: .touchUpInside)
         menuView.mapSateliteButton.addTarget(self, action: #selector(toSateliteMap(sender:)), for: .touchUpInside)
@@ -90,6 +93,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
    
     func getData(){
         print("取得します")
+        descriptionList!.removeAll()
         FirebaseManager.shered.getDiscription(userid:FirebaseManager.shered.getMyUserid() ) { (result) in
             print("完了",result.count)
             self.descriptionList = DataManager.shere.get()
@@ -97,9 +101,9 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         }   
     }
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        for i in 0..<descriptionList.count{
-            if view.annotation?.title == descriptionList[i].title && view.annotation?.subtitle == descriptionList[i].text{
-                selectDiary = descriptionList[i]
+        for i in 0..<descriptionList!.count{
+            if view.annotation?.title == descriptionList![i].title && view.annotation?.subtitle == descriptionList![i].text{
+                selectDiary = descriptionList![i]
                 break
             }
         }
@@ -127,9 +131,9 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         let pinView =  MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
         pinView.canShowCallout = true
         
-    outLoop: for i in 0..<descriptionList.count{
-        if annotation.title == descriptionList[i].title && annotation.subtitle == descriptionList[i].text{
-            if descriptionList[i].userid == FirebaseManager.shered.getMyUserid(){
+    outLoop: for i in 0..<descriptionList!.count{
+        if annotation.title == descriptionList![i].title && annotation.subtitle == descriptionList![i].text{
+            if descriptionList![i].userid == FirebaseManager.shered.getMyUserid(){
                 pinView.pinTintColor = .link
             }
             
@@ -139,12 +143,12 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             let tapStackView = UITapGestureRecognizer(target: self, action: #selector(sendtoDetailView(sender:)))
             stackview.isUserInteractionEnabled = true
             stackview.addGestureRecognizer(tapStackView)
-            imageView.loadImageUsingUrlString(urlString: descriptionList[i].image.imageUrl) { [self] image in
+            imageView.loadImageUsingUrlString(urlString: descriptionList![i].image.imageUrl) { [self] image in
                 if  image != nil {
                     
                     selectImage = image!
                     let button = UIButton()
-                        textLabel.text = descriptionList[i].text
+                        textLabel.text = descriptionList![i].text
                         textLabel.numberOfLines = 3
                         button.setTitle("＞＞", for: .normal)
                         button.setTitleColor(.darkGray, for: .normal)
@@ -196,14 +200,14 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         }
     }
     func setData(){
-        for i in 0..<descriptionList.count{
-            print(i,"ばんめ",descriptionList[i].title)
+        for i in 0..<descriptionList!.count{
+            print(i,"ばんめ",descriptionList![i].title)
             let annotation = MKPointAnnotation()
-            if descriptionList[i].location != nil{
-                annotation.coordinate = CLLocationCoordinate2DMake(descriptionList[i].location!.latitude,descriptionList[i].location!.longitude)
-                annotation.title = descriptionList[i].title
+            if descriptionList![i].location != nil{
+                annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
+                annotation.title = descriptionList![i].title
                 
-                annotation.subtitle = descriptionList[i].text
+                annotation.subtitle = descriptionList![i].text
                 self.mapView.addAnnotation(annotation)
             }
         }

@@ -45,14 +45,22 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     
     var profile:myProfile? {
         didSet{
-            if profile?.backgroundImage.name == "background"{
+            if profile!.backgroundImage.name == "background"  || profile!.backgroundImage.url == "background" {
                 backgraundImage.image = UIImage(named: "background")
+            }
+            else if profile!.backgroundImage.name == "" || profile!.backgroundImage.url != ""{
+                backgraundImage.loadImageUsingUrlString(urlString: profile!.backgroundImage.url )
             }
             else{
                 backgraundImage.image = UIImage(data: profile!.backgroundImage.imageData)
             }
-            if profile?.profileImage.name == "person.crop.circle.fill" {
+            
+            
+            if  profile!.profileImage.name == "person.crop.circle.fill"  || profile!.profileImage.url == "person.crop.circle.fill" {
                 profileImage.image =  UIImage(systemName:"person.crop.circle.fill")
+            }
+            else if profile!.profileImage.name == "" || profile!.profileImage.url != ""{
+                profileImage.loadImageUsingUrlString(urlString: profile!.profileImage.url )
             }
             else{
                 profileImage.image = UIImage(data: profile!.profileImage.imageData)

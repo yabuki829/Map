@@ -1,16 +1,7 @@
-//
-//  EmailViewController.swift
-//  tripApp
-//
-//  Created by Yabuki Shodai on 2022/06/06.
-//
-
-
-
-
 import Foundation
 import UIKit
 import IQKeyboardManagerSwift
+import FirebaseAuth
 
 class EmailLoginViewController:UIViewController, UITextFieldDelegate{
     let iconImageView:UIImageView = {
@@ -128,7 +119,17 @@ class EmailLoginViewController:UIViewController, UITextFieldDelegate{
             print("OK")
             AuthManager.shered.startAuthWithEmail(email: emailTextField.text!, password: passwordTextField.text!) { result in
                 if result {
-                    self.move()
+                    FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
+                        let myprofile:myProfile = myProfile(userid: profile.userid,
+                                                  username: profile.username,
+                                                  text: profile.text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
+                                                  backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),
+                                                  profileImage: imageData(imageData: Data(), name: "", url: profile.profileImageUrl))
+                        
+                        DataManager.shere.setMyProfile(profile: myprofile)
+                        
+                        self.move()
+                    }
                 }
             }
         }
@@ -278,9 +279,21 @@ class RegisterWithEmailViewController:UIViewController,UITextFieldDelegate{
         
         if validateEmail(email: emailTextField.text!) || passwordValidate.isValid{
             print("OK")
-            AuthManager.shered.startAuthWithEmail(email: emailTextField.text!, password: passwordTextField.text!) { result in
+            AuthManager.shered.startAuthWithEmail(email: emailTextField.text!, password: passwordTextField.text!) {[self] result in
                 if result {
-                    self.move()
+                    FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
+                        //friend Listを取得する
+                        //discriptionを取得する
+                        let myprofile:myProfile = myProfile(userid: profile.userid,
+                                                  username: profile.username,
+                                                  text: profile.text ?? "",
+                                                  backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),
+                                                  profileImage: imageData(imageData: Data(), name: "", url: profile.profileImageUrl))
+                        
+                        DataManager.shere.setMyProfile(profile: myprofile)
+                        
+                        self.move()
+                    }
                 }
             }
         }

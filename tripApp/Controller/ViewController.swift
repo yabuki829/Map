@@ -97,6 +97,7 @@ class MapViewController: UIViewController {
         menuView.mapSateliteButton.addTarget(self, action: #selector(toSateliteMap(sender:)), for: .touchUpInside)
         setupNavigationItems()
         
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)

@@ -103,22 +103,27 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
         }
         else if indexPath.row == 2{
             //sign out ここから
-//            AuthManager.shered.loginOut()
+            AuthManager.shered.logout { result in
+                if result{
+                    let vc = LoginViewController()
+                    vc.modalPresentationStyle = .fullScreen
+                    self.present(vc, animated: true, completion: nil)
+                
+                }
+            }
             //useridを削除する
             //login pageに遷移する
-            let vc = LoginViewController()
-            vc.modalPresentationStyle = .fullScreen
-            self.present(vc, animated: true, completion: nil)
+           
         }
         else if indexPath.row == 3{
             //アカウント削除　ここから
-            let vc = LoginViewController()
-            vc.modalPresentationStyle = .fullScreen
-            self.present(vc, animated: true, completion: nil)
+           
             AuthManager.shered.deleteAccount { result in
                 if result {
                     //login pageに遷移する
-                   
+                    let vc = LoginViewController()
+                    vc.modalPresentationStyle = .fullScreen
+                    self.present(vc, animated: true, completion: nil)
                 }
             }
         }

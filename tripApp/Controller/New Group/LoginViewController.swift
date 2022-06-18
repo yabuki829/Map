@@ -34,28 +34,31 @@ class LoginViewController:UIViewController{
         label.text = "- or -"
         return label
     }()
-    let signinWithEmaiButton:UIButton = {
+    
+    @objc let checkButton:UIButton = {
         let button = UIButton()
-        button.setTitle("Sign in With Email", for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
-        button.setTitleColor(.white, for: .normal)
-        button.setTitleColor(.gray, for: .highlighted)
-        button.backgroundColor = .black
+        button.setBackgroundImage(UIImage(systemName: "square"), for: .normal)
+//        checkmark.square
+        button.tintColor = .darkGray
+        return button
+    }()
+    let privacyPolicyButton:UIButton = {
+        let button = UIButton()
+        button.setTitle("PrivacyPolicy", for: .normal)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+        button.setTitleColor(.darkGray, for: .normal)
+        button.setTitleColor(.lightGray, for: .highlighted)
         button.layer.cornerRadius = 5
         button.clipsToBounds = true
         return button
     }()
-    let signupWithEmailButton:UIButton = {
-        let button = UIButton()
-        button.setTitle("Register With Email", for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 12)
-        button.setTitleColor(.white, for: .normal)
-        button.setTitleColor(.gray, for: .highlighted)
-        button.backgroundColor = .black
-        button.layer.cornerRadius = 5
-        button.clipsToBounds = true
-        return button
+    
+    let stackView:UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        return stackView
     }()
+  var isCheck = false
     override func viewDidLoad() {
         navigationController?.setNavigationBarHidden(true, animated: false)
         self.view.backgroundColor = .white
@@ -79,29 +82,16 @@ class LoginViewController:UIViewController{
                                 width: view.frame.width - 100, height: 50)
         
         
-        view.addSubview(orLabel)
-        orLabel.anchor(top: appleLoginButton.bottomAnchor, paddingTop: 20,
-                       left: view.leftAnchor, paddingLeft: 20,
-                       right: view.rightAnchor, paddingRight: 20)
-        
-        view.addSubview(signinWithEmaiButton)
-        view.addSubview(signupWithEmailButton)
-        
-        
-        
-        let signButtonWidth = (view.frame.width - 20  - 25 * 2) / 2
-        signinWithEmaiButton.anchor(top: orLabel.bottomAnchor, paddingTop: 20,
-                                    left: view.leftAnchor, paddingLeft: 25,
-                                    width: signButtonWidth)
-        signinWithEmaiButton.addTarget(self, action: #selector(loginWithEmail), for: .touchDown)
-//        20 A 10 or 10 B 20
-       
-        
-        signupWithEmailButton.anchor(top: orLabel.bottomAnchor, paddingTop: 20,
-                                     left: signinWithEmaiButton.rightAnchor, paddingLeft: 20,
-                                     right: view.rightAnchor, paddingRight: 25,
-                                     width: signButtonWidth)
-        signupWithEmailButton.addTarget(self, action: #selector(registerWithEmail), for: .touchDown)
+        view.addSubview(stackView)
+        stackView.anchor(top: appleLoginButton.bottomAnchor, paddingTop: 60,
+                         left: view.leftAnchor, paddingLeft: 60,
+                         right: view.rightAnchor, paddingRight: 60,
+                         height: 30)
+        stackView.addArrangedSubview(privacyPolicyButton)
+        stackView.addArrangedSubview(checkButton)
+        checkButton.anchor(width:30)
+        checkButton.addTarget(self, action: #selector(chack), for: .touchDown)
+        privacyPolicyButton.addTarget(self, action: #selector(registerWithEmail), for: .touchDown)
     }
     
 
@@ -113,6 +103,18 @@ class LoginViewController:UIViewController{
 }
 
 extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorizationControllerPresentationContextProviding{
+    
+    @objc func chack(){
+        isCheck = !isCheck
+        if isCheck {
+            checkButton.setBackgroundImage(UIImage(systemName: "checkmark.square"), for: .normal)
+        }
+        else{
+            checkButton.setBackgroundImage(UIImage(systemName: "square"), for: .normal)
+        }
+    }
+    
+    
     
     @objc func loginWithEmail(){
         print("Email Login")
@@ -126,17 +128,22 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
     }
     @objc func loginWithApple(){
         print("Apple Login")
+        if isCheck {
+            currentNonce = randomNonceString()
+
+            let request = ASAuthorizationAppleIDProvider().createRequest()
+            request.requestedScopes = [.fullName, .email]
+            request.nonce = currentNonce.sha_256()
+
+            let controller = ASAuthorizationController(authorizationRequests: [request])
+            controller.delegate = self
+            controller.presentationContextProvider = self
+            controller.performRequests()
+        }
+        else{
+            //利用規約を呼んでください Alert
+        }
         
-        currentNonce = randomNonceString()
-
-        let request = ASAuthorizationAppleIDProvider().createRequest()
-        request.requestedScopes = [.fullName, .email]
-        request.nonce = currentNonce.sha_256()
-
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        controller.delegate = self
-        controller.presentationContextProvider = self
-        controller.performRequests()
         
     }
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
@@ -157,11 +164,22 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
                 if currentNonce.count == 0 { fatalError("不正なNonce") }
                 let credential = OAuthProvider.credential(withProviderID: "apple.com", idToken: idTokenString, rawNonce: currentNonce)
 
-                AuthManager.shered.startAuthWithApple(credential: credential) {  (result) in
+                AuthManager.shered.startAuthWithApple(credential: credential) { [self] (result) in
                     if result {
-                        self.move()
+                        
+                        FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
+                            let myprofile:myProfile = myProfile(userid: profile.userid,
+                                                      username: profile.username,
+                                                      text: profile.text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
+                                                      backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),
+                                                      profileImage: imageData(imageData: Data(), name: "", url: profile.profileImageUrl))
+                            
+                            DataManager.shere.setMyProfile(profile: myprofile)
+                            
+                            self.move()
+                        }
                     }
-                print("Appleログインに失敗しました")
+               
             }
         }
     }

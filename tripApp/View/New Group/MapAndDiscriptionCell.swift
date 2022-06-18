@@ -13,7 +13,11 @@ import UIKit
 //                   -> DiscriptionCell -> DiscriptionCell
 
 class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
-    var discriptionList = [Discription]()
+    var discriptionList : [Discription]?{
+        didSet{
+            collectionView.reloadData()
+        }
+    }
     var userid = String()
     var discriptioncell = discriptionCell()
     var mapCell = MapCell()
@@ -39,6 +43,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         collectionView.register(discriptionCell.self, forCellWithReuseIdentifier: "DiscriptionCell")
         discriptioncell = collectionView.dequeueReusableCell(withReuseIdentifier: "DiscriptionCell", for: IndexPath()) as! discriptionCell
         mapCell =  collectionView.dequeueReusableCell(withReuseIdentifier: "MapCell", for: IndexPath()) as! MapCell
+  
     }
     func addCollectionViewConstaraiont(){
         collectionView.anchor(top: topAnchor, paddingTop: 0.0,
@@ -53,13 +58,13 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         return CGSize(width: self.frame.width, height: self.frame.height)
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        print(indexPath.row + 1 , "回目")
         if indexPath.row == 0{
-            discriptioncell.discriptionList = discriptionList
-            
+            discriptioncell.discriptionList = discriptionList!
             return discriptioncell
         }
         else{
-            mapCell.descriptionList = discriptionList
+            mapCell.descriptionList = discriptionList!
             mapCell.viewWidth = viewWidth
             return mapCell
         }
