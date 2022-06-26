@@ -10,12 +10,7 @@ import UIKit
 
 
 class ImageCell:UICollectionViewCell{
-    override var isSelected: Bool{
-           didSet{
-            imageView.alpha = isSelected ? 0.5 : 1.0
-           }
-          
-       }
+
     let imageView:UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -28,7 +23,7 @@ class ImageCell:UICollectionViewCell{
         setupViews()
     }
     func setupViews(){
-        self.addSubview(imageView)
+        contentView.addSubview(imageView)
         addImageViewConstraint()
         imageView.layer.cornerRadius = 10
         imageView.clipsToBounds = true

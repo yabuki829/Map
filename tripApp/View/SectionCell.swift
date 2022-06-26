@@ -22,7 +22,7 @@ class SectionCell :BaseCell{
     
   
     override func setupViews() {
-        addSubview(titleLabel)
+        contentView.addSubview(titleLabel)
         self.backgroundColor = .systemGray5
         addtitleConstraint()
     }

@@ -35,7 +35,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
     }()
     
     override func setupViews() {
-        addSubview(collectionView)
+        contentView.addSubview(collectionView)
         addCollectionViewConstaraiont()
         self.backgroundColor = .white
        
@@ -58,7 +58,6 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         return CGSize(width: self.frame.width, height: self.frame.height)
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print(indexPath.row + 1 , "回目")
         if indexPath.row == 0{
             discriptioncell.discriptionList = discriptionList!
             return discriptioncell

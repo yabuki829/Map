@@ -38,8 +38,7 @@ class FriendListViewController:UIViewController{
     func getFriendProfile(){
         //インディケーター回す
         print("取得します")
-        let friendList = DataManager.shere.getFollow()
-        print(friendList)
+        let friendList = FollowManager.shere.getFollow()
         FirebaseManager.shered.getFriendProfile(friendList: friendList ) { (result) in
             print("取得完了")
             //インディケーターを止める

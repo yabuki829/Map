@@ -20,7 +20,7 @@ class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UI
         return collecitonview
     }()
     override func setupViews() {
-        addSubview(collectionView)
+        contentView.addSubview(collectionView)
         addCollectionViewConstaraiont()
         backgroundColor = .red
         self.backgroundColor = .white

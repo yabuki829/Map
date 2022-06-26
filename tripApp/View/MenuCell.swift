@@ -32,8 +32,8 @@ class menubarCell:BaseCell{
     }()
 
     override func setupViews() {
-        addSubview(title)
-        addSubview(iconImage)
+        contentView.addSubview(title)
+        contentView.addSubview(iconImage)
         
         addtitleConstraint()
         addIconImageConstraint()

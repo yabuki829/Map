@@ -67,7 +67,7 @@ class ChatRoomViewController: MessagesViewController {
                                displayName: otherProfile?.username ?? "")
         }
     }
-    var currentProfile:myProfile? {
+    var currentProfile:MyProfile? {
         didSet{
             currentUser = SenderMe(photodata: currentProfile!.profileImage.imageData, senderId: currentProfile!.userid, displayName: currentProfile!.username)
         }

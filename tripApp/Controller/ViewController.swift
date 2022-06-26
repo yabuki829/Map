@@ -60,8 +60,6 @@ class MapViewController: UIViewController {
     let mapView: MKMapView = {
         let map = MKMapView()
         map.mapType = .standard
-        map.showsUserLocation = true
-       
         return map
     }()
     
@@ -96,12 +94,13 @@ class MapViewController: UIViewController {
         menuView.mapNomalButton.addTarget(self, action: #selector(toDefalutsMap(sender:)), for: .touchUpInside)
         menuView.mapSateliteButton.addTarget(self, action: #selector(toSateliteMap(sender:)), for: .touchUpInside)
         setupNavigationItems()
+        setData()
         
         
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        setData()
+        
     }
     
     @objc internal func sendtoPostView(sender: UIButton) {
@@ -112,7 +111,6 @@ class MapViewController: UIViewController {
     @objc internal func sendtoDetailView(sender: UIButton) {
         let vc = detailViewController()
         vc.discription = selectDiary!
-        vc.discriptionImage = selectImage
         navigationController?.pushViewController(vc, animated: true)
     }
     @objc internal func toDefalutsMap(sender: UIButton) {
@@ -169,25 +167,21 @@ class MapViewController: UIViewController {
         
     }
     
-    func focusMyLocation(){
-        mapView.setCenter(mapView.userLocation.coordinate, animated: true)
-        
-    }
     
     func setData(){
         HUD.show(.progress)
         FirebaseManager.shered.getFriendDiscription { [self] (data) in
-            array = DataManager.shere.get()
+//            array = DataManager.shere.get()
             array.append(contentsOf: data)
             mapView.removeAnnotations(mapView.annotations)
             for i in 0..<array.count{
-                print(i,"ばんめ",array[i].title)
                 let annotation = MKPointAnnotation()
                 if array[i].location != nil{
                     annotation.coordinate = CLLocationCoordinate2DMake(array[i].location!.latitude,array[i].location!.longitude)
-                    annotation.title = array[i].title
                     
-                    annotation.subtitle = array[i].text
+                    annotation.title = array[i].text
+                    annotation.subtitle = array[i].created.toString()
+                    
                     self.mapView.addAnnotation(annotation)
                 }
             }
@@ -229,10 +223,8 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         for i in 0..<array.count{
-            if view.annotation?.title == array[i].title && view.annotation?.subtitle == array[i].text{
+            if view.annotation?.title == array[i].text && view.annotation?.subtitle == array[i].created.toString(){
                 selectDiary = array[i]
-                
-            
                 break
             }
         }
@@ -260,25 +252,23 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
         let pinView =  MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
         pinView.canShowCallout = true
         
+        
+        
         outLoop: for i in 0..<array.count{
-            if annotation.title == array[i].title && annotation.subtitle == array[i].text{
+            if annotation.title == array[i].text && annotation.subtitle == array[i].created.toString(){
+                
                 if array[i].userid == FirebaseManager.shered.getMyUserid(){
                     pinView.pinTintColor = .link
                 }
                 
                 let stackview = setStackView()
-                let textLabel = UILabel()
                 let imageView = UIImageView()
                 let tapStackView = UITapGestureRecognizer(target: self, action: #selector(sendtoDetailView(sender:)))
                 stackview.isUserInteractionEnabled = true
                 stackview.addGestureRecognizer(tapStackView)
-                imageView.loadImageUsingUrlString(urlString: array[i].image.imageUrl) { [self] image in
+                imageView.setImage(urlString:array[i].image.imageUrl) { [self] image in
                     if  image != nil {
-                        print("aaaaaa")
-                        selectImage = image!
                         let button = UIButton()
-                            textLabel.text = array[i].text
-                            textLabel.numberOfLines = 3
                             button.setTitle("＞＞", for: .normal)
                             button.setTitleColor(.darkGray, for: .normal)
                             button.setTitleColor(.systemGray3, for: .highlighted)
@@ -286,7 +276,6 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
                             button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
                     
                             stackview.addArrangedSubview(imageView)
-                            stackview.addArrangedSubview(textLabel)
                             stackview.addArrangedSubview(button)
                             stackview.translatesAutoresizingMaskIntoConstraints = false
                           
@@ -303,7 +292,6 @@ extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
                             pinView.detailCalloutAccessoryView = stackview
                             
                     }
-                
                 }
                 
                 break outLoop

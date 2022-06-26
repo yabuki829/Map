@@ -13,8 +13,8 @@ class DiscriptionImageCell:UICollectionViewCell{
     let imageView:UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .black
-        imageView.contentMode = .scaleAspectFit
+        imageView.backgroundColor = .white
+        imageView.contentMode = .scaleToFill
         return imageView
     }()
     override init(frame: CGRect) {
@@ -22,7 +22,7 @@ class DiscriptionImageCell:UICollectionViewCell{
         setupViews()
     }
     func setupViews(){
-        self.addSubview(imageView)
+        contentView.addSubview(imageView)
         addImageViewConstraint()
     }
     func addImageViewConstraint(){

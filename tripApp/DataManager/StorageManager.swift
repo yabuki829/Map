@@ -120,6 +120,45 @@ class StorageManager{
             print("画像削除完了")
         }
     }
+    func deleteAll(userid:String){
+        let imageRef = Storage.storage().reference().child("/users").child(userid)
+        print("------------削除します----------------------")
+        print(imageRef)
+        imageRef.listAll { result ,error in
+            if let error = error {
+                print("エラー\(error)")
+            } else {
+                for ref in result!.items {
+                    print("ref",ref)
+                    ref.delete { (error) in
+                        if let error = error {
+                            print("エラー\(error)")
+                        } else {
+                            print("storage削除成功！")
+                        }
+                    }
+                }
+            }
+            
+        }
+        imageRef.child("profileimage").listAll { result ,error in
+            if let error = error {
+                print("エラー\(error)")
+            } else {
+                for ref in result!.items {
+                    print("ref",ref)
+                    ref.delete { (error) in
+                        if let error = error {
+                            print("エラー\(error)")
+                        } else {
+                            print("storage削除成功！")
+                        }
+                    }
+                }
+            }
+            
+        }
+    }
     func deleteProfileImage(name:String){
         let filename = name
         let userid = FirebaseManager.shered.getMyUserid()

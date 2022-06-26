@@ -11,21 +11,20 @@ import UIKit
 class DetailViewCell: UITableViewCell {
     var discription: Discription?{
         didSet{
-            titleLabel.text  = discription?.title
             discTextLabel.text = discription?.text
-            dateLabel.text = discription?.created.covertString()
+            dateLabel.text = discription?.created.secondAgo()
             
         }
     }
     var profile:Profile?{
         didSet{
-            profileImageView.loadImageUsingUrlString(urlString: profile!.profileImageUrl)
+//            profileImageView.loadImageUsingUrlString(urlString: profile!.profileImageUrl)
+            profileImageView.setImage(urlString: profile!.profileImageUrl)
             usernameButton.setTitle(profile?.username, for: .normal)
             
         }
     }
     let discImageView = UIImageView()
-    let titleLabel    = UILabel()
     let discTextLabel = UILabel()
     let dateLabel     = UILabel()
     
@@ -42,12 +41,12 @@ class DetailViewCell: UITableViewCell {
         super.awakeFromNib()
        
     }
-    func setCell(disc:Discription,size:CGFloat,image:UIImage){
+    func setCell(disc:Discription,size:CGFloat){
         width = size
         discription = disc
         addView()
         getProfile()
-        discImageView.image = image
+        discImageView.setImage(urlString:disc.image.imageUrl )
         usernameButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
         discImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapImage)))
@@ -59,40 +58,34 @@ class DetailViewCell: UITableViewCell {
     }
     func addView(){
         
-        addSubview(profileImageView)
-        addSubview(usernameButton)
-        addSubview(titleLabel)
-        addSubview(discTextLabel)
-        addSubview(dateLabel)
-        addSubview(discImageView)
+        contentView.addSubview(profileImageView)
+        contentView.addSubview(usernameButton)
+        contentView.addSubview(discTextLabel)
+        contentView.addSubview(dateLabel)
+        contentView.addSubview(discImageView)
         
         profileImageView.layer.cornerRadius = width / 7 / 2
         profileImageView.clipsToBounds = true
-        profileImageView.anchor(top: topAnchor, paddingTop: 10,
-                                left: leftAnchor, paddingLeft: 10,
+        profileImageView.anchor(top: contentView.topAnchor, paddingTop: 10,
+                                left: contentView.leftAnchor, paddingLeft: 10,
                                 width: width / 7,
                                 height:  width / 7)
         profileImageView.isUserInteractionEnabled = true
-        usernameButton.anchor(top: safeAreaLayoutGuide.topAnchor, paddingTop: 10,
+        usernameButton.anchor(top: contentView.topAnchor, paddingTop: 10,
                              left: profileImageView.rightAnchor, paddingLeft: 10,
-                             right: safeAreaLayoutGuide.rightAnchor, paddingRight: 10.0,
+                              right: contentView.rightAnchor, paddingRight: 10.0,
                              height: width / 7)
         usernameButton.contentHorizontalAlignment = .left
         
-       
-        titleLabel.numberOfLines = 0
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 25.0)
-        titleLabel.anchor(top:profileImageView.bottomAnchor , paddingTop: 5.0,
-                          left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 5.0,
-                          right: safeAreaLayoutGuide.rightAnchor, paddingRight: 5.0)
+    
         
         
-        discTextLabel.font = UIFont.systemFont(ofSize: 18)
+        discTextLabel.font = UIFont.systemFont(ofSize: 20)
         discTextLabel.backgroundColor = .white
         discTextLabel.numberOfLines = 0
-        discTextLabel.anchor(top: titleLabel.bottomAnchor, paddingTop: 0.0,
-                             left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 10.0,
-                             right: safeAreaLayoutGuide.rightAnchor, paddingRight: 10.0)
+        discTextLabel.anchor(top: profileImageView.bottomAnchor, paddingTop: 5.0,
+                             left: leftAnchor, paddingLeft: 10.0,
+                             right: contentView.rightAnchor, paddingRight: 10.0)
         
        
         
@@ -100,15 +93,15 @@ class DetailViewCell: UITableViewCell {
         dateLabel.tintColor = .systemGray5
         dateLabel.textAlignment = .right
         dateLabel.anchor(top:discTextLabel.bottomAnchor , paddingTop: 2.0,
-                         left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 10.0,
-                         right: safeAreaLayoutGuide.rightAnchor, paddingRight: 10.0,
+                         left: contentView.leftAnchor, paddingLeft: 10.0,
+                         right: contentView.rightAnchor, paddingRight: 10.0,
                          bottom: discImageView.topAnchor,paddingBottom: 10)
        
         discImageView.backgroundColor = .black
         discImageView.contentMode = .scaleAspectFit
-        discImageView.anchor(left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 5.0,
-                             right: safeAreaLayoutGuide.rightAnchor, paddingRight: 5.0,
-                             bottom: bottomAnchor,paddingBottom: 10,
+        discImageView.anchor(left: contentView.leftAnchor, paddingLeft: 5.0,
+                             right: contentView.rightAnchor, paddingRight: 5.0,
+                             bottom: contentView.bottomAnchor,paddingBottom: 10,
                              height: width)
         discImageView.isUserInteractionEnabled = true
       
@@ -146,7 +139,8 @@ class commentCell:BaseTableViewCell{
     var commentdata = Comment(id: "", comment: "", userid: "", created: Date())
     var profile:Profile?{
         didSet{
-            profileimageView.loadImageUsingUrlString(urlString:profile!.profileImageUrl)
+//            profileimageView.loadImageUsingUrlString(urlString:profile!.profileImageUrl)
+            profileimageView.setImage(urlString:profile!.profileImageUrl )
             usernameLabel.text = profile?.username
             
         }
@@ -194,7 +188,7 @@ class commentCell:BaseTableViewCell{
         commentdata = comment
        
         commentLabel.text = commentdata.comment
-        dateLabel.text = commentdata.created.covertString()
+        dateLabel.text = commentdata.created.secondAgo()
         getProfile()
     }
     func addConstraint(){

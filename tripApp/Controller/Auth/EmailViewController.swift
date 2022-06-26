@@ -120,7 +120,8 @@ class EmailLoginViewController:UIViewController, UITextFieldDelegate{
             AuthManager.shered.startAuthWithEmail(email: emailTextField.text!, password: passwordTextField.text!) { result in
                 if result {
                     FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
-                        let myprofile:myProfile = myProfile(userid: profile.userid,
+                        
+                        let myprofile:MyProfile = MyProfile(userid: profile.userid,
                                                   username: profile.username,
                                                   text: profile.text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
                                                   backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),
@@ -284,7 +285,7 @@ class RegisterWithEmailViewController:UIViewController,UITextFieldDelegate{
                     FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
                         //friend Listを取得する
                         //discriptionを取得する
-                        let myprofile:myProfile = myProfile(userid: profile.userid,
+                        let myprofile:MyProfile = MyProfile(userid: profile.userid,
                                                   username: profile.username,
                                                   text: profile.text ?? "",
                                                   backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),

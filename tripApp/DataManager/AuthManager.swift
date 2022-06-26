@@ -87,16 +87,8 @@ class AuthManager{
         }
     }
     func deleteAccount(compleation:@escaping (Bool) -> Void){
-        //1.accountの削除
+       
         let user = Auth.auth().currentUser
-        user?.delete { error in
-            if let error = error {
-            print(error)
-            print("アカウント削除に失敗しました")
-            } else {
-            print("アカウントを削除しました")
-            }
-        }
         //2.profileの削除
         Firestore.firestore().collection("Profile").document(user!.uid).delete()
         //3.friendidを取得して　useridを削除する
@@ -110,5 +102,19 @@ class AuthManager{
         let appDomain = Bundle.main.bundleIdentifier
         UserDefaults.standard.removePersistentDomain(forName: appDomain!)
         compleation(true)
+        
+        //7.今まで投稿していた画像を全て削除する
+        StorageManager.shered.deleteAll(userid: user!.uid)
+        
+        //1.accountの削除
+       
+        user?.delete { error in
+            if let error = error {
+            print(error)
+            print("アカウント削除に失敗しました")
+            } else {
+            print("アカウントを削除しました")
+            }
+        }
     }
 }

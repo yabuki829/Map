@@ -7,15 +7,19 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 
 
-class ImageDetailViewContriller:UIViewController{
+class ImageDetailViewContriller:UIViewController,UIScrollViewDelegate{
+    
     var imageView: UIImageView = {
         let image = UIImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         image.contentMode = .scaleAspectFit
         return image
     }()
+    
+    let scrollView = UIScrollView()
     var image:UIImage? {
         didSet{
             imageView.image = image
@@ -23,16 +27,45 @@ class ImageDetailViewContriller:UIViewController{
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = .white
-        view.addSubview(imageView)
+     
+        
         addConstraint()
         settingNav()
     }
     func addConstraint(){
-        imageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        imageView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
-        imageView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
-        imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        view.addSubview(scrollView)
+        scrollView.addSubview(imageView)
+        scrollView.maximumZoomScale = 5.0
+        scrollView.minimumZoomScale = 1.0
+        scrollView.backgroundColor = .black
+        scrollView.delegate = self
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
+        scrollView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 0).isActive = true
+        scrollView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: 0).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        
+        let gcd = MathManager.shered.getGreatestCommonDivisor(Int((image?.size.width)!), Int((image?.size.height)!))
+        let ration = MathManager.shered.calcAspectRation(Double(image!.size.width) ,Double(image!.size.height) , gcd: gcd)
+        let times = MathManager.shered.howmanyTimes(aspectRation: ration)
+        
+        let statusBarHeight = self.view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        let navigationBarHeight = self.navigationController?.navigationBar.frame.height ?? 0
+        let tabbarHeight = tabBarController?.tabBar.frame.size.height ?? 83
+        let height = view.frame.height - statusBarHeight - navigationBarHeight - tabbarHeight
+        
+        print(statusBarHeight)
+        let toppadding = (height - view.frame.width * times)  / 2
+        
+        imageView.anchor(top: scrollView.topAnchor, paddingTop: toppadding,
+                         left: scrollView.leftAnchor, paddingLeft: 0,
+                         right: scrollView.rightAnchor, paddingRight: 0,
+                         bottom: scrollView.bottomAnchor, paddingBottom: 0, width: view.frame.width, height: view.frame.width * times)
+       
+        
+        
     }
     func settingNav(){
         let backButton = UIImage(systemName: "chevron.left")
@@ -64,6 +97,10 @@ class ImageDetailViewContriller:UIViewController{
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             self.present(alert, animated: true, completion: nil)
          }
+    func viewForZooming(in sclool:UIScrollView) -> UIView? {
+           return imageView
+
+    }
 }
 
 

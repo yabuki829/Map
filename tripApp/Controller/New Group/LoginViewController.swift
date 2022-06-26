@@ -10,14 +10,21 @@ import Foundation
 import UIKit
 import CryptoKit
 import FirebaseAuth
+import Lottie
 
 class LoginViewController:UIViewController{
     var currentNonce = ""
-    let iconImageView:UIImageView = {
-        let image = UIImageView()
-        image.image = UIImage(named: "地球アイコン")
-        image.contentMode = .scaleAspectFit
-        return image
+
+    var animationView: AnimationView = {
+        var view = AnimationView()
+        view = AnimationView(name:"LoginPageAnimation")
+        view.backgroundColor = .clear
+        
+        view.isUserInteractionEnabled = true
+        view.contentMode = .scaleAspectFit
+        view.loopMode = .repeat(10)
+        view.play()
+        return view
     }()
     let titleLabel:UILabel = {
         let label = UILabel()
@@ -63,14 +70,14 @@ class LoginViewController:UIViewController{
         navigationController?.setNavigationBarHidden(true, animated: false)
         self.view.backgroundColor = .white
        
-        view.addSubview(iconImageView)
-        iconImageView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: view.frame.width / 4,
+        view.addSubview(animationView)
+        animationView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: view.frame.width / 4,
                              left: view.leftAnchor,paddingLeft: view.frame.width / 2 - view.frame.width / 4,
                              width: view.frame.width / 2,
                              height: view.frame.width / 2)
         
         view.addSubview(titleLabel)
-        titleLabel.anchor(top: iconImageView.bottomAnchor, paddingTop: 0,
+        titleLabel.anchor(top: animationView.bottomAnchor, paddingTop: 0,
                           left: view.leftAnchor, paddingLeft: 20,
                           right: view.rightAnchor, paddingRight: 20)
         
@@ -141,7 +148,7 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
             controller.performRequests()
         }
         else{
-            //利用規約を呼んでください Alert
+            //利用規約をAlert
         }
         
         
@@ -168,7 +175,8 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
                     if result {
                         
                         FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
-                            let myprofile:myProfile = myProfile(userid: profile.userid,
+                            
+                            let myprofile:MyProfile = MyProfile(userid: profile.userid,
                                                       username: profile.username,
                                                       text: profile.text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
                                                       backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),

@@ -10,18 +10,16 @@ import MapKit
 import PKHUD
 
 class profileViewController:UICollectionViewController{
-    var messageItem = UIBarButtonItem()
     var isMyProfile = true
     var profile = Profile(userid: "error", username: "No Name", backgroundImageUrl:"background" , profileImageUrl: "person.crop.circle.fill")
-    var myprofile :myProfile?{
-        didSet{
-            
-        }
-    }
+    var myprofile = MyProfile(userid: "", username: "", text: "",
+                                backgroundImage: imageData(imageData: Data(), name: "background", url: "background"),
+                                profileImage:  imageData(imageData: Data(), name: "person.crop.circle.fill", url: "person.crop.circle.fill"))
+    var discriptionList = [Discription]()
+    var friendList = [Friend]()
     var menuCell:MenuCell?
     var mapAndDiscriptionCell:MapAndDiscriptionCell?
-    var discriptionList = [Discription]()
-    var followUserIdList = [String]()
+    
     override func viewDidLoad() {
         settingCollectionView()
         setNav()
@@ -32,8 +30,12 @@ class profileViewController:UICollectionViewController{
     override func viewWillAppear(_ animated: Bool) {
         if isMyProfile{
             myprofile = DataManager.shere.getMyProfile()
+            discriptionList = DataManager.shere.get().reversed()
+            friendList = FollowManager.shere.getFollow()
+            collectionView.reloadData()
         }
     }
+    
     func settingCollectionView(){
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -49,14 +51,15 @@ class profileViewController:UICollectionViewController{
     func getDiscription(){
         //投稿を取得する
         //自分の投稿なのか　友達の投稿なのか
+        discriptionList.removeAll()
+        friendList.removeAll()
         if isMyProfile{
             //自分の投稿
-            discriptionList.removeAll()
-            followUserIdList.removeAll()
+         
             print("プロフィール取得する")
             myprofile = DataManager.shere.getMyProfile()
             discriptionList = DataManager.shere.get().reversed()
-            followUserIdList = DataManager.shere.getFollow()
+            friendList = FollowManager.shere.getFollow()
             collectionView.reloadData()
         }
         else{
@@ -69,12 +72,9 @@ class profileViewController:UICollectionViewController{
                     print("discriptionLost",discriptions.count)
                     print("follow",followList)
                     self?.discriptionList = discriptions.reversed()
-                    self?.followUserIdList = followList
+                    self?.friendList = followList
                     self?.collectionView.reloadData()
                 }
-             
-               
-
             }
         }
     }
@@ -104,9 +104,6 @@ class profileViewController:UICollectionViewController{
       
     }
     
-    @objc func message(sender : UIButton){
-        print("Message")
-    }
     @objc func search(sender : UIButton){
        print("search")
         let vc = FriendSearchViewController()
@@ -133,17 +130,17 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
         collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
     }
     
-    func toDetailWithMapCell(discription: Discription,selectImage:UIImage){
+    func toDetailWithMapCell(discription: Discription){
         print("mapから遷移します")
         let vc = detailViewController()
         vc.discription = discription
-        vc.discriptionImage = selectImage
+
         navigationController?.pushViewController(vc, animated: true)
     }
     func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
         let vc = detailViewController()
+        
         vc.discription = discription
-        vc.discriptionImage = selectImage
         navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -174,10 +171,10 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
             if isMyProfile{
                 //myprofileに変更する
-                cell.setCellA(profile:myprofile! , followList: followUserIdList, postList: discriptionList)
+                cell.setCellA(profile:myprofile, followList: friendList, postList: discriptionList)
             }
             else{
-                cell.setCellB(profile: profile, followList: followUserIdList, postList: discriptionList)
+                cell.setCellB(profile: profile, followList: friendList, postList: discriptionList)
             }
           
             cell.delegate = self
@@ -195,11 +192,13 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MapAndDiscriptionCell", for: indexPath) as! MapAndDiscriptionCell
             cell.discriptioncell.delegate = self
             cell.mapCell.delegateWithMapCell = self
-            print(discriptionList)
+            
             cell.discriptionList = discriptionList
             cell.viewWidth = view.frame.width
+            
             mapAndDiscriptionCell = cell
             mapAndDiscriptionCell?.mapCell.delegateWithMapCell = self
+            
             return cell
         }
     }
@@ -231,3 +230,4 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
         return 0
     }
 }
+

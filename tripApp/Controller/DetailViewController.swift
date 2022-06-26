@@ -2,14 +2,13 @@ import Foundation
 import UIKit
 
 class detailViewController:UIViewController{
-
     var profile = Profile(userid: "error", username: "No name", backgroundImageUrl: "background", profileImageUrl: "person.crop.circle.fill")
     
-    var myProfile :myProfile?{
-        didSet{
-            
-        }
-    }
+    var myProfile = MyProfile(userid: "", username: "", text: "",
+                              backgroundImage: imageData(imageData: Data(), name: "background", url: "background"),
+                              profileImage:  imageData(imageData: Data(), name: "person.crop.circle.fill", url: "person.crop.circle.fill"))
+    
+     
     var discription:Discription? {
         didSet{
             fieldView.setupViews(messageid:discription!.id)
@@ -18,7 +17,9 @@ class detailViewController:UIViewController{
 
         }
     }
-    var discriptionImage = UIImage()
+    
+    var cell = DetailViewCell()
+    
     let fieldView :textFieldView = {
         let view = textFieldView()
         return view
@@ -26,6 +27,8 @@ class detailViewController:UIViewController{
     var textFieldViewBottomConstraint: NSLayoutConstraint!
     let tableView = UITableView()
     var commentList = [Comment]()
+    
+    
     override func viewDidLoad() {
         view.backgroundColor = .white
         view.addSubview(tableView)
@@ -130,6 +133,7 @@ class detailViewController:UIViewController{
 
 extension detailViewController:UITableViewDelegate,UITableViewDataSource,profileCellDelegate{
     @objc func back(sender : UIButton){
+//        dismiss(animated: true, completion: nil)
         self.navigationController?.popViewController(animated: true)
 //        self.presentingViewController?.dismiss(animated: true, completion: nil)
 
@@ -138,7 +142,9 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         //遷移する
         let vc = ImageDetailViewContriller()
         vc.image = image
+        vc.modalPresentationStyle = .fullScreen
         let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
         self.present(nav, animated: true, completion: nil)
         
     }
@@ -147,22 +153,13 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         
         let vc = profileViewController(collectionViewLayout: layout)
         vc.profile = profile
+        vc.isMyProfile = true
         let rootVC = UIApplication.shared.windows.first?.rootViewController as? UITabBarController
         let navigationController = rootVC?.children[1] as? UINavigationController
         rootVC?.selectedIndex = 1
         navigationController?.pushViewController(vc, animated: false)
     }
-    
-    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        print("scroll",scrollView.panGestureRecognizer.translation(in: scrollView).y)
-       if scrollView.panGestureRecognizer.translation(in: scrollView).y < 0 {
-          navigationController?.setNavigationBarHidden(true, animated: true)
-
-       } else {
-          navigationController?.setNavigationBarHidden(false, animated: true)
-       }
-    }
-    
+   
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1 + commentList.count
     }
@@ -173,8 +170,9 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         if indexPath.row == 0{
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! DetailViewCell
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
-            cell.setCell(disc: discription!, size: view.frame.width, image: discriptionImage)
+            cell.setCell(disc: discription!, size: view.frame.width)
             cell.delegate = self
+            self.cell = cell
             return cell
         }
         else{
@@ -201,9 +199,9 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
                 let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { _ in
                     DataManager.shere.delete(id: self.discription!.id)
                     FirebaseManager.shered.deleteDiscription(postID: self.discription!.id)
-                    self.navigationController?.dismiss(animated: true, completion: nil)
                     StorageManager.shered.deleteDiscriptionImage(image: self.discription!.image)
                     
+                    self.navigationController?.popViewController(animated: true)
                 })
                 let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
 

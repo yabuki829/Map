@@ -21,7 +21,7 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
                     profileImage.image = UIImage(named: "person.crop.circle.fill")
                 }
                 else{
-                    profileImage.loadImageUsingUrlString(urlString: profile!.profileImageUrl)
+                    profileImage.setImage(urlString: profile!.profileImageUrl)
                 }
                 if profile?.username == ""{
                     usernameLabel.text = "No Name"
@@ -75,11 +75,7 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     }()
     override func viewDidLoad() {
         self.view.backgroundColor = .white
-        view.addSubview(textField)
-        view.addSubview(profileImage)
-        view.addSubview(usernameLabel)
-        view.addSubview(followButton)
-        view.addSubview(messageLabel)
+       
         print("友達検索画面")
         addConstraint()
         setNav()
@@ -89,6 +85,13 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     }
     
     func addConstraint(){
+        
+        view.addSubview(textField)
+        view.addSubview(profileImage)
+        view.addSubview(usernameLabel)
+        view.addSubview(followButton)
+        view.addSubview(messageLabel)
+        
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
         textField.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20).isActive = true
@@ -128,8 +131,6 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         backItem.tintColor = .darkGray
         navigationItem.leftBarButtonItem = backItem
         
-        
-        
         let showFriendIdItem = UIBarButtonItem(title: "FriendID", style: .plain, target: self, action: #selector(showFriendId))
         showFriendIdItem.tintColor = .link
         navigationItem.rightBarButtonItem = showFriendIdItem
@@ -142,7 +143,8 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         print("Follow")
         //userdefaultsにuseridを保存する
         if profile?.userid != "" || profile?.userid.isEmpty == false{
-            DataManager.shere.follow(userid: profile!.userid)
+            print("Followします")
+            FollowManager.shere.follow(userid: profile!.userid)
             FirebaseManager.shered.follow(friendid: profile!.userid)
             followButton.setTitle("友達になりました", for: .normal)
             followButton.isEnabled = false
@@ -199,11 +201,6 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
    
    
 }
-
-
-
-//ZnA0aQbRZBaU7GSOfWVO
-
 
 class AlertManager{
     static let shared = AlertManager()

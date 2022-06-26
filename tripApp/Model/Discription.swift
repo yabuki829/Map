@@ -11,13 +11,12 @@ import Foundation
 struct Discription:Codable,Equatable {
     let id       : String
     let userid   : String
-    let title    : String
     let text     : String
     let location : Location?
     let image : ProfileImage
     let created  : Date
+    //type movie / image
 }
-
 
 struct Location :Codable,Equatable{
     let latitude:Double

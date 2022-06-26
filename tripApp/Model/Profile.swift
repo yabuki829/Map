@@ -29,7 +29,7 @@ struct ProfileImage :Codable,Equatable{
 
 
 
-struct myProfile:Codable,Equatable{
+struct MyProfile:Codable,Equatable{
     var userid: String
     var username:String
     var text:String

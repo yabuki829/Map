@@ -17,43 +17,9 @@ class FirebaseManager{
     let database = Firestore.firestore()
     let rdatabase = Database.database().reference()
     func sendMessage(){}
-    let defalultProfileImage = "gs://trips-14d27.appspot.com/profile.png"
-    let defalultBackGroundImage = "gs://trips-14d27.appspot.com/background.jpg"
+   
     
-    func postDiscription(disc:Discription){
     
-        database.collection("Users").document(disc.userid).collection("MyDiscription").document(disc.id).setData(
-        
-            ["id":disc.id,
-             "userid":disc.userid,
-             "title":disc.title,
-             "text":disc.text,
-             "latitude":disc.location?.latitude,"longitude":disc.location?.longitude,
-             "created":FieldValue.serverTimestamp(),
-             "imageurl":disc.image.imageUrl,
-             "imagename":disc.image.name
-            ]
-        )
-            
-        let friendList = DataManager.shere.getFollow()
-        for i in 0..<friendList.count{
-            let frienduserid = friendList[i]
-            database.collection("Users").document(frienduserid).collection("FriendDiscription").document(disc.id).setData(
-                ["id":disc.id,
-                    "userid":disc.userid,
-                    "title":disc.title,
-                    "text":disc.text,
-                    "latitude":disc.location?.latitude,"longitude":disc.location?.longitude,
-                    "created":FieldValue.serverTimestamp(),
-                    "imageurl":disc.image.imageUrl,
-                    "imagename":disc.image.name
-                ]
-            )
-            }
-        
-        
-    }
-  
     func sendComment(text:String,messageid:String){
         let userid = Auth.auth().currentUser!.uid
         let commentid = String().generateID(5)
@@ -222,14 +188,14 @@ class FirebaseManager{
                 
                 let profile = Profile(userid: userid as! String,
                                       username: username as! String,
-                                      text: text as! String,
+                                      text: text as? String,
                                       backgroundImageUrl: backgroundimage as! String,
                                       profileImageUrl: profileimage as! String)
               compleation(profile)
                 
             }
             else{
-                let profile = Profile(userid: "error", username: "No Name", backgroundImageUrl: "background", profileImageUrl: "person.crop.circle.fill")
+                let profile = Profile(userid: "error", username: "No Name",text: "Learn from the mistakes of others. You can’t live long enough to make them all yourself.", backgroundImageUrl: "background", profileImageUrl: "person.crop.circle.fill")
                   compleation(profile)
             }
         }
@@ -238,12 +204,14 @@ class FirebaseManager{
     func getMyUserid() -> String{
         return Auth.auth().currentUser!.uid
     }
-    func getFriendProfile(friendList: [String],compleation:@escaping ([Profile]) -> Void){
+    
+    
+    func getFriendProfile(friendList: [Friend],compleation:@escaping ([Profile]) -> Void){
         var profileList = [Profile]()
         print(friendList.count,"回")
         for i in 0..<friendList.count{
             print(i + 1 , "回目")
-            let userid = friendList[i]
+            let userid = friendList[i].userid
             self.database.collection("Profile").document(userid).addSnapshotListener { (snapshot, error) in
                 if let error = error{
                     print(error)
@@ -263,6 +231,7 @@ class FirebaseManager{
                                           profileImageUrl:profileimage as! String)
                     profileList.append(profile)
                 }
+                
                 DispatchQueue.main.async {
                     if i == friendList.count - 1{
                         compleation(profileList)
@@ -271,29 +240,80 @@ class FirebaseManager{
             }
         }
     }
+    func postDiscription(disc:Discription){
+        let friendList = FollowManager.shere.getFollow()
+        print("friend",friendList)
+        var receiver = [String]()
+        for i in 0..<friendList.count{
+            print(i)
+            let frienduserid = friendList[i].userid
+            if friendList[i].isSend{
+                receiver.append(frienduserid)
+                database.collection("Users").document(frienduserid).collection("FriendDiscription").document(disc.id).setData(
+                    [   "id":disc.id,
+                        "userid":disc.userid,
+                        "text":disc.text,
+                        "latitude":disc.location?.latitude,"longitude":disc.location?.longitude,
+                        "created":FieldValue.serverTimestamp(),
+                        "imageurl":disc.image.imageUrl,
+                        "imagename":disc.image.name,
+                        
+                    ]
+                )
+            }
+            
+        }
+        print("見れる人",receiver)
+        DispatchQueue.main.async {
+            self.database.collection("Users").document(disc.userid).collection("MyDiscription").document(disc.id).setData(
+                    ["id":disc.id,
+                     "userid":disc.userid,
+                     "text":disc.text,
+                     "latitude":disc.location?.latitude,"longitude":disc.location?.longitude,
+                     "created":FieldValue.serverTimestamp(),
+                     "imageurl":disc.image.imageUrl,
+                     "imagename":disc.image.name,
+                     "receiverList":receiver
+                    ]
+                )
+        }
+   
+        
+        
+    }
+  
+    
     func getDiscription(userid:String,compleation:@escaping ([Discription]) -> Void){
-        database.collection("Users").document(userid).collection("MyDiscription").addSnapshotListener { (snapshot, error) in
+        database.collection("Users").document(userid).collection("MyDiscription").addSnapshotListener { [self] (snapshot, error) in
             var discriptionList = [Discription]()
             for document in snapshot!.documents {
                 let data = document.data()
                 if let id = data["id"],
                    let userid = data["userid"],
-                   let title = data["title"],
                    let text = data["text"],
                    let latitude = data["latitude"],
                    let longitude = data["longitude"],
                    let created = data["created"] as? Timestamp,
                    let imageurl = data["imageurl"],
-                   let imagename = data["imagename"]{
-                    let date = created.dateValue()
-                    print("title:",title)
-                    let disc = Discription(id: id as! String,
-                                           userid: userid as! String,
-                                           title: title as! String,
-                                           text: text as! String,
-                                           location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                           image: ProfileImage(imageUrl: imageurl as! String, name: imagename as! String), created: date)
-                    discriptionList.append(disc)
+                   let imagename = data["imagename"],
+                   let receiverList = data["receiverList"]{
+                    
+                    let myUserID = getMyUserid()
+                    // 自分のユーザーid　と　投稿のユーザーidが同じかどうか --> 自分の投稿なので取得
+                     
+                    // 自分のユーザーid が receiverListにいるかどうか　  --> receiverListにいるので取得する
+                    
+                    if  myUserID == userid as! String || isReceiver(myuserid: myUserID, receiver: receiverList as! [String]){
+                        let date = created.dateValue()
+                        let disc = Discription(id: id as! String,
+                                               userid: userid as! String,
+                                               text: text as! String,
+                                               location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
+                                               image: ProfileImage(imageUrl: imageurl as! String, name: imagename as! String), created: date)
+                        discriptionList.append(disc)
+                        
+                    }
+                   
                 }
             }
             DispatchQueue.main.async {
@@ -302,20 +322,29 @@ class FirebaseManager{
         }
     }
    
-    
+    func isReceiver(myuserid:String,receiver:[String]) -> Bool{
+        for i in 0..<receiver.count{
+            if myuserid == receiver[i]{
+                return true
+            }
+        }
+        return false
+    }
     
     func getFriendDiscription(compleation:@escaping ([Discription]) -> Void){
         print("友達の投稿を取得します")
         let userid = getMyUserid()
         var discriptionList = [Discription]()
-        //24時間以内の投稿を取得する　todo
-        let startDate = Date()
-        database.collection("cities")
-            .order(by: "serverDate")
-            .start(at: [startDate])
-            .end(at: <#T##[Any]#>)
+        // 一日以内の投稿を取得する
+        // 一週間以内の投稿を取得する
+        // 一ヶ月以内の投稿を取得する
+        //一年以内の投稿を取得する
+        //全てを取得する
         
-        database.collection("Users").document(userid).collection("FriendDiscription").order(by:"created", descending: false).getDocuments{ (snapshot, error) in
+        let modifiedDate = Calendar.current.date(byAdding: .hour, value: -48, to: Date())!
+        let timeStamp = Timestamp(date: modifiedDate)
+        
+        database.collection("Users").document(userid).collection("FriendDiscription").whereField("created", isGreaterThan: timeStamp).order(by:"created", descending: false).getDocuments{ (snapshot, error) in
             if let error = error {
                 print("エラー",error)
                 return
@@ -325,7 +354,6 @@ class FirebaseManager{
                 let data = document.data()
                 if let id = data["id"],
                    let userid = data["userid"],
-                   let title = data["title"],
                    let text = data["text"],
                    let latitude = data["latitude"],
                    let longitude = data["longitude"],
@@ -333,10 +361,8 @@ class FirebaseManager{
                    let imageurl = data["imageurl"],
                    let imagename = data["imagename"]{
                     let date = created.dateValue()
-                    print("title:",title)
                     let disc = Discription(id: id as! String,
                                            userid: userid as! String,
-                                           title: title as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
                                            image: ProfileImage(imageUrl: imageurl as! String, name: imagename as! String), created: date)
@@ -353,27 +379,8 @@ class FirebaseManager{
     }
     
     
-    func follow(friendid :String){
-        let userid = Auth.auth().currentUser!.uid
-        self.database.collection("Users").document(userid).collection("FriendIdList").document(friendid).setData(
-            ["FriendID":friendid]
-        )
-    }
+   
     
-    func getFriendIdList(userid:String,compleation:@escaping ([String]) -> Void){
-        var friendIdList = [String]()
-        database.collection("Users").document(userid).collection("FriendIdList").addSnapshotListener { (snapshot, error) in
-            for document in snapshot!.documents {
-                let data = document.data()
-                if let friendID = data["FriendID"]{
-                    friendIdList.append(friendID as! String)
-                }
-            }
-            DispatchQueue.main.async {
-                compleation(friendIdList)
-            }
-        }
-    }
     func deleteAllFollow(userid:String){
         
         database.collection("Users").document(userid).collection("FriendIdList").getDocuments { (snapshot, error) in
@@ -398,9 +405,9 @@ class FirebaseManager{
         let userid = Auth.auth().currentUser!.uid
         database.collection("Users").document(userid).collection("MyDiscription").document(postID).delete()
         //FriendDiscriptionを削除する
-        let friendList = DataManager.shere.getFollow()
+        let friendList = FollowManager.shere.getFollow()
         for i in 0..<friendList.count {
-            deleteFriendDiscription(friendID: friendList[i], postID: postID)
+            deleteFriendDiscription(friendID: friendList[i].userid, postID: postID)
         }
         //commentを削除する
         deleteComment(postID: postID)
@@ -456,15 +463,42 @@ class FirebaseManager{
 
 
 
-// Firestore         大きいデータを少ないやりとり
-// realtimeDatabase  小さいデータを何度もやりとりする場合にお得
+
+
+extension FirebaseManager{
+    func follow(friendid :String){
+        let userid = Auth.auth().currentUser!.uid
+        self.database.collection("Users").document(userid).collection("FriendIdList").document(friendid).setData(
+            ["FriendID":friendid,"isSend":true]
+        )
+    }
+    
+    func getFriendIdList(userid:String,compleation:@escaping ([Friend]) -> Void){
+        
+        var friendIdList = [Friend]()
+        database.collection("Users").document(userid).collection("FriendIdList").addSnapshotListener { (snapshot, error) in
+            for document in snapshot!.documents {
+                let data = document.data()
+                if let friendID = data["FriendID"]{
+                    let friend = Friend(userid: userid, isSend: false)
+                    friendIdList.append(friend)
+                }
+                
+            }
+            DispatchQueue.main.async {
+                compleation(friendIdList)
+            }
+        }
+    }
+}
+
 
 
 
 // Chatでのメッセージの送受信
 extension FirebaseManager {
     //新しいトークを作成する
-    func createChatroom(currntUser:myProfile,otherUser:Profile,message:Message,compleation: @escaping (Bool) -> Void){
+    func createChatroom(currntUser:MyProfile,otherUser:Profile,message:Message,compleation: @escaping (Bool) -> Void){
         if currntUser.userid == "error" || otherUser.userid == "errror"{
             print("userid が　エラーです")
             compleation(false)
@@ -639,7 +673,7 @@ extension FirebaseManager {
     
     
     //作成済みのトークをすべて取得する
-    func getAllChatList(currentUser:myProfile,compleation: @escaping (Result<[ChatList],Error>) -> Void){
+    func getAllChatList(currentUser:MyProfile,compleation: @escaping (Result<[ChatList],Error>) -> Void){
         
         rdatabase.child("users").child(currentUser.userid).child("convarsations").observeSingleEvent(of: .value) { (snapshot) in
             guard let value = snapshot.value as? [[String:Any]] else{

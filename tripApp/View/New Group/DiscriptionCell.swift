@@ -49,8 +49,8 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     }()
     override func setupViews() {
        
-        addSubview(collectionView)
-        addSubview(emptyLabel)
+        contentView.addSubview(collectionView)
+        contentView.addSubview(emptyLabel)
       
         addConstaraiont()
         
@@ -65,8 +65,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DiscriptionImageCell", for: indexPath) as! DiscriptionImageCell
-        
-        cell.imageView.loadImageUsingUrlString(urlString:discriptionList![indexPath.row].image.imageUrl)
+        cell.imageView.setImage(urlString: discriptionList![indexPath.row].image.imageUrl)
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -86,10 +85,10 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     }
  
     func addConstaraiont(){
-        collectionView.anchor(top: topAnchor, paddingTop: 5.0,
+        collectionView.anchor(top: topAnchor, paddingTop: 0.0,
                               left: leftAnchor, paddingLeft: 0.0,
                               right: rightAnchor, paddingRight:0.0,
-                              bottom: bottomAnchor, paddingBottom: 5.0)
+                              bottom: bottomAnchor, paddingBottom: 0.0)
         emptyLabel.anchor(top: topAnchor, paddingTop: 60,
                           left: leftAnchor, paddingLeft: 20,
                           right: rightAnchor, paddingRight: 20)

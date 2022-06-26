@@ -161,7 +161,8 @@ extension ChatListViewController: UITableViewDelegate,UITableViewDataSource{
 class ChatListCell: BaseTableViewCell {
     var profile:Profile? {
         didSet{
-            profileImageView.loadImageUsingUrlString(urlString: profile!.profileImageUrl)
+//            profileImageView.loadImageUsingUrlString(urlString: profile!.profileImageUrl)
+            profileImageView.setImage(urlString: profile!.profileImageUrl)
             usernameLabel.text = profile!.username
             userCurrentMessageLabel.isHidden = false
         }

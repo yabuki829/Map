@@ -30,13 +30,13 @@ class ProfileCell: BaseCell{
     var friendCountLabel = UILabel()
     
     override func setupViews() {
-        addSubview(backgroundImage)
+        contentView.addSubview(backgroundImage)
         backgroundImage.anchor(top: safeAreaLayoutGuide.topAnchor, paddingTop: 0.0,
                                left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 0.0,
                                right: safeAreaLayoutGuide.rightAnchor, paddingRight: 0.0,
                                width: self.frame.width, height: self.frame.width / 2)
         
-        addSubview(profileImage)
+        contentView.addSubview(profileImage)
         let profileImageSize = frame.width / 4
         profileImage.anchor(top: backgroundImage.bottomAnchor, paddingTop: -profileImageSize / 2 ,
                             left:safeAreaLayoutGuide.leftAnchor , paddingLeft: frame.width / 2 - profileImageSize / 2 ,
@@ -45,14 +45,14 @@ class ProfileCell: BaseCell{
         profileImage.backgroundColor = .white
         profileImage.clipsToBounds = true
         
-        addSubview(usernameLabel)
+        contentView.addSubview(usernameLabel)
         usernameLabel.textAlignment = .center
         usernameLabel.anchor(top: profileImage.bottomAnchor, paddingTop: 0.0,
                              left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 10,
                              right: safeAreaLayoutGuide.rightAnchor, paddingRight: 10,
                              height: 50)
         
-        addSubview(textLabel)
+        contentView.addSubview(textLabel)
         textLabel.numberOfLines = 0
         textLabel.font = UIFont.boldSystemFont(ofSize: 12.0)
         textLabel.textColor = .darkGray
@@ -61,14 +61,14 @@ class ProfileCell: BaseCell{
                          right: safeAreaLayoutGuide.rightAnchor, paddingRight: 10,
                          bottom: safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0.0)
         
-        addSubview(postStackView)
+        contentView.addSubview(postStackView)
         postStackView.anchor(top: backgroundImage.bottomAnchor, paddingTop: 20,
                              left: safeAreaLayoutGuide.leftAnchor,paddingLeft: 0,
                              right: profileImage.leftAnchor, paddingRight: 0)
         let tapPost = UITapGestureRecognizer(target: self, action: #selector(tapPost(sender:)))
         postStackView.addGestureRecognizer(tapPost)
         
-        addSubview(friendStackView)
+        contentView.addSubview(friendStackView)
         friendStackView.anchor(top: backgroundImage.bottomAnchor, paddingTop: 20,
                                left: profileImage.rightAnchor, paddingLeft: 0,
                                right: safeAreaLayoutGuide.rightAnchor, paddingRight:0)
@@ -104,20 +104,20 @@ class ProfileCell: BaseCell{
     }
     
     //friendのprofileを表示する
-    func setCellB(profile:Profile,followList:[String],postList:[Discription]){
+    func setCellB(profile:Profile,followList:[Friend],postList:[Discription]){
         
         if profile.backgroundImageUrl == "background"  {
             backgroundImage.image = UIImage(named: "background")
         }
         else{
-            backgroundImage.loadImageUsingUrlString(urlString: profile.backgroundImageUrl)
+            backgroundImage.setImage(urlString: profile.backgroundImageUrl)
         }
        
         if profile.profileImageUrl == "person.crop.circle.fill"{
             profileImage.image = UIImage(systemName: "person.crop.circle.fill")
         }
         else{
-            profileImage.loadImageUsingUrlString(urlString: (profile.profileImageUrl))
+            profileImage.setImage(urlString: profile.profileImageUrl)
         }
        
         friendCountLabel.text = String(followList.count)
@@ -128,14 +128,15 @@ class ProfileCell: BaseCell{
         friendStackView.isUserInteractionEnabled = false
     }
     //自分のprofileを表示する
-    func setCellA(profile:myProfile, followList:[String],postList:[Discription]){
+    func setCellA(profile:MyProfile, followList:[Friend],postList:[Discription]){
         print("-----------------")
         print(profile)
         if profile.backgroundImage.name == "background" ||  profile.backgroundImage.url == "background" {
             backgroundImage.image = UIImage(named: "background")
         }
         else if profile.backgroundImage.name == "" || profile.backgroundImage.url != ""{
-            backgroundImage.loadImageUsingUrlString(urlString: profile.backgroundImage.url )
+            
+            backgroundImage.setImage(urlString:profile.backgroundImage.url )
         }
         else{
             backgroundImage.image = UIImage(data: profile.backgroundImage.imageData)
@@ -144,7 +145,7 @@ class ProfileCell: BaseCell{
             profileImage.image = UIImage(systemName: "person.crop.circle.fill")
         }
         else if profile.profileImage.name == "" || profile.profileImage.url != ""{
-            profileImage.loadImageUsingUrlString(urlString: profile.profileImage.url )
+            profileImage.setImage(urlString: profile.profileImage.url)
         }
         else{
             profileImage.image = UIImage(data:profile.profileImage.imageData)

@@ -46,8 +46,9 @@ class textFieldView:UIView,UITextFieldDelegate{
         print("B")
         messageID = messageid
         
-        self.addSubview(textfield)
-        self.addSubview(sendButton)
+        addSubview(textfield)
+        addSubview(sendButton)
+    
         addConsrtaints()
     }
     

@@ -14,8 +14,9 @@ target 'tripApp' do
   pod 'CropViewController'
   pod 'PKHUD', '~> 5.0'
   pod 'MessageKit'
-  pod 'SDWebImage'
+  pod 'Nuke'
   pod 'Firebase/Database'
   pod 'IQKeyboardManagerSwift'
+  pod 'lottie-ios'
   
 end

@@ -103,29 +103,15 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
         }
         else if indexPath.row == 2{
             //sign out ここから
-            AuthManager.shered.logout { result in
-                if result{
-                    let vc = LoginViewController()
-                    vc.modalPresentationStyle = .fullScreen
-                    self.present(vc, animated: true, completion: nil)
-                
-                }
-            }
+            signoutAlert()
             //useridを削除する
             //login pageに遷移する
            
         }
         else if indexPath.row == 3{
             //アカウント削除　ここから
-           
-            AuthManager.shered.deleteAccount { result in
-                if result {
-                    //login pageに遷移する
-                    let vc = LoginViewController()
-                    vc.modalPresentationStyle = .fullScreen
-                    self.present(vc, animated: true, completion: nil)
-                }
-            }
+           deleteAccountAlert()
+         
         }
         
         else if indexPath.row == 5{
@@ -146,6 +132,48 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
                }
            }
     }
+    
+    func signoutAlert(){
+        let alert = UIAlertController(title: "サインアウト", message: "サインアウトしますか？", preferredStyle: .alert)
+        let selectAction = UIAlertAction(title: "サインアト", style: .default, handler: { _ in
+           //削除して前の画面に戻る
+            AuthManager.shered.logout { result in
+                if result{
+                    let vc = LoginViewController()
+                    vc.modalPresentationStyle = .fullScreen
+                    self.present(vc, animated: true, completion: nil)
+                
+                }
+            }
+        })
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
+
+        alert.addAction(selectAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
+    func deleteAccountAlert(){
+        let alert = UIAlertController(title: "削除", message: "アカウントを削除しますか？", preferredStyle: .alert)
+        let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { _ in
+           //削除して前の画面に戻る
+            AuthManager.shered.deleteAccount { result in
+                if result {
+                    //login pageに遷移する
+                    let vc = LoginViewController()
+                    vc.modalPresentationStyle = .fullScreen
+                    self.present(vc, animated: true, completion: nil)
+                }
+            }
+        })
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
+
+        alert.addAction(selectAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
+    }
+    
 }
 
 
