@@ -1,9 +1,4 @@
-//
-//  extension.swift
-//  tripApp
-//
-//  Created by Yabuki Shodai on 2022/05/10.
-//
+
 
 import Foundation
 import UIKit
@@ -69,10 +64,27 @@ extension UIImage{
 extension Date{
     func covertString() -> String{
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ja_JP")
-        formatter.dateFormat = "yyy年MM月dd日(eee) HH:mm"
-        let date = formatter.string(from: self )
-        return date
+        let location = LanguageManager.shered.getlocation()
+        print("location",location)
+        if location == "ja"{
+            formatter.locale = Locale(identifier: "ja_JP")
+            formatter.dateFormat = "yyy年MM月dd日(eee)HH:mm"
+            let date = formatter.string(from: self )
+            return date
+        }
+        else{
+            print("not ja")
+            let formatter: DateFormatter = DateFormatter()
+            formatter.calendar = Calendar(identifier: .gregorian)
+            formatter.locale = .current
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .short
+            let date = formatter.string(from: self )
+            print(date)
+            return date
+        }
+      
+       
     }
     
    
@@ -197,8 +209,13 @@ extension UIImageView{
             transition: .fadeIn(duration: 0.1)
         )
         
-        Nuke.loadImage(with: url, options: option,into: self)
-        compleation(self.image)
+        
+        Nuke.loadImage(with: url, options: option, into: self) { result in
+            compleation(self.image)
+        
+           
+        }
+      
         
     }
     

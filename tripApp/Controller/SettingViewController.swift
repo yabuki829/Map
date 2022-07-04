@@ -24,7 +24,7 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
         return button
     }()
     let settingdata = [
-        menuItem(name: "お問い合わせ", icon: "mail"),
+        menuItem(name: "お問い合わせ", icon: "phone.circle"),
         menuItem(name: "レビューを書く", icon: "pencil"),
         menuItem(name: "サインアウト", icon: "rectangle.portrait.and.arrow.right"),
         menuItem(name: "アカウントの削除", icon: "trash"),
@@ -92,7 +92,7 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
     }
   
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(settingdata[indexPath.row].name)
+        print(indexPath.row,settingdata[indexPath.row].name)
         if indexPath.row == 0{
             //twitterを開く
             let url = URL(string: "https://mobile.twitter.com/sdi2025")
@@ -113,9 +113,11 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
            deleteAccountAlert()
          
         }
-        
         else if indexPath.row == 5{
-            //瞬間日記開く
+           //commingsoon
+           
+        }
+        else if indexPath.row == 6{
             openApp("id1592943322")
         }
     }

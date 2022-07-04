@@ -2,10 +2,10 @@ import Foundation
 import UIKit
 
 import UIKit
-public let menuBarTitleArray = ["squareshape.split.3x3","map"]
 
 class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
     var selectedIndexPath: IndexPath?
+    var menuBarTitleArray = ["map","squareshape.split.3x3"]
     private let underlineView: UIView = {
          let view = UIView()
          return view

@@ -164,8 +164,9 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
         return 3
     }
     
+    
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print(indexPath.row + 1 , "回目")
+        print("アイウエオ")
         if indexPath.row == 0{
             // Profile
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
@@ -214,12 +215,15 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
         }
         else {
             // CollectionView mapとcollectionview
+            
             // view.frame.height から　navigationbar と　statusbar と　tabbar と　menubar の高さをひく
             let statusBarHeight = self.view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
             let navigationBarHeight = self.navigationController?.navigationBar.frame.height ?? 0
             let tabbarHeight = tabBarController?.tabBar.frame.size.height ?? 83
             let height = view.frame.height - statusBarHeight - navigationBarHeight - tabbarHeight
+            
             return CGSize(width: view.frame.width, height:height - 30)
+           
         }
     }
     

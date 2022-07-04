@@ -3,7 +3,7 @@ import UIKit
 import CropViewController
 import FirebaseStorage
 import PKHUD
-class EditViewController : UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate,CropViewControllerDelegate{
+class EditViewController : UIViewController, UIImagePickerControllerDelegate & UINavigationControllerDelegate,CropViewControllerDelegate,UITextViewDelegate{
     
     let storege = Storage.storage().reference()
     
@@ -21,6 +21,13 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
         return imageview
     }()
     
+    let wordCountLabel:UILabel = {
+        let label = UILabel()
+        label.text = "0 / 80"
+        label.textColor = .darkGray
+        label.textAlignment = .left
+        return label
+    }()
     let usernameStackView:UIStackView = {
         let stackView = UIStackView()
         stackView.alignment = .fill
@@ -67,18 +74,19 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
             }
             textfield.text = profile?.username
             textView.text = profile?.text
+            wordCountLabel.text =  "\(textView.text.count) / 80"
         }
     }
     override func viewDidLoad() {
         view.backgroundColor = .white
-        view.addSubview(backgraundImage)
-        view.addSubview(profileImage)
-        view.addSubview(usernameStackView)
-        view.addSubview(textView)
+       
         setNav()
         addConstraint()
         tapSetting()
         profile = DataManager.shere.getMyProfile()
+        textView.returnKeyType = .done
+        textView.delegate = self
+        
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidDisappear(animated)
@@ -99,6 +107,11 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
         navigationItem.rightBarButtonItem = editItem
     }
     func  addConstraint(){
+        view.addSubview(backgraundImage)
+        view.addSubview(profileImage)
+        view.addSubview(usernameStackView)
+        view.addSubview(wordCountLabel)
+        view.addSubview(textView)
         
         backgraundImage.translatesAutoresizingMaskIntoConstraints = false
         backgraundImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
@@ -120,9 +133,12 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
         usernameStackView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -10).isActive = true
         usernameStackView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
         
+        wordCountLabel.anchor(top: usernameStackView.bottomAnchor, paddingTop: 5,
+                              left: view.leftAnchor, paddingLeft: 10,
+                              right: view.rightAnchor, paddingRight: 10)
         
         textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.topAnchor.constraint(equalTo: usernameStackView.bottomAnchor, constant: 20).isActive = true
+        textView.topAnchor.constraint(equalTo: wordCountLabel.bottomAnchor, constant: 0).isActive = true
         textView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -10).isActive = true
         textView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 10).isActive = true
         textView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
@@ -145,91 +161,21 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
         print("Back")
         self.navigationController?.dismiss(animated: true, completion: nil)
     }
-    @objc func edit(sender : UIButton){
-        print("Edit")
-        if textfield.text == ""{
-            return
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            textView.resignFirstResponder() //キーボードを閉じる
+            return false
         }
-        //　インゲーターを回す
-        HUD.show(.progress)
-        
-        if isChangedProfileImage || isChangedBackgroundImage {
-            
-            // プロフィール画像とバックグラウンド画像を変更する場合
-            if  isChangedProfileImage && isChangedBackgroundImage{
-                //前の画像を削除する
-                if profile?.profileImage.name != "person.crop.circle.fill" {
-                    
-                    StorageManager.shered.deleteProfileImage(name: (profile?.profileImage.name)!)
-                    
-                    
-                }
-                
-                if profile?.backgroundImage.name != "background"{
-                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
-                }
-                //両方とも新しい画像
-                FirebaseManager.shered.editProfileA(text: textView.text,
-                                                    username: textfield.text!,
-                                                    bgImagedata: backgroundimagedata,
-                                                    proImagedata: profileimagedata) { result in
-                    HUD.hide()
-                    if result {
-                        self.navigationController?.dismiss(animated: true, completion: nil)
-                        return
-                    }
-                }
-            }
-            else if isChangedProfileImage{
-                //プロフィール画像を変更する場合
-                if profile?.profileImage.name != "person.crop.circle.fill" {
-                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
-                    
-                }
-                //profile画像を変更する　ここ
-                FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: nil, proImagedata: profileimagedata, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl: (profile?.profileImage.url)!) { result in
-                    HUD.hide()
-                    if result {
-                        self.navigationController?.dismiss(animated: true, completion: nil)
-                        return
-                    }
-                }
-            }
-            else{
-                //バックグランド画像を変更する場合
-                if isChangedBackgroundImage  {
-                    if profile?.profileImage.name != "person.crop.circle.fill" {
-                        StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
-                    }
-                    FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: backgroundimagedata, proImagedata: nil, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl:  (profile?.profileImage.url)!) { result in
-                        HUD.hide()
-                        if result {
-                            self.navigationController?.dismiss(animated: true, completion: nil)
-                            return
-                        }
-                    }
-                }
-            }
-            
+        else {
+            return textView.text.count + (text.count - range.length) <= 80
         }
-        else{
-            //画像を変更しない場合
-            FirebaseManager.shered.editProfileC(text: textView.text!, username: textfield.text!, backgroundImageUrl: profile?.backgroundImage.url, profileImageUrl: profile?.profileImage.url){ result in
-                
-                HUD.hide()
-                if result{
-                    self.navigationController?.dismiss(animated: true, completion: nil)
-                    return
-                }
-                
-            }
-            
-        }
-        
         
     }
-    
+    func textViewDidChange(_ textView: UITextView) {
+        wordCountLabel.text = "\(textView.text.count) / 80"
+    }
 }
+
 
 extension EditViewController {
     
@@ -294,4 +240,97 @@ extension EditViewController {
         cropViewController.dismiss(animated: true, completion: nil)
     }
     
+}
+
+
+extension EditViewController{
+    @objc func edit(sender : UIButton){
+        print("Edit")
+        if textfield.text == ""{
+            return
+        }
+        //　インゲーターを回す
+        HUD.show(.progress)
+        
+        if isChangedProfileImage || isChangedBackgroundImage {
+            // プロフィール画像とバックグラウンド画像を変更する場合
+            if  isChangedProfileImage && isChangedBackgroundImage{
+                //前の画像を削除する
+                print("-----------両方新しい画像-----------")
+                if profile?.profileImage.name != "person.crop.circle.fill" {
+                    StorageManager.shered.deleteProfileImage(name: (profile?.profileImage.name)!)
+                    
+                }
+                if profile?.backgroundImage.name != "background"{
+                    StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
+                }
+                //両方とも新しい画像
+                FirebaseManager.shered.editProfileA(text: textView.text,
+                                                    username: textfield.text!,
+                                                    bgImagedata: backgroundimagedata,
+                                                    proImagedata: profileimagedata) { result in
+                    HUD.hide()
+                    if result {
+                        self.navigationController?.dismiss(animated: true, completion: nil)
+                        return
+                    }
+                }
+            }
+            else{
+                
+                if isChangedProfileImage{
+                    //プロフィール画像を変更する場合
+                    print("-----------プロフィール画像が新しい---------------")
+                    if profile?.profileImage.name != "person.crop.circle.fill" {
+                        StorageManager.shered.deleteProfileImage(name: (profile?.profileImage.name)!)
+                        
+                    }
+                    
+                    //profile画像を変更する　ここ
+                    FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: nil, proImagedata: profileimagedata, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl: (profile?.profileImage.url)!) { result in
+                        HUD.hide()
+                        if result {
+                            self.navigationController?.dismiss(animated: true, completion: nil)
+                            return
+                        }
+                    }
+                }
+                else{
+                    //バックグランド画像を変更する場合
+                    if isChangedBackgroundImage  {
+                        print("----------バックグラウンドが新しい画像-----------")
+                        if profile?.profileImage.name != "person.crop.circle.fill" {
+                            StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
+                        }
+                        FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: backgroundimagedata, proImagedata: nil, backgroundimageurl:(profile?.backgroundImage.url)!, profileimageurl:  (profile?.profileImage.url)!) { result in
+                                HUD.hide()
+                            if result {
+                                self.navigationController?.dismiss(animated: true, completion: nil)
+                                return
+                            }
+                        }
+                    }
+                }
+            }
+            
+            
+         
+              
+        }
+        else{
+            //画像を変更しない場合
+            print("----------画像を変更しない------------")
+            FirebaseManager.shered.editProfileC(text: textView.text!, username: textfield.text!, backgroundImageUrl: profile?.backgroundImage.url, profileImageUrl: profile?.profileImage.url){ result in
+                
+                HUD.hide()
+                if result{
+                    self.navigationController?.dismiss(animated: true, completion: nil)
+                    return
+                }
+                
+            }
+            
+        }
+    }
+        
 }

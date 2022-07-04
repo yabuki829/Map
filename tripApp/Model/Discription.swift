@@ -13,11 +13,20 @@ struct Discription:Codable,Equatable {
     let userid   : String
     let text     : String
     let location : Location?
+    //image -> data　に変更する
     let image : ProfileImage
     let created  : Date
-    //type movie / image
+    let type     :String
 }
 
+
+enum discriptionType:Codable,Equatable {
+
+    case video
+    case image
+    case ad
+    case none
+}
 struct Location :Codable,Equatable{
     let latitude:Double
     let longitude:Double

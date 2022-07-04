@@ -18,20 +18,20 @@ final class MainTabBarController: UITabBarController {
             tabBar.standardAppearance = appearance
             tabBar.scrollEdgeAppearance = tabBar.standardAppearance
         }
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        layout.estimatedItemSize = .zero
         
         let firstViewController = UINavigationController(rootViewController: MapViewController())
         firstViewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: "map"), selectedImage: UIImage(systemName: "map.fill"))
 
         
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = .zero
+        
         let secondViewController = UINavigationController(rootViewController: profileViewController(collectionViewLayout: layout))
         secondViewController.tabBarItem = UITabBarItem(title:"Profile" , image: UIImage(systemName: "person.circle"), selectedImage: UIImage(systemName: "person.circle.fill"))
         
         
-        let thirdViewController = UINavigationController(rootViewController: ChatListViewController())
-        thirdViewController.tabBarItem = UITabBarItem(title:"Chat" , image: UIImage(systemName: "message"), selectedImage: UIImage(systemName: "message.fill"))
+      
         viewControllers = [firstViewController, secondViewController]
     }
 

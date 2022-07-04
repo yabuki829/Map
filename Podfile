@@ -18,5 +18,6 @@ target 'tripApp' do
   pod 'Firebase/Database'
   pod 'IQKeyboardManagerSwift'
   pod 'lottie-ios'
+  pod 'NendSDK_iOS'
   
 end

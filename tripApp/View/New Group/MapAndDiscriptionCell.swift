@@ -18,6 +18,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
             collectionView.reloadData()
         }
     }
+    
     var userid = String()
     var discriptioncell = discriptionCell()
     var mapCell = MapCell()
@@ -25,7 +26,6 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
     lazy var collectionView:UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        
         let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
         collecitonview.dataSource = self
         collecitonview.delegate = self
@@ -37,10 +37,9 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
     override func setupViews() {
         contentView.addSubview(collectionView)
         addCollectionViewConstaraiont()
-        self.backgroundColor = .white
-       
         collectionView.register(MapCell.self, forCellWithReuseIdentifier: "MapCell")
         collectionView.register(discriptionCell.self, forCellWithReuseIdentifier: "DiscriptionCell")
+       
         discriptioncell = collectionView.dequeueReusableCell(withReuseIdentifier: "DiscriptionCell", for: IndexPath()) as! discriptionCell
         mapCell =  collectionView.dequeueReusableCell(withReuseIdentifier: "MapCell", for: IndexPath()) as! MapCell
   
@@ -55,17 +54,18 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         return 2
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
         return CGSize(width: self.frame.width, height: self.frame.height)
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.row == 0{
-            discriptioncell.discriptionList = discriptionList!
-            return discriptioncell
-        }
-        else{
             mapCell.descriptionList = discriptionList!
             mapCell.viewWidth = viewWidth
             return mapCell
+        }
+        else{
+            discriptioncell.discriptionList = discriptionList!
+            return discriptioncell
         }
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

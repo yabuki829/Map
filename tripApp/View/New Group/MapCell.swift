@@ -26,23 +26,26 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     var menuView:MenuView = {
         let mv = MenuView()
         mv.isHidden = true
+       
         return mv
     }()
     
     var descriptionList : [Discription]?{
         didSet {
+            print("mapcelllllllllll")
             setData()
         }
     }
 
-    var ImageDataArray = [uiimageData]()
     var selectImage = UIImage()
     
     var mapView =  MKMapView()
     var selectDiary:Discription?
     var isOpen = false
     var viewWidth = CGFloat()
+    var locationManager: CLLocationManager!
     override func setupViews() {
+        
         backgroundColor = .black
         mapView.delegate = self
         contentView.addSubview(mapView)
@@ -52,6 +55,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         menuButton.addTarget(self, action: #selector(changeMap(sender:)), for: .touchUpInside)
         menuView.mapNomalButton.addTarget(self, action: #selector(toDefalutsMap(sender:)), for: .touchUpInside)
         menuView.mapSateliteButton.addTarget(self, action: #selector(toSateliteMap(sender:)), for: .touchUpInside)
+        setupLocationManager()
         
     }
 
@@ -61,6 +65,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         mapView.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 0).isActive = true
         mapView.rightAnchor.constraint(equalTo: self.rightAnchor, constant: 0).isActive = true
         mapView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0).isActive = true
+        mapView.mapType = .satelliteFlyover
         
         menuButton.anchor(top: safeAreaLayoutGuide.topAnchor, paddingTop: 2,
                           right: safeAreaLayoutGuide.rightAnchor, paddingRight: 2)
@@ -86,6 +91,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         isOpen = false
         menuButton.isHidden = false
     }
+    
     @objc internal func changeMap(sender: UIButton) {
         print(sender.isSelected)
         isOpen = !isOpen
@@ -120,18 +126,17 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
        
         //postid と　id　が同じ
         for i in 0..<descriptionList!.count{
-            if view.annotation?.title == descriptionList![i].text
-                && view.annotation?.subtitle == descriptionList![i].created.toString(){
+            if view.annotation?.title == descriptionList![i].created.covertString()
+                && view.annotation?.subtitle == descriptionList![i].text {
                 selectDiary = descriptionList![i]
-//                if mapView.region.span.latitudeDelta > 0.0015 {
+                if mapView.region.span.latitudeDelta > 0.00015 {
                     
-                    let pinToZoomOn = view.annotation
-                    let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 0.0065, longitude: (view.annotation?.coordinate.longitude)! )
-                    let span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                    let region = MKCoordinateRegion(center: aa, span: span)
-                    mapView.setRegion(region, animated: true)
-                    
-//                }
+                    let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 0.0001, longitude: (view.annotation?.coordinate.longitude)! )
+                    let span = MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+                        let region = MKCoordinateRegion(center: aa, span: span)
+                        mapView.setRegion(region, animated: true)
+                        
+                }
                 
                 break
             }
@@ -159,58 +164,89 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         
         let pinView =  MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
         pinView.canShowCallout = true
+        
+       
     outLoop: for i in 0..<descriptionList!.count{
-        print(annotation.title,"を探します")
-        if annotation.title == descriptionList![i].text &&
-            annotation.subtitle == descriptionList![i].created.toString(){
+        if annotation.title == descriptionList![i].created.covertString() &&
+            annotation.subtitle == descriptionList![i].text {
+            
+
             let stackview = setStackView()
-            let imageView = UIImageView()
             let tapStackView = UITapGestureRecognizer(target: self, action: #selector(sendtoDetailView(sender:)))
-            stackview.isUserInteractionEnabled = true
+            let imageView = UIImageView()
+            let videoView = VideoPlayer()
             stackview.addGestureRecognizer(tapStackView)
             
+            if FirebaseManager.shered.getMyUserid() != descriptionList![i].userid {
+                pinView.pinTintColor = .link
+            }
+           
             
-            imageView.setImage(urlString: descriptionList![i].image.imageUrl) { [self] image in
+            if descriptionList![i].type == "video"{
+                //動画
+                print("動画")
+                videoView.loadVideo(urlString: descriptionList![i].image.url)
                 
-                if  image != nil {
-                    print("画像準備完了")
+                let button = UIButton()
+                    button.setTitle("＞＞", for: .normal)
+                    button.setTitleColor(.darkGray, for: .normal)
+                    button.setTitleColor(.systemGray3, for: .highlighted)
+                    button.contentHorizontalAlignment = .right
+                    button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
+                
+                    stackview.addArrangedSubview(videoView)
+
+                    stackview.addArrangedSubview(button)
+                videoView.anchor(width:viewWidth / 2, height:  viewWidth / 2)
+                let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 2 )
+                       stackview.addConstraint(widthConstraint)
+                pinView.detailCalloutAccessoryView = stackview
+            }
+            else{
+                // 画像
+                imageView.setImage(urlString: descriptionList![i].image.url) { [self] image in
+                    let imageView = UIImageView()
+                    if  image != nil {
+                        print("画像準備完了")
+                        let button = UIButton()
+                            button.setTitle("＞＞", for: .normal)
+                            button.setTitleColor(.darkGray, for: .normal)
+                            button.setTitleColor(.systemGray3, for: .highlighted)
+                            button.contentHorizontalAlignment = .right
+                            button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
                     
-                    let button = UIButton()
-                        button.setTitle("＞＞", for: .normal)
-                        button.setTitleColor(.darkGray, for: .normal)
-                        button.setTitleColor(.systemGray3, for: .highlighted)
-                        button.contentHorizontalAlignment = .right
-                        button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
-                
-                        stackview.addArrangedSubview(imageView)
-//                        stackview.addArrangedSubview(textLabel)
-                        stackview.addArrangedSubview(button)
-                        stackview.translatesAutoresizingMaskIntoConstraints = false
+                            stackview.addArrangedSubview(imageView)
+                            stackview.addArrangedSubview(button)
+                            stackview.translatesAutoresizingMaskIntoConstraints = false
+                          
+                            let gcd = MathManager.shered.getGreatestCommonDivisor(Int((image?.size.width)!), Int((image?.size.height)!))
+                            let ration = MathManager.shered.calcAspectRation(Double(image!.size.width) ,Double(image!.size.height) , gcd: gcd)
+                            let times = MathManager.shered.howmanyTimes(aspectRation: ration)
+                            let width = viewWidth / 2
                       
-                        let gcd = MathManager.shered.getGreatestCommonDivisor(Int((image?.size.width)!), Int((image?.size.height)!))
-                        let ration = MathManager.shered.calcAspectRation(Double(image!.size.width) ,Double(image!.size.height) , gcd: gcd)
-                        let times = MathManager.shered.howmanyTimes(aspectRation: ration)
-                        let width = viewWidth / 3 * 2
-                  
-                        imageView.anchor(height: width * times)
+                            imageView.anchor(height: width * times)
+                            
+                        let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 2 )
+                               stackview.addConstraint(widthConstraint)
+                            
+                            pinView.detailCalloutAccessoryView = stackview
                         
-                    let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 3 * 2)
-                           stackview.addConstraint(widthConstraint)
+                            
+                        }
+                        else{
+                            print("画像エラー", descriptionList![i].image.url,descriptionList![i].image.name,image)
                         
-                        pinView.detailCalloutAccessoryView = stackview
-                    
-                        
+                        }
+                
                     }
-                else{
-                    print("画像エラー")
-                }
-            
-                }
+            }
+
          
             }
-        else{
-            print("違います",descriptionList![i].text)
-        }
+            else{
+                print("違います",descriptionList![i].text)
+                
+            }
             
         
         }
@@ -222,12 +258,12 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         let stackview = UIStackView()
         stackview.axis = .vertical
         stackview.alignment = .fill
+        stackview.isUserInteractionEnabled = true
         return stackview
     }
     @objc internal func sendtoDetailView(sender: UIButton) {
        
         if selectDiary != nil{
-            print("aaaaaaaa")
             delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!)
         }
         else{
@@ -235,16 +271,17 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         }
     }
     func setData(){
-        print(descriptionList?.count,"回回します")
+        //ピンがあれば,まずすべて取り除く
+        mapView.removeAnnotations(mapView.annotations)
+        print("setData")
+       
         for i in 0..<descriptionList!.count{
             let annotation = MKPointAnnotation()
             
             if descriptionList![i].location != nil{
-                print(i,descriptionList![i].text,descriptionList![i].location)
                 annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
-                annotation.title = descriptionList![i].text
-                
-                annotation.subtitle = descriptionList![i].created.toString()
+                annotation.title = descriptionList![i].created.covertString()
+                annotation.subtitle = descriptionList![i].text
                 self.mapView.addAnnotation(annotation)
             }
         }
@@ -253,6 +290,37 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
    
 }
 
+
+
+extension MapCell {
+    func setupLocationManager() {
+        locationManager = CLLocationManager()
+        guard let locationManager = locationManager else { return }
+        locationManager.requestWhenInUseAuthorization()
+        
+        let status = CLLocationManager.authorizationStatus()
+        if status == .authorizedWhenInUse {
+            locationManager.delegate = self
+            locationManager.distanceFilter = 10
+            locationManager.startUpdatingLocation()
+            
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]){
+        
+        let location = locations.first
+        let latitude = location?.coordinate.latitude
+        let longitude = location?.coordinate.longitude
+        let aaa = CLLocationCoordinate2D(latitude: latitude!, longitude: longitude!)
+        var region = mapView.region
+        region.center = aaa
+        region.span.latitudeDelta = 180
+        region.span.longitudeDelta = 180
+        mapView.setRegion(region, animated:true)
+        
+    }
+}
 protocol mapCellDelegate: class  {
     func toDetailWithMapCell(discription:Discription)
 }

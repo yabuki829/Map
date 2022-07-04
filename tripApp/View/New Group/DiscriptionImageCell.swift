@@ -1,9 +1,3 @@
-//
-//  DiscriptionImageCell.swift
-//  tripApp
-//
-//  Created by Yabuki Shodai on 2022/05/30.
-//
 
 import Foundation
 import UIKit
@@ -13,8 +7,9 @@ class DiscriptionImageCell:UICollectionViewCell{
     let imageView:UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .white
-        imageView.contentMode = .scaleToFill
+        imageView.backgroundColor = .systemGray6
+        imageView.contentMode = .scaleAspectFit
+        
         return imageView
     }()
     override init(frame: CGRect) {

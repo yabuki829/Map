@@ -50,13 +50,13 @@ class ProfileCell: BaseCell{
         usernameLabel.anchor(top: profileImage.bottomAnchor, paddingTop: 0.0,
                              left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 10,
                              right: safeAreaLayoutGuide.rightAnchor, paddingRight: 10,
-                             height: 50)
+                             height: 40)
         
         contentView.addSubview(textLabel)
         textLabel.numberOfLines = 0
         textLabel.font = UIFont.boldSystemFont(ofSize: 12.0)
         textLabel.textColor = .darkGray
-        textLabel.anchor(top: usernameLabel.bottomAnchor, paddingTop: 0.0,
+        textLabel.anchor(top: usernameLabel.bottomAnchor, paddingTop: 5.0,
                          left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 10,
                          right: safeAreaLayoutGuide.rightAnchor, paddingRight: 10,
                          bottom: safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0.0)

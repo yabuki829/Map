@@ -8,10 +8,10 @@
 import Foundation
 
 class LanguageManager {
+    static let shered = LanguageManager()
     func getlocation() -> String{
-           let locale = Locale.current
-           let localeId = locale.identifier
-           let locationString = localeId.components(separatedBy: "_")
-           return locationString[0]
+        let language = NSLocale.preferredLanguages.first?.components(separatedBy: "-").first
+        return language ?? "en"
     }
+    
 }

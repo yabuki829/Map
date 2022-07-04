@@ -64,13 +64,15 @@ class FirebaseManager{
                 self.database.collection("Profile").document(userid).setData(
                     ["userid":userid,"username":username,
                      "text":text ?? "",
-                     "backgroundImage": backgroundimagedata.imageUrl ,
-                     "profileImage":profileimagedata.imageUrl
+                     "backgroundImage": backgroundimagedata.url ,
+                     "profileImage":profileimagedata.url
                     ]
                 )
                 var profile = DataManager.shere.getMyProfile()
-                profile.profileImage = imageData(imageData: proImagedata!, name: profileimagedata.name, url: profileimagedata.imageUrl)
-                profile.backgroundImage = imageData(imageData: bgImagedata!, name: backgroundimagedata.name, url: backgroundimagedata.imageUrl)
+                profile.username = username
+                profile.text = text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself"
+                profile.profileImage = imageData(imageData: proImagedata!, name: profileimagedata.name, url: profileimagedata.url)
+                profile.backgroundImage = imageData(imageData: bgImagedata!, name: backgroundimagedata.name, url: backgroundimagedata.url)
                 DataManager.shere.setMyProfile(profile: profile)
                 compleation(true)
             }
@@ -80,8 +82,8 @@ class FirebaseManager{
   
     func editProfileB(text:String?,username:String,bgImagedata:Data?,proImagedata:Data?,backgroundimageurl:String,profileimageurl:String,compleation:@escaping (Bool) -> Void){
         let userid = Auth.auth().currentUser!.uid
-        print("片方だけ変更")
         //bgimagedataが空 profileだけを変更する
+        
         if bgImagedata == nil {
             print("Profileの画像を変更する")
             StorageManager.shered.uploadPofileImage(imageData: proImagedata!) { (result) in
@@ -90,12 +92,13 @@ class FirebaseManager{
                     ["userid":userid,"username":username,
                      "text":text ?? "",
                      "backgroundImage":backgroundimageurl  ,
-                     "profileImage":result.imageUrl
+                     "profileImage":result.url
                     ]
                 )
                 var profile = DataManager.shere.getMyProfile()
-                profile.profileImage = imageData(imageData: proImagedata!, name: result.name, url: result.imageUrl)
-                
+                profile.profileImage = imageData(imageData: proImagedata!, name: result.name, url: result.url)
+                profile.username = username
+                profile.text = text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself"
                 DataManager.shere.setMyProfile(profile: profile)
                 compleation(true)
             }
@@ -109,13 +112,15 @@ class FirebaseManager{
                     ["userid":userid,
                      "username":username,
                      "text":text ?? "",
-                     "backgroundImage":backgroundimageurl ,
-                     "profileImage":result.imageUrl 
+                     "backgroundImage":result.url,
+                     "profileImage":profileimageurl
                     ]
                 )
 
                 var profile = DataManager.shere.getMyProfile()
-                profile.backgroundImage = imageData(imageData: bgImagedata!, name: result.name, url: profileimageurl)
+                profile.backgroundImage = imageData(imageData: bgImagedata!, name: result.name, url: result.url)
+                profile.username = username
+                profile.text = text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself"
                 DataManager.shere.setMyProfile(profile: profile)
                 compleation(true)
             }
@@ -130,7 +135,7 @@ class FirebaseManager{
         self.database.collection("Profile").document(userid).setData(
             ["userid":userid,
              "username":username,
-             "text":text ?? "",
+             "text":text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself",
              "backgroundImage":backgroundImageUrl ?? "background" ,
              "profileImage":profileImageUrl ?? "person.crop.circle.fill"
             ]
@@ -177,27 +182,31 @@ class FirebaseManager{
     func getProfile(userid:String,compleation:@escaping (Profile) -> Void){
         self.database.collection("Profile").document(userid).addSnapshotListener { (snapshot, error) in
             if let error = error {
+                print("エラー:",error)
                 return
             }
-            let data = snapshot!.data()
-            if let userid       = data?["userid"],
-               let username     = data?["username"],
-               let profileimage = data?["profileImage"],
-               let backgroundimage = data?["backgroundImage"],
-               let text         = data?["text"]{
-                
-                let profile = Profile(userid: userid as! String,
-                                      username: username as! String,
-                                      text: text as? String,
-                                      backgroundImageUrl: backgroundimage as! String,
-                                      profileImageUrl: profileimage as! String)
-              compleation(profile)
-                
-            }
             else{
-                let profile = Profile(userid: "error", username: "No Name",text: "Learn from the mistakes of others. You can’t live long enough to make them all yourself.", backgroundImageUrl: "background", profileImageUrl: "person.crop.circle.fill")
+                let data = snapshot!.data()
+                if let userid       = data?["userid"],
+                   let username     = data?["username"],
+                   let profileimage = data?["profileImage"],
+                   let backgroundimage = data?["backgroundImage"],
+                   let text         = data?["text"]{
+                    
+                    let profile = Profile(userid: userid as! String,
+                                          username: username as! String,
+                                          text: text as? String,
+                                          backgroundImageUrl: backgroundimage as! String,
+                                          profileImageUrl: profileimage as! String)
                   compleation(profile)
+                    
+                }
+                else{
+                    let profile = Profile(userid: "error", username: "No Name",text: "Learn from the mistakes of others. You can’t live long enough to make them all yourself.", backgroundImageUrl: "background", profileImageUrl: "person.crop.circle.fill")
+                      compleation(profile)
+                }
             }
+
         }
     }
     
@@ -240,6 +249,7 @@ class FirebaseManager{
             }
         }
     }
+    
     func postDiscription(disc:Discription){
         let friendList = FollowManager.shere.getFollow()
         print("friend",friendList)
@@ -253,10 +263,11 @@ class FirebaseManager{
                     [   "id":disc.id,
                         "userid":disc.userid,
                         "text":disc.text,
-                        "latitude":disc.location?.latitude,"longitude":disc.location?.longitude,
+                        "latitude":disc.location?.latitude as Any,"longitude":disc.location?.longitude as Any,
                         "created":FieldValue.serverTimestamp(),
-                        "imageurl":disc.image.imageUrl,
+                        "imageurl":disc.image.url,
                         "imagename":disc.image.name,
+                        "type":disc.type
                         
                     ]
                 )
@@ -269,11 +280,13 @@ class FirebaseManager{
                     ["id":disc.id,
                      "userid":disc.userid,
                      "text":disc.text,
-                     "latitude":disc.location?.latitude,"longitude":disc.location?.longitude,
+                     "latitude":disc.location?.latitude as Any,"longitude":disc.location?.longitude as Any,
                      "created":FieldValue.serverTimestamp(),
-                     "imageurl":disc.image.imageUrl,
+                     "imageurl":disc.image.url,
                      "imagename":disc.image.name,
-                     "receiverList":receiver
+                     "receiverList":receiver,
+                     "type":disc.type
+                     
                     ]
                 )
         }
@@ -296,7 +309,8 @@ class FirebaseManager{
                    let created = data["created"] as? Timestamp,
                    let imageurl = data["imageurl"],
                    let imagename = data["imagename"],
-                   let receiverList = data["receiverList"]{
+                   let receiverList = data["receiverList"],
+                   let type = data["type"] {
                     
                     let myUserID = getMyUserid()
                     // 自分のユーザーid　と　投稿のユーザーidが同じかどうか --> 自分の投稿なので取得
@@ -309,7 +323,7 @@ class FirebaseManager{
                                                userid: userid as! String,
                                                text: text as! String,
                                                location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                               image: ProfileImage(imageUrl: imageurl as! String, name: imagename as! String), created: date)
+                                               image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
                         discriptionList.append(disc)
                         
                     }
@@ -359,19 +373,26 @@ class FirebaseManager{
                    let longitude = data["longitude"],
                    let created = data["created"] as? Timestamp,
                    let imageurl = data["imageurl"],
-                   let imagename = data["imagename"]{
+                   let imagename = data["imagename"],
+                   let type = data["type"]{
                     let date = created.dateValue()
                     let disc = Discription(id: id as! String,
                                            userid: userid as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                           image: ProfileImage(imageUrl: imageurl as! String, name: imagename as! String), created: date)
+                                           image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
                     discriptionList.append(disc)
                 }
                 
             }
             DispatchQueue.main.async {
                 print("取得完了")
+                //48時間以内の自分の投稿を取得する
+                let myDisc = DataManager.shere.getDiscriptionSince48Hours()
+                discriptionList.append(contentsOf: myDisc)
+                discriptionList.sort(by: { a, b -> Bool in
+                    return a.created > b.created
+                })
                 compleation(discriptionList)
             }
         }
@@ -457,6 +478,12 @@ class FirebaseManager{
         //ユーザーがコメントを削除する場合に使う
         database.collection("Comments").document(postID).collection("Comment").document(commentID).delete()
     }
+    func report(disc:Discription,userid:String,category:String){
+        
+        self.database.collection("report").document().setData(
+            ["postid":disc.id,"userid":disc.userid,"reporter":userid,"type":category]
+        )
+    }
 }
 
 
@@ -491,6 +518,73 @@ extension FirebaseManager{
         }
     }
 }
+
+
+
+
+extension FirebaseManager {
+    func getAdvertising(location:Location,compleation:@escaping ([Discription]) -> Void){
+        var adDiscriptionList = [Discription]()
+        database.collection("Ad").getDocuments{ (snapshot, error) in
+            /*
+                 id
+                 text
+                 image
+                 latitude
+                 longitude
+                 imageurl
+                 imagename
+                
+             
+             */
+            if let error = error {
+                print("エラー",error)
+                return
+            }
+            print("取得中")
+            for document in snapshot!.documents {
+                let data = document.data()
+                if let id = data["id"],
+                   let userid = data["userid"],
+                   let text = data["text"],
+                   let latitude = data["latitude"],
+                   let longitude = data["longitude"],
+                   let created = data["created"] as? Timestamp,
+                   let imageurl = data["imageurl"],
+                   let imagename = data["imagename"]{
+                    let date = created.dateValue()
+                    let disc = Discription(id: id as! String,
+                                           userid: userid as! String,
+                                           text: text as! String,
+                                           location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
+                                           image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: "image")
+                    adDiscriptionList.append(disc)
+                }
+                
+            }
+            DispatchQueue.main.async {
+                compleation(adDiscriptionList)
+            }
+            
+        }
+        
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -566,7 +660,7 @@ extension FirebaseManager {
             
             
             //相手のconvasationにメッセージを反映させる
-            rdatabase.child("users").child("convarsations").observe(.value) { (sanpshot) in
+            rdatabase.child("users").child("convarsations").observe(.value) { [self] (sanpshot) in
                 if var convasations = snapshot.value as? [[String:Any]]{
                     convasations.append(recipientNewConvarsations)
                     rdatabase.child("users").child(otherUser.userid).child("convarsations").setValue([convasations])

@@ -192,8 +192,7 @@ extension ChatRoomViewController:MessagesLayoutDelegate,MessagesDisplayDelegate,
         if let sender = currentUser {
             return sender
         }
-        fatalError("currentUserの取得に失敗しています")
-        return Sender(photoUrl: "", senderId: "1", displayName: "")
+        return currentUser!
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {

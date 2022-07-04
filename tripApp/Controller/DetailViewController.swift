@@ -28,7 +28,7 @@ class detailViewController:UIViewController{
     let tableView = UITableView()
     var commentList = [Comment]()
     
-    
+    var subheight = CGFloat()
     override func viewDidLoad() {
         view.backgroundColor = .white
         view.addSubview(tableView)
@@ -72,6 +72,9 @@ class detailViewController:UIViewController{
                      object: nil)
         
     }
+    override func viewDidDisappear(_ animated: Bool) {
+        cell.videoView.player!.replaceCurrentItem(with: nil)
+    }
     @objc func keyboardWillShow(_ notification: Notification) {
          
         let info = notification.userInfo!
@@ -98,17 +101,21 @@ class detailViewController:UIViewController{
         if discription?.userid == FirebaseManager.shered.getMyUserid(){
             //自分の投稿
             myProfile = DataManager.shere.getMyProfile()
-            let trashButton = UIImage(systemName: "trash.circle")
+            
+            
+            let trashButton = UIImage(systemName: "trash")
             let deleteItem = UIBarButtonItem(image:trashButton, style: .plain, target: self, action: #selector(delete(sender:)))
             deleteItem.tintColor = .darkGray
             navigationItem.rightBarButtonItem = deleteItem
-            
         }
         else{
             FirebaseManager.shered.getProfile(userid: discription!.userid) { (result) in
                 self.profile = result
             }
-           
+            let meunButton = UIImage(systemName: "ellipsis")
+            let deleteItem = UIBarButtonItem(image:meunButton, style: .plain, target: self, action: #selector(report(sender:)))
+            deleteItem.tintColor = .darkGray
+            navigationItem.rightBarButtonItem = deleteItem
         }
     }
     func getComment(){
@@ -126,16 +133,18 @@ class detailViewController:UIViewController{
         backItem.tintColor = .darkGray
         navigationItem.leftBarButtonItem = backItem
         
-        
+        let statusBarHeight = self.view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+        let navigationBarHeight = self.navigationController?.navigationBar.frame.height ?? 0
+        let tabbarHeight = tabBarController?.tabBar.frame.size.height ?? 83
+        let height = view.frame.height - statusBarHeight - navigationBarHeight - tabbarHeight - 40 - 20
+        subheight = height
     }
 }
 
 
 extension detailViewController:UITableViewDelegate,UITableViewDataSource,profileCellDelegate{
     @objc func back(sender : UIButton){
-//        dismiss(animated: true, completion: nil)
         self.navigationController?.popViewController(animated: true)
-//        self.presentingViewController?.dismiss(animated: true, completion: nil)
 
     }
     func toDetail(image: UIImage) {
@@ -153,7 +162,9 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         
         let vc = profileViewController(collectionViewLayout: layout)
         vc.profile = profile
-        vc.isMyProfile = true
+        if profile.userid != myProfile.userid {
+            vc.isMyProfile = false
+        }
         let rootVC = UIApplication.shared.windows.first?.rootViewController as? UITabBarController
         let navigationController = rootVC?.children[1] as? UINavigationController
         rootVC?.selectedIndex = 1
@@ -170,7 +181,8 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         if indexPath.row == 0{
             let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! DetailViewCell
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
-            cell.setCell(disc: discription!, size: view.frame.width)
+           
+            cell.setCell(disc: discription!, widthSize: view.frame.width, heightSize: subheight)
             cell.delegate = self
             self.cell = cell
             return cell
@@ -178,7 +190,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         else{
             let cell = tableView.dequeueReusableCell(withIdentifier: "comment", for: indexPath) as! commentCell
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
-            cell.setCell(comment: commentList[indexPath.row - 1 ],  size: view.frame.width)
+            cell.setCell(comment: commentList[indexPath.row - 1],  size: view.frame.width)
             return cell
         }
       
@@ -188,9 +200,60 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
         fieldView.textfield.endEditing(true)
     }
+    @objc func report(sender : UIButton){
+        let myAlert: UIAlertController = UIAlertController(title: "Report", message: "通報内容を選択してください", preferredStyle: .alert)
+               
+            // userid, post id と 報告内容
+               let alertA = UIAlertAction(title: "嫌がらせ/差別/誹謗中傷", style: .default) { [self] action in
+                   let report = "嫌がらせ・差別・誹謗中傷"
+                   FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   print(report)
+                   OKAlert(title: "Thanks for Reports.", message: "報告が完了しました")
+               }
+               let alertC = UIAlertAction(title: "内容が事実と著しく異なる", style: .default) { [self] action in
+                   let report = "内容が著しく事実と異なる"
+                   FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   OKAlert(title: "Thanks for Reports.", message: "報告が完了しました")
+                   print(report)
+               }
+               let alertD = UIAlertAction(title: "性的表現/わいせつな表現", style: .default) { [self] action in
+                  
+                   let report = "性的表現"
+                   FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   print(report)
+                   OKAlert(title: "Thanks for Reports.", message: "報告が完了しました")
+               }
+            let alertE = UIAlertAction(title: "その他不適切", style: .default) { [self] action in
+                   
+                    let report = "不適切な投稿"
+                    FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                    print(report)
+                    OKAlert(title: "Thanks for Reports.", message: "報告が完了しました")
+                }
+        
+            let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
+                   print("キャンセル")
+               }
+               // OKのActionを追加する.
+               myAlert.addAction(alertA)
+               myAlert.addAction(alertC)
+               myAlert.addAction(alertD)
+               myAlert.addAction(alertE)
+               myAlert.addAction(cancelAlert)
+               
 
+               // UIAlertを発動する.
+               present(myAlert, animated: true, completion: nil)
+    }
     
-   
+    
+    func OKAlert(title:String,message:String){
+        let myAlert: UIAlertController = UIAlertController(title:title, message: message, preferredStyle: .alert)
+        let oklAlert = UIAlertAction(title: "OK", style: .cancel)
+        myAlert.addAction(oklAlert)
+        present(myAlert, animated: true, completion: nil)
+    }
+       
     @objc func delete(sender : UIButton){
        deleteAlert()
     }
@@ -211,7 +274,6 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
                 present(alert, animated: true)
     }
 }
-
 
 
 

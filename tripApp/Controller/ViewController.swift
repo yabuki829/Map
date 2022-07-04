@@ -5,6 +5,312 @@ import CoreLocation
 import Photos
 import PKHUD
 
+
+class MapViewController: UIViewController {
+   
+    
+
+    
+    var postButton:UIButton = {
+        let button = UIButton()
+        let image = UIImage(systemName: "pencil.circle.fill")
+        button.setBackgroundImage(image, for: .normal)
+        return button
+    }()
+    let collectionView:UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.translatesAutoresizingMaskIntoConstraints = false
+      
+        cv.backgroundColor = .systemGray6
+        return cv
+    }()
+    var menuCell:MenuCell?
+    var mapAndDiscriptionCell:MapAndDiscriptionCell?
+    let refresher = UIRefreshControl()
+    var locationManager:CLLocationManager!
+    var discriptipns = [Discription]()
+    var selectDiary:Discription?
+    var selectImage = UIImage()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        self.navigationController?.navigationBar.barTintColor = .white
+       
+        view.addSubview(collectionView)
+        view.addSubview(postButton)
+        
+        addConstraint()
+        postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
+       
+        
+        setupNavigationItems()
+        settingCollectionView()
+      
+        
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        getDiscription()
+    }
+    
+    @objc internal func sendtoPostView(sender: UIButton) {
+        let nav = UINavigationController(rootViewController: PostViewController())
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+      }
+    @objc internal func sendtoDetailView(sender: UIButton) {
+        let vc = detailViewController()
+        vc.discription = selectDiary!
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    @objc func tapSettingIcon(){
+        let layout = UICollectionViewFlowLayout()
+        let nav = UINavigationController(rootViewController: SettingViewController(collectionViewLayout: layout))
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+     }
+    @objc func refresh(){
+        print("Refreshh")
+        getDiscription()
+     }
+    func getDiscription(){
+      //自分の投稿と友達の投稿あとprofileを取得する
+        discriptipns = []
+//        discriptipns = DataManager.shere.get()
+        FirebaseManager.shered.getFriendDiscription { [self] result in
+            print(discriptipns.count)
+            refresher.endRefreshing()
+            discriptipns.append(contentsOf: result)
+            
+           
+            collectionView.reloadData()
+        }
+    
+    }
+
+}
+
+
+extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,reloadDelegate,mapCellDelegate,transitionDelegate{
+    func scroll() {
+        collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
+    }
+    
+    func toDetailWithMapCell(discription: Discription){
+        print("mapから遷移します")
+        let vc = detailViewController()
+        vc.discription = discription
+
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
+        let vc = detailViewController()
+        
+        vc.discription = discription
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func toFriendList() {
+        let vc = FriendListViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func reload() {
+        if menuCell?.selectedIndexPath?.row == 0{
+            mapAndDiscriptionCell?.collectionView.scrollToItem(at:IndexPath(row: 0, section: 0) , at: .centeredHorizontally, animated: true)
+            
+        }
+        else{
+            mapAndDiscriptionCell?.collectionView.scrollToItem(at:IndexPath(row: 1, section: 0) , at: .centeredHorizontally, animated: true)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 2
+    }
+
+    
+   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    
+        if indexPath.row == 0{
+            // Profile
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MenuCell", for: indexPath) as! MenuCell
+            cell.delegate = self
+            cell.menuBarTitleArray = ["map","house"]
+            menuCell = cell
+            return cell
+        }
+        else{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MapAndDiscriptionCell", for: indexPath) as! MapAndDiscriptionCell
+            cell.discriptionList = discriptipns
+            cell.discriptioncell.isHome = true
+            cell.viewWidth = view.frame.width
+            cell.mapCell.delegateWithMapCell = self
+            
+            mapAndDiscriptionCell = cell
+            mapAndDiscriptionCell?.discriptioncell.delegate = self
+            
+            return cell
+            
+        }
+     
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if indexPath.row == 0{
+            // Profile
+            return CGSize(width: view.frame.width, height: 30)
+        }
+        else {
+            // view.frame.height から　navigationbar と　statusbar と　tabbar と　menubar の高さをひく
+            let statusBarHeight = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+            let navigationBarHeight = self.navigationController?.navigationBar.frame.height ?? 0
+            let tabbarHeight = tabBarController?.tabBar.frame.size.height ?? 83
+            let height = view.frame.height - statusBarHeight - navigationBarHeight - tabbarHeight
+            print("height",height)
+            return CGSize(width: view.frame.width, height:height - 25)
+        }
+       
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+
+}
+
+
+extension MapViewController {
+    func addConstraint(){
+        postButton.translatesAutoresizingMaskIntoConstraints = false
+        postButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
+        postButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant:-20).isActive = true
+        postButton.heightAnchor.constraint(equalToConstant: view.frame.width / 7).isActive = true
+        postButton.widthAnchor.constraint(equalToConstant: view.frame.width / 7).isActive = true
+        
+        collectionView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
+                              left: view.leftAnchor, paddingLeft: 0,
+                              right: view.rightAnchor, paddingRight: 0,
+                              bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0
+                          )
+    }
+
+
+    func settingCollectionView(){
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(MenuCell.self, forCellWithReuseIdentifier: "MenuCell")
+        collectionView.register(MapAndDiscriptionCell.self, forCellWithReuseIdentifier: "MapAndDiscriptionCell")
+       
+        refresher.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        collectionView.addSubview(refresher)
+        
+    }
+
+
+    func setupNavigationItems(){
+        let titleLabel = UILabel(frame: CGRect(x: 30, y: 0, width: view.frame.width - 32, height: view.frame.height))
+        titleLabel.font = UIFont(name: "Times New Roman", size: 20)
+        titleLabel.text = "PhotoShare"
+        titleLabel.tintColor = .darkGray
+        navigationItem.titleView = titleLabel
+        let accountImage = UIImage(systemName: "text.justify")
+        let accountItem = UIBarButtonItem(image: accountImage, style: .plain, target: self, action: #selector(tapSettingIcon))
+        
+        navigationItem.rightBarButtonItems = [accountItem]
+        navigationController?.navigationBar.tintColor = .darkGray
+    }
+}
+
+
+
+class articleCell:UICollectionViewCell{
+    //profile画像　username
+    let profileImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.backgroundColor = .white
+        imageView.contentMode = .scaleToFill
+        imageView.image = UIImage(named: "background")
+        return imageView
+    }()
+    
+    let imageView:UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.backgroundColor = .black
+        imageView.contentMode = .scaleAspectFit
+        imageView.image = UIImage(named: "background")
+        return imageView
+    }()
+    let username:UILabel = {
+        let label = UILabel()
+        return label
+    }()
+    let dateLabel:UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = .lightGray
+        return label
+    }()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupViews()
+    }
+    func setupViews(){
+        contentView.addSubview(imageView)
+        addConstraint()
+    }
+    func addConstraint(){
+        self.addSubview(profileImageView)
+        self.addSubview(username)
+        self.addSubview(dateLabel)
+        self.addSubview(imageView)
+        profileImageView.anchor(top: self.topAnchor, paddingTop: 10,
+                                left: self.leftAnchor, paddingLeft: 10,
+                                width: 50, height: 50)
+        profileImageView.layer.cornerRadius = 25
+        profileImageView.clipsToBounds = true
+        
+        username.anchor(top: self.topAnchor, paddingTop: 10,
+                        left: profileImageView.rightAnchor, paddingLeft: 5)
+                        
+        dateLabel.anchor(top: self.topAnchor, paddingTop: 10,
+                        left: username.rightAnchor, paddingLeft: 5,
+                        right: self.rightAnchor, paddingRight: 5)
+        
+        imageView.anchor(top: username.bottomAnchor, paddingTop: 10,
+                         left: profileImageView.rightAnchor, paddingLeft: 0,
+                         right: self.rightAnchor, paddingRight: 10,
+                         bottom: self.bottomAnchor, paddingBottom: 0,
+                         width: self.frame.width - 70, height: self.frame.width - 70)
+        
+    }
+    func setCell(userid:String){
+        getProfile(userid: userid)
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func getProfile(userid:String){
+        FirebaseManager.shered.getProfile(userid: userid) { result in
+            self.profileImageView.setImage(urlString: result.profileImageUrl)
+            self.username.text = result.username
+        }
+    }
+}
+
+
+
+
 class MenuView:UIView{
     let mapSateliteButton: UIButton = {
         let button = UIButton()
@@ -20,11 +326,13 @@ class MenuView:UIView{
         button.titleLabel?.font = .systemFont(ofSize: 12)
         return button
     }()
+    
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
     }
-
+    
   
     func setupViews(){
         addSubview(mapSateliteButton)
@@ -37,278 +345,12 @@ class MenuView:UIView{
                               left: leftAnchor, paddingLeft: 20,
                               right: rightAnchor, paddingRight:20,
                               bottom: bottomAnchor,paddingBottom: 10)
+        
+      
+    
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
-
-class MapViewController: UIViewController {
-    let menuButton: UIButton = {
-        let button = UIButton()
-        button.setBackgroundImage(UIImage(systemName: "map"), for: .normal)
-        button.tintColor = .lightGray
-        return button
-    }()
-    var menuView:MenuView = {
-        let mv = MenuView()
-        mv.isHidden = true
-        return mv
-    }()
-   
-    let mapView: MKMapView = {
-        let map = MKMapView()
-        map.mapType = .standard
-        return map
-    }()
-    
-    var postButton:UIButton = {
-        let button = UIButton()
-        let image = UIImage(systemName: "pencil.circle.fill")
-        button.setBackgroundImage(image, for: .normal)
-        
-        return button
-    }()
-    var locationManager:CLLocationManager!
-    var array = [Discription]()
-    var selectDiary:Discription?
-    var selectImage = UIImage()
-    var isOpen = false
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        mapView.delegate = self
-        view.backgroundColor = .white
-        self.navigationController?.navigationBar.barTintColor = .white
-
-    
-        view.addSubview(mapView)
-        view.addSubview(postButton)
-        view.addSubview(menuButton)
-        view.addSubview(menuView)
-        addConstraintMapView()
-        addConstraintButton()
-        menuButton.addTarget(self, action: #selector(changeMap(sender:)), for: .touchUpInside)
-        postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
-        
-        menuView.mapNomalButton.addTarget(self, action: #selector(toDefalutsMap(sender:)), for: .touchUpInside)
-        menuView.mapSateliteButton.addTarget(self, action: #selector(toSateliteMap(sender:)), for: .touchUpInside)
-        setupNavigationItems()
-        setData()
-        
-        
-    }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        
-    }
-    
-    @objc internal func sendtoPostView(sender: UIButton) {
-        let nav = UINavigationController(rootViewController: PostViewController())
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
-      }
-    @objc internal func sendtoDetailView(sender: UIButton) {
-        let vc = detailViewController()
-        vc.discription = selectDiary!
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    @objc internal func toDefalutsMap(sender: UIButton) {
-        //衛生写真に変更する
-        print("デフォルト")
-        mapView.mapType = .standard
-        menuView.isHidden = true
-        isOpen = false
-        menuButton.isHidden = false
-        
-    }
-    @objc internal func toSateliteMap(sender: UIButton) {
-        //デフォルトに変更する
-        print("衛生写真")
-        mapView.mapType = .satelliteFlyover
-        menuView.isHidden = true
-        isOpen = false
-        menuButton.isHidden = false
-    }
-    @objc internal func changeMap(sender: UIButton) {
-        print(sender.isSelected)
-        isOpen = !isOpen
-        if isOpen {            //メニューを開く
-            menuView.isHidden = false
-            menuButton.isHidden = true
-        }
-        else{
-            //menuを閉じる
-            menuView.isHidden = true
-            menuButton.isHidden = true
-        }
-    }
-   
-    func addConstraintMapView(){
-        mapView.translatesAutoresizingMaskIntoConstraints = false
-        mapView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
-        mapView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
-        mapView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
-        mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
-    }
-    
-    func addConstraintButton(){
-        postButton.translatesAutoresizingMaskIntoConstraints = false
-        postButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
-        postButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant:-20     ).isActive = true
-        postButton.heightAnchor.constraint(equalToConstant: view.frame.width / 7).isActive = true
-        postButton.widthAnchor.constraint(equalToConstant: view.frame.width / 7).isActive = true
-        
-        menuButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 2,
-                          right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 2)
-        
-        menuView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
-                        right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 0)
-        
-    }
-    
-    
-    func setData(){
-        HUD.show(.progress)
-        FirebaseManager.shered.getFriendDiscription { [self] (data) in
-//            array = DataManager.shere.get()
-            array.append(contentsOf: data)
-            mapView.removeAnnotations(mapView.annotations)
-            for i in 0..<array.count{
-                let annotation = MKPointAnnotation()
-                if array[i].location != nil{
-                    annotation.coordinate = CLLocationCoordinate2DMake(array[i].location!.latitude,array[i].location!.longitude)
-                    
-                    annotation.title = array[i].text
-                    annotation.subtitle = array[i].created.toString()
-                    
-                    self.mapView.addAnnotation(annotation)
-                }
-            }
-            HUD.hide()
-        }
-       
-    }
-
-    func setupNavigationItems(){
-        
-        let titleLabel = UILabel(frame: CGRect(x: 30, y: 0, width: view.frame.width - 32, height: view.frame.height))
-        titleLabel.font = UIFont(name: "AlNile-Bold", size: 20)
-        titleLabel.text = "PhotoShare"
-        titleLabel.tintColor = .darkGray
-        navigationItem.titleView = titleLabel
-              
-        let accountImage = UIImage(systemName: "text.justify")
-             
-        let accountItem = UIBarButtonItem(image: accountImage, style: .plain, target: self, action: #selector(tapSettingIcon))
-              
-        navigationItem.rightBarButtonItems = [accountItem]
-        navigationController?.navigationBar.tintColor = .darkGray
-    }
-    @objc  func search(){
-       print("Post")
-     }
-    @objc func tapSettingIcon(){
-        let layout = UICollectionViewFlowLayout()
-        let nav = UINavigationController(rootViewController: SettingViewController(collectionViewLayout: layout))
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
-     }
-
-}
-
-
-
-extension MapViewController:MKMapViewDelegate,CLLocationManagerDelegate{
-    
-    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        for i in 0..<array.count{
-            if view.annotation?.title == array[i].text && view.annotation?.subtitle == array[i].created.toString(){
-                selectDiary = array[i]
-                break
-            }
-        }
-       
-    }
-    func locationManager(_ manager: CLLocationManager,didChangeAuthorization status: CLAuthorizationStatus) {
-               switch status {
-                   case .notDetermined:
-                       manager.requestWhenInUseAuthorization()
-                   case .restricted, .denied:
-                       break
-                   case .authorizedAlways, .authorizedWhenInUse:
-                       manager.startUpdatingLocation()
-                       break
-                   default:
-                       break
-               }
-    }
-    
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        if annotation is MKUserLocation {
-            return nil
-        }
-        
-        let pinView =  MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
-        pinView.canShowCallout = true
-        
-        
-        
-        outLoop: for i in 0..<array.count{
-            if annotation.title == array[i].text && annotation.subtitle == array[i].created.toString(){
-                
-                if array[i].userid == FirebaseManager.shered.getMyUserid(){
-                    pinView.pinTintColor = .link
-                }
-                
-                let stackview = setStackView()
-                let imageView = UIImageView()
-                let tapStackView = UITapGestureRecognizer(target: self, action: #selector(sendtoDetailView(sender:)))
-                stackview.isUserInteractionEnabled = true
-                stackview.addGestureRecognizer(tapStackView)
-                imageView.setImage(urlString:array[i].image.imageUrl) { [self] image in
-                    if  image != nil {
-                        let button = UIButton()
-                            button.setTitle("＞＞", for: .normal)
-                            button.setTitleColor(.darkGray, for: .normal)
-                            button.setTitleColor(.systemGray3, for: .highlighted)
-                            button.contentHorizontalAlignment = .right
-                            button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
-                    
-                            stackview.addArrangedSubview(imageView)
-                            stackview.addArrangedSubview(button)
-                            stackview.translatesAutoresizingMaskIntoConstraints = false
-                          
-                            let gcd = MathManager.shered.getGreatestCommonDivisor(Int((image?.size.width)!), Int((image?.size.height)!))
-                            let ration = MathManager.shered.calcAspectRation(Double(image!.size.width) ,Double(image!.size.height) , gcd: gcd)
-                            let times = MathManager.shered.howmanyTimes(aspectRation: ration)
-                            let width = self.view.frame.width / 3 * 2
-                            imageView.anchor(height: width * times)
-                            
-                            let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: view.frame.width / 3 * 2)
-                        
-                               stackview.addConstraint(widthConstraint)
-                            
-                            pinView.detailCalloutAccessoryView = stackview
-                            
-                    }
-                }
-                
-                break outLoop
-                
-             
-            }
-        }
-
-        return pinView
-    }
-    
-    
-    func setStackView() -> UIStackView{
-        let stackview = UIStackView()
-        stackview.axis = .vertical
-        stackview.alignment = .fill
-        return stackview
-    }
-  
-}

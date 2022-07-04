@@ -9,7 +9,11 @@
 /* Begin PBXBuildFile section */
 		1A044AB0285EDB590047500B /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A044AAF285EDB590047500B /* LanguageManager.swift */; };
 		1A044AB2285F0ECA0047500B /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A044AB1285F0ECA0047500B /* Friend.swift */; };
+		1A8AFA4A2872D9FE00E39774 /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8AFA492872D9FE00E39774 /* VideoPlayer.swift */; };
+		1A8AFA4C287305BC00E39774 /* DetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8AFA4B287305BC00E39774 /* DetailCell.swift */; };
 		1A9529362866F5FD0055CF0A /* LoginPageAnimation.json in Resources */ = {isa = PBXBuildFile; fileRef = 1A9529352866F5FD0055CF0A /* LoginPageAnimation.json */; };
+		1AC9F3B0286B412500966A41 /* AdCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC9F3AF286B412500966A41 /* AdCell.swift */; };
+		1AE0BD5F28681B02000F45A7 /* selectLocationMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0BD5E28681B02000F45A7 /* selectLocationMapViewController.swift */; };
 		1AEC03B628619D6D005EF02C /* FollowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEC03B528619D6D005EF02C /* FollowManager.swift */; };
 		1AEE663028562DE2007AA68B /* MathManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEE662F28562DE2007AA68B /* MathManager.swift */; };
 		6CC5F1D1C49297D6D7AFE3CE /* Pods_tripApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E16A77EB94D39ECC61DD5E3 /* Pods_tripApp.framework */; };
@@ -62,7 +66,11 @@
 		1A044AAF285EDB590047500B /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
 		1A044AB1285F0ECA0047500B /* Friend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
 		1A530264284DCF1900C92BFE /* tripApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = tripApp.entitlements; sourceTree = "<group>"; };
+		1A8AFA492872D9FE00E39774 /* VideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
+		1A8AFA4B287305BC00E39774 /* DetailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailCell.swift; sourceTree = "<group>"; };
 		1A9529352866F5FD0055CF0A /* LoginPageAnimation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = LoginPageAnimation.json; path = ../../../../Downloads/LoginPageAnimation.json; sourceTree = "<group>"; };
+		1AC9F3AF286B412500966A41 /* AdCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdCell.swift; sourceTree = "<group>"; };
+		1AE0BD5E28681B02000F45A7 /* selectLocationMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = selectLocationMapViewController.swift; sourceTree = "<group>"; };
 		1AEC03B528619D6D005EF02C /* FollowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowManager.swift; sourceTree = "<group>"; };
 		1AEE662F28562DE2007AA68B /* MathManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathManager.swift; sourceTree = "<group>"; };
 		6ADC08D3C4D4E4B832F10D2B /* Pods-tripApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tripApp.debug.xcconfig"; path = "Target Support Files/Pods-tripApp/Pods-tripApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -128,6 +136,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1AE0BD6028681B11000F45A7 /* Post */ = {
+			isa = PBXGroup;
+			children = (
+				70D614F928281C11007E66A1 /* PostView.swift */,
+				1AE0BD5E28681B02000F45A7 /* selectLocationMapViewController.swift */,
+			);
+			path = Post;
+			sourceTree = "<group>";
+		};
 		2EFB79C41EC08B656062A9F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -232,10 +249,10 @@
 		70AC68472828DD0B00CEC92E /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				1AE0BD6028681B11000F45A7 /* Post */,
 				7052C6E0284F09DC00A16413 /* Chat */,
 				705B8CBF284DE521005DA26B /* Auth */,
 				70A94C1F28388B32004E5123 /* Profile */,
-				70D614F928281C11007E66A1 /* PostView.swift */,
 				709433052827AE9B00A9AC3B /* ViewController.swift */,
 				706053E4282AAD940067F63F /* ImageDetailView.swift */,
 				706053E0282A92870067F63F /* DetailViewController.swift */,
@@ -272,6 +289,9 @@
 				706C2420283C76AC00CA084A /* MenuBar.swift */,
 				707278F228409720009567C1 /* FriendListCell.swift */,
 				707F88B3284BB0E40054521A /* ProfileCell.swift */,
+				1AC9F3AF286B412500966A41 /* AdCell.swift */,
+				1A8AFA492872D9FE00E39774 /* VideoPlayer.swift */,
+				1A8AFA4B287305BC00E39774 /* DetailCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -297,6 +317,7 @@
 				709432FB2827AE9B00A9AC3B /* Frameworks */,
 				709432FC2827AE9B00A9AC3B /* Resources */,
 				3A4578EF31FFE80F6E6FC6BD /* [CP] Embed Pods Frameworks */,
+				F82CE01E039969BCF11714A1 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -394,6 +415,23 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		F82CE01E039969BCF11714A1 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-tripApp/Pods-tripApp-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-tripApp/Pods-tripApp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-tripApp/Pods-tripApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -409,8 +447,11 @@
 				707278EC28407579009567C1 /* FriendListViewController.swift in Sources */,
 				709433062827AE9B00A9AC3B /* ViewController.swift in Sources */,
 				707278F028407883009567C1 /* StorageManager.swift in Sources */,
+				1A8AFA4A2872D9FE00E39774 /* VideoPlayer.swift in Sources */,
 				704C69BF28352D2C0078EA40 /* Profile.swift in Sources */,
+				1AC9F3B0286B412500966A41 /* AdCell.swift in Sources */,
 				707278F328409720009567C1 /* FriendListCell.swift in Sources */,
+				1AE0BD5F28681B02000F45A7 /* selectLocationMapViewController.swift in Sources */,
 				70A20AC62834C9E70093FCBB /* TabBarController.swift in Sources */,
 				70A20A972834A9F40093FCBB /* LoginViewController.swift in Sources */,
 				706C2421283C76AC00CA084A /* MenuBar.swift in Sources */,
@@ -427,6 +468,7 @@
 				704EEB6A282D4ED80056E748 /* SectionCell.swift in Sources */,
 				70C140A3282A4D92007167A1 /* DataManager.swift in Sources */,
 				704EEB67282D4E8C0056E748 /* BaseCell.swift in Sources */,
+				1A8AFA4C287305BC00E39774 /* DetailCell.swift in Sources */,
 				704C69B928351EF80078EA40 /* Comment.swift in Sources */,
 				704E45B5284F61A600A36732 /* NewChatViewController.swift in Sources */,
 				70A20AC92834CCE50093FCBB /* ProfileViewController.swift in Sources */,

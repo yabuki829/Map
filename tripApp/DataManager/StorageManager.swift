@@ -50,7 +50,7 @@ class StorageManager{
                 }
                 guard let url = url else { return }
                 let urlString = url.absoluteString
-                let data = ProfileImage(imageUrl: urlString, name: filename)
+                let data = ProfileImage(url: urlString, name: filename)
                 compleation(data)
             }
         }
@@ -74,7 +74,7 @@ class StorageManager{
                 }
                 guard let url = url else { return }
                 let urlString = url.absoluteString
-                let data = ProfileImage(imageUrl: urlString, name: filename)
+                let data = ProfileImage(url: urlString, name: filename)
                 compleation(data)
             }
         }
@@ -99,12 +99,47 @@ class StorageManager{
                 }
                 guard let url = url else { return }
                 let urlString = url.absoluteString
-                let data = ProfileImage(imageUrl: urlString, name: filename)
+                let data = ProfileImage(url: urlString, name: filename)
                 compleation(data)
             }
         }
        
         
+    }
+    
+    func uploadMovie(videourl:URL,compleation:@escaping (ProfileImage) -> Void){
+        print("uploadMovie")
+        let filename = String().generateID(10)
+        let userid = FirebaseManager.shered.getMyUserid()
+        let videoRef = Storage.storage().reference().child("/users/\(userid)/video/\(filename).mov")
+      
+        var videoData : Data = Data()
+                
+            do{
+                videoData = try Data(contentsOf: videourl)
+            }
+            catch{
+                print(error.localizedDescription)
+                return
+            }
+        print("videodata",videoData)
+        videoRef.putData(videoData, metadata: nil) {   (_, error) in
+            if let error = error {
+                print("1.エラー",error)
+                return
+            }
+            print(videoRef)
+            videoRef.downloadURL { (url, error) in
+                if let error = error {
+                    print("2.エラー",error)
+                    return
+                }
+                guard let url = url else { return }
+                let urlString = url.absoluteString
+                let data = ProfileImage(url: urlString, name: filename)
+                compleation(data)
+            }
+        }
     }
     
     func deleteDiscriptionImage(image:ProfileImage){

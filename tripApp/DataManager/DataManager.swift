@@ -19,6 +19,17 @@ class DataManager{
         return diary
     }
     
+    func getDiscriptionSince48Hours() -> [Discription]{
+        var disc = get()
+        let date = Calendar.current.date(byAdding: .hour, value: 48, to: Date())!
+        var modifiedDisc = [Discription]()
+        for i in 0..<disc.count{
+            if date >= disc[i].created{
+                modifiedDisc.append(disc[i])
+            }
+        }
+        return modifiedDisc
+    }
     func save(data:[Discription]){
         userDefalts.setCodable(data, forKey: "discription")
     }

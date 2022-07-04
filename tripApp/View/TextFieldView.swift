@@ -63,7 +63,6 @@ class textFieldView:UIView,UITextFieldDelegate{
     }
     
     func addConsrtaints(){
-        print("TextFielddddddddddddddd")
         
         textfield.anchor(top: topAnchor, paddingTop: 2.0,
                          left:leftAnchor, paddingLeft: 10.0,

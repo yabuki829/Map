@@ -21,7 +21,7 @@ struct Profile :Codable,Equatable{
 
 
 struct ProfileImage :Codable,Equatable{
-    var imageUrl:  String
+    var url:  String
     var name    : String
     
 }

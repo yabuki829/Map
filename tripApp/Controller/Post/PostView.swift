@@ -7,22 +7,35 @@
 
 import Foundation
 import UIKit
+
 import CoreLocation
 import Photos
+import CropViewController
 import PKHUD
+import AVFoundation
 
-class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDelegate{
-    var selectedIndexPath: IndexPath?
+class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDelegate,UIImagePickerControllerDelegate & UINavigationControllerDelegate{
+    var isVideo = false
+    var videoPlayer:VideoPlayer = {
+        let view = VideoPlayer()
+        view.backgroundColor = .black
+        view.isHidden = true
+        return view
+    }()
+    
     var locationManager: CLLocationManager!
     let geocoder = CLGeocoder()
     var location:Location?
     var isLocation = false
+    
     var friendList = [Friend]()
     var friendListView: FriendListView =  {
         let view = FriendListView()
         view.isHidden = true
         return view
     }()
+    
+    var videoUrl = URL(string: "")
     var isOpen = false
     let openFriendListButton:UIButton = {
         let button = UIButton()
@@ -38,11 +51,11 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         let button = UIButton()
         button.isHidden = true
         button.tintColor = .black
-        button.backgroundColor = .white
         button.setBackgroundImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
         
         return button
     }()
+    
     let textView:UITextView = {
         let tv = UITextView()
         tv.font = UIFont.systemFont(ofSize: 16)
@@ -56,24 +69,15 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         let imageview = UIImageView()
         imageview.contentMode = .scaleAspectFit
         imageview.backgroundColor = .systemGray6
-        imageview.isHidden = true
+        imageview.image = UIImage(systemName: "photo")
+        imageview.isUserInteractionEnabled = true
         return imageview
     }()
-    let collectionView:UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.translatesAutoresizingMaskIntoConstraints = false
-        cv.isHidden = true
-        cv.backgroundColor = .systemGray6
-        return cv
-    }()
-    
+   
     let locationButton:UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("位置情報を追加する", for: .normal)
+        button.setTitle("位置情報を追加", for: .normal)
         button.setTitleColor(.lightGray, for: .normal)
         button.setTitleColor(.darkGray, for: .highlighted)
         button.backgroundColor = .white
@@ -95,7 +99,6 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         setupNavigationItems()
         settingTextViewPlaceHolder()
         settingZPositon()
-        settingCollectionView()
         settingButton()
         
         friendList = FollowManager.shere.getFollow()
@@ -110,19 +113,15 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         locationButton.addTarget(self, action: #selector(getMyLocation(sender:)), for: .touchUpInside)
         openFriendListButton.addTarget(self, action: #selector(showFriendListView(sender:)), for: .touchUpInside)
         closeImageViewButton.addTarget(self, action: #selector(closeImage(sender:)), for: .touchUpInside)
+        let tapimage = UITapGestureRecognizer(target: self, action: #selector(selectImage(sender:)))
+        selectImageView.addGestureRecognizer(tapimage)
     }
-    func settingCollectionView(){
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: "Cell")
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-    }
+  
     func checkAuthorizationPHPhotoLibrary(){
         if PHPhotoLibrary.authorizationStatus() != .authorized {
             PHPhotoLibrary.requestAuthorization { [self] status in
                 if status == .authorized {
                     // フォトライブラリを表示する
-                    getimg()
                     
                 } else if status == .denied {
                     // フォトライブラリへのアクセスが許可されていないため、アラートを表示する
@@ -141,7 +140,6 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
             }
         } else {
             // フォトライブラリを表示する
-            getimg()
             
         }
         
@@ -154,10 +152,11 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
             object: nil
         )
         
+      
     }
+   
     
     func settingZPositon(){
-        collectionView.layer.zPosition = 1
         locationButton.layer.zPosition = 1
         friendListView.layer.zPosition = 1
         openFriendListButton.layer.zPosition = 1
@@ -196,34 +195,54 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         }
     }
     @objc func closeImage(sender: UIButton){
-        selectImageView.isHidden = true
         closeImageViewButton.isHidden = true
         //初期化
-        selectedIndexPath = nil
-        selectImageView.image = UIImage()
-        collectionView.isHidden = false
+        selectImageView.image = UIImage(systemName: "photo")
         
     }
     @objc  func post(){
         
-        
+       
         //画像が選択されている
         //ロケーションが設定されている
         //フレンドリストが表示されていない　場合に投稿する
-        if ((selectedIndexPath?.isEmpty) != nil) && textView.text.count != 0 &&
-           isLocation && !isOpen {
-            let image = imageArray[selectedIndexPath!.row]
+        if isVideo && textView.text.count != 0 && isLocation && !isOpen {
+            //動画の場合
+            print("動画")
+            
+            let userid = FirebaseManager.shered.getMyUserid()
+            HUD.show(.progress)
+            StorageManager.shered.uploadMovie(videourl: videoUrl!){ [self] result in
+                let disc = Discription(id: String().generateID(10),
+                                       userid: userid,
+                                       text:   textView.text,
+                                       location: location,
+                                       image: ProfileImage(url:result.url, name: result.name),
+                                       created: Date(), type: "video")
+                var data = DataManager.shere.get()
+                data.append(disc)
+                DataManager.shere.save(data: data)
+                FirebaseManager.shered.postDiscription(disc: disc)
+                HUD.hide()
+                self.presentingViewController?.dismiss(animated: true, completion: nil)
+            }
+        }
+        else if isVideo == false && textView.text.count != 0 &&
+                    isLocation && !isOpen{
+            //画像の場合
+            print("画像")
+            let image = selectImageView.image
             let userid = FirebaseManager.shered.getMyUserid()
             HUD.show(.progress)
             
-            StorageManager.shered.uploadImage(imageData: image.convert_data()) { [self] (result) in
+            StorageManager.shered.uploadImage(imageData: image!.convert_data()) { [self] (result) in
                 
                 let disc = Discription(id: String().generateID(10),
                                        userid: userid,
                                        text:   textView.text,
                                        location: location,
-                                       image: ProfileImage(imageUrl:result.imageUrl, name: result.name),
-                                       created: Date())
+                                       image: ProfileImage(url:result.url, name: result.name),
+                                       created: Date(), type: "image")
                 
                 var data = DataManager.shere.get()
                 data.append(disc)
@@ -232,14 +251,14 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                 HUD.hide()
                 self.presentingViewController?.dismiss(animated: true, completion: nil)
             }
-            
+       
         }
         else{
             var message = ""
             if !isOpen{
                 
             }
-            else if selectedIndexPath == nil  {
+            else if selectImageView == UIImage()  {
                 message = "画像が選択されていません"
                 alert(message: message)
             }
@@ -251,10 +270,8 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                 alert(message: "位置情報を追加されていません")
             }
 
-            
-            
         }
-        
+       
         
     }
     @objc func back(){
@@ -263,22 +280,27 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
     }
     @objc  func getMyLocation (sender: UIButton){
         print("位置情報を取得")
-        setupLocationManager()
+//        setupLocationManager()
+        let vc = SelectLocationMapViewController()
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     func addConstraints(){
         
         view.addSubview(textView)
-        view.addSubview(collectionView)
         view.addSubview(locationButton)
         view.addSubview(selectImageView)
         view.addSubview(friendListView)
         view.addSubview(openFriendListButton)
         view.addSubview(closeImageViewButton)
-        
+        view.addSubview(videoPlayer)
+        videoPlayer.setup()
         selectImageView.anchor(left:view.leftAnchor, paddingLeft: 10,
                                right: view.rightAnchor, paddingRight: 10,
                                height: view.frame.width)
+        videoPlayer.anchor( left:view.leftAnchor, paddingLeft: 0,
+                            right: view.rightAnchor, paddingRight: 0,
+                            height: view.frame.width)
         
         closeImageViewButton.anchor(top: selectImageView.topAnchor, paddingTop: 10,
                                     right: selectImageView.rightAnchor, paddingRight: 10
@@ -296,7 +318,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         friendListView.anchor(top: view.topAnchor, paddingTop: 0,
                               left: view.leftAnchor, paddingLeft: 0,
                               right: view.rightAnchor, paddingRight: 0,
-                              bottom: collectionView.topAnchor,paddingBottom: -view.frame.width / 5)
+                              bottom: view.bottomAnchor,paddingBottom: -view.frame.width / 5)
         friendListView.height = view.frame.height
         
         openFriendListButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop:  2,
@@ -304,9 +326,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                                     width: 100,
                                     height: 20)
         
-        collectionView.heightAnchor.constraint(equalToConstant: view.frame.width / 5.0).isActive = true
-        collectionView.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: 0).isActive = true
-        collectionView.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 0).isActive = true
+    
         
         
         locationButton.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 2,
@@ -321,22 +341,24 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         let keyboardFrame: CGRect = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
         
         UIView.animate(withDuration: 1.5, animations: { [self] () -> Void in
-            collectionView.isHidden = false
             
-            collectionView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -keyboardFrame.size.height ).isActive = true
+            friendListView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -keyboardFrame.size.height ).isActive = true
             
             let imageWidth =  view.frame.width
             let cvHeight = view.frame.width / 5
             selectImageView.anchor(bottom: view.bottomAnchor,paddingBottom: keyboardFrame.size.height - imageWidth / 2 + cvHeight ,
                                    height: view.frame.width)
+            videoPlayer.anchor(bottom: view.bottomAnchor,paddingBottom: keyboardFrame.size.height - imageWidth / 2 + cvHeight ,
+                                   height: view.frame.width)
             
             textView.anchor(bottom: selectImageView.topAnchor, paddingBottom: 0)
-            
-            collectionView.layoutIfNeeded()
+            friendListView.layoutIfNeeded()
             selectImageView.layoutIfNeeded()
+            videoPlayer.layoutIfNeeded()
         })
         
     }
+   
     
     func settingTextViewPlaceHolder(){
         placeholderLabel = UILabel()
@@ -376,12 +398,12 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         let longitude = location?.coordinate.longitude
         self.location = Location(latitude:latitude! , longitude: longitude!)
         
-        //少しだけ座標をずらしている
+        //少しだけ座標をずらしている -> 結局ずらしてない
         //全く同じ場所で三回投稿するとmapでpinを選択できず、詳細画面に遷移できなくなるから
-        let fixLatitude = latitude! + generateRondomDouble()
-        let fixLongitude = longitude! + generateRondomDouble()
+//        let fixLatitude = latitude! + generateRondomDouble()
+//        let fixLongitude = longitude! + generateRondomDouble()
         
-        let Location = CLLocation(latitude: fixLatitude, longitude: fixLongitude)
+        let Location = CLLocation(latitude: latitude!, longitude: longitude!)
         
         CLGeocoder().reverseGeocodeLocation(Location) { [self] placemarks, error in
             if let placemark = placemarks?.first {
@@ -421,49 +443,74 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
 
 
 
-extension PostViewController:UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if imageArray.count == 0{
-            return 0
+extension PostViewController:CropViewControllerDelegate{
+
+    
+    
+    @objc func selectImage(sender:UITapGestureRecognizer){
+        //画像であれば　正方形にカットする
+        //動画であれば　何もせず動画　の画像を表示する
+        let picker = UIImagePickerController()
+        picker.sourceType = .savedPhotosAlbum
+        picker.mediaTypes = ["public.image", "public.movie"]
+        picker.delegate = self
+        present(picker, animated: true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        print("Cancel")
+       
+        picker.dismiss(animated: true) { [self] in
+            textView.becomeFirstResponder()
+            closeImageViewButton.isHidden = true
         }
-        return imageArray.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print(indexPath.row)
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! ImageCell
-        cell.imageView.image = imageArray[indexPath.row]
-        cell.layer.cornerRadius = 10
-        cell.backgroundColor = .darkGray
-//        if  selectedIndexPath?.row == indexPath.row{
-//            cell.isSelected = true
-//        }
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.height , height:collectionView.frame.height)
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 5
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
-      
+        if let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL{
+            videoUrl = videoURL
+            videoPlayer.isHidden = false
+            isVideo = true
+            print(videoUrl!)
+            videoPlayer.player = AVPlayer(url: videoUrl!)
+            
+            selectImageView.isHidden = true
+            picker.dismiss(animated: false, completion: nil)
+           
+        }
         
+        guard let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else{ return }
+        let cropController = CropViewController(croppingStyle: .default, image: image)
+        cropController.delegate = self
+        cropController.customAspectRatio = CGSize(width: view.frame.width, height: view.frame.width)
+        cropController.aspectRatioPickerButtonHidden = true
+        cropController.resetAspectRatioEnabled = false
+        cropController.rotateButtonsHidden = true
         
-        collectionView.isHidden = true
-        selectImageView.isHidden = false
+        cropController.cropView.cropBoxResizeEnabled = false
+        picker.dismiss(animated: true) {
+            self.present(cropController, animated: true, completion: nil)
+        }
+        
+    }
+    func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
+        guard let imageData = image.jpegData(compressionQuality: 0.25) else {  return }
+        
+        selectImageView.image = UIImage(data: imageData)
         closeImageViewButton.isHidden = false
-        selectedIndexPath = indexPath
-        selectImageView.image = imageArray[indexPath.row]
         
-      
-        
+        cropViewController.dismiss(animated: true) { [self] in
+            textView.becomeFirstResponder()
+           
+          
+        }
+    }
+    func cropViewController(_ cropViewController: CropViewController, didFinishCancelled cancelled: Bool) {
+        cropViewController.dismiss(animated: true){ [self] in
+            textView.becomeFirstResponder()
+            closeImageViewButton.isHidden = true
+        }
     }
 }
 
@@ -472,6 +519,12 @@ extension PostViewController:UICollectionViewDelegate,UICollectionViewDataSource
 
 
 extension PostViewController{
+    
+  
+    
+    
+ 
+    
     
     func getimg(){
         let imgManager = PHImageManager.default()
@@ -513,11 +566,17 @@ extension PostViewController{
             }
             DispatchQueue.main.async {
                 print("dispath")
-                self.collectionView.reloadData()
+//                self.collectionView.reloadData()
             }
         }
     }
 }
+
+
+
+
+
+
 
 
 
@@ -535,7 +594,6 @@ class FriendListView:UIView{
     
     var friendList :[Friend]?{
         didSet{
-            print("friendList",friendList)
             getProfile()
         }
     }
@@ -604,7 +662,4 @@ extension FriendListView : UICollectionViewDelegate,UICollectionViewDataSource,U
     
     
 }
-
-
-
 
