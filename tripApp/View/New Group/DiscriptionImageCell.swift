@@ -12,19 +12,41 @@ class DiscriptionImageCell:UICollectionViewCell{
         
         return imageView
     }()
+    let videoView = VideoPlayer()
+    var discription:Discription?
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
     }
     func setupViews(){
-        contentView.addSubview(imageView)
+
+       
+    }
+    func setCell(disc:Discription){
+        discription = disc
         addImageViewConstraint()
+    
     }
     func addImageViewConstraint(){
-        imageView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant: 0).isActive = true
-        imageView.leftAnchor.constraint(equalTo:self.safeAreaLayoutGuide.leftAnchor, constant: 0).isActive = true
-        imageView.rightAnchor.constraint(equalTo: self.safeAreaLayoutGuide.rightAnchor, constant: 0).isActive = true
-        imageView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
+        if discription!.type == "image"{
+            contentView.addSubview(imageView)
+            imageView.anchor(top: self.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
+                             left: self.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
+                             right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
+                             bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
+            imageView.setImage(urlString: discription!.image.url)
+        }
+        else{
+            print("VideoView")
+            contentView.addSubview(videoView)
+            videoView.anchor(top: self.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
+                             left: self.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
+                             right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
+                             bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
+            videoView.loadVideo(urlString: discription!.image.url)
+            videoView.setup()
+        }
+       
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

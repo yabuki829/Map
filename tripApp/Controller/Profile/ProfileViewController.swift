@@ -8,6 +8,7 @@ import Foundation
 import UIKit
 import MapKit
 import PKHUD
+import AVFoundation
 
 class profileViewController:UICollectionViewController{
     var isMyProfile = true
@@ -130,16 +131,22 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
         collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
     }
     
+    func toDetailWithDiscriptionpCell(discription: Discription, videoPlayer: AVPlayer) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.cell.videoView.player = videoPlayer
+        navigationController?.pushViewController(vc, animated: true)
+    }
     func toDetailWithMapCell(discription: Discription){
         print("mapから遷移します")
         let vc = detailViewController()
         vc.discription = discription
-
+        
         navigationController?.pushViewController(vc, animated: true)
     }
     func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
         let vc = detailViewController()
-        
+        vc.cell.discImageView.image = selectImage
         vc.discription = discription
         navigationController?.pushViewController(vc, animated: true)
     }

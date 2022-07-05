@@ -28,19 +28,24 @@ class VideoPlayer: UIView {
         let button = UIButton()
         button.setBackgroundImage(UIImage(systemName: "play.fill"), for: .normal)
         button.tintColor = .white
+        
         return button
     }()
  
     func setup(){
-        self.backgroundColor = .black
         self.addSubview(startButton)
         startButton.center(inView: self)
         startButton.addTarget(self, action: #selector(closeImage(sender:)), for: .touchDown)
+    }
+    func setupVideoTap(){
+        //
+        startButton.isUserInteractionEnabled = true
         let tapVideo = UITapGestureRecognizer(target: self, action: #selector(tapVideo(sender:)))
         self.addGestureRecognizer(tapVideo)
         NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidReachEnd(_:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
-       
+        
     }
+    
     // Override UIView property
     override static var layerClass: AnyClass {
         return AVPlayerLayer.self
@@ -77,6 +82,8 @@ class VideoPlayer: UIView {
         let url = URL(string: urlString)
         print("load videooooooooooooo")
         player = AVPlayer(url: url!)
+        self.backgroundColor = .black
+        startButton.isUserInteractionEnabled = false
     }
     @objc private func playerItemDidReachEnd(_ notification: Notification) {
            // 動画を最初に巻き戻す

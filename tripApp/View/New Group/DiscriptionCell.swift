@@ -45,8 +45,10 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
            
         }
     }
+
+    var cell = articleCell()
+    var imageCell = DiscriptionImageCell()
     var profileArray = [Profile]()
-    
     lazy var collectionView:UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         
@@ -70,7 +72,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
        
         contentView.addSubview(collectionView)
         contentView.addSubview(emptyLabel)
-      
+        
         addConstaraiont()
         
         collectionView.register(DiscriptionImageCell.self, forCellWithReuseIdentifier: "DiscriptionImageCell")
@@ -98,9 +100,8 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
             }
             else{
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "articleCell", for: indexPath) as! articleCell
-                cell.setCell(userid: discriptionList![indexPath.row - 3].userid)
-                cell.imageView.setImage(urlString:discriptionList?[indexPath.row - 3].image.url ?? "backgraund" )
-                cell.dateLabel.text = discriptionList![indexPath.row - 3].created.secondAgo()
+                cell.setCell(disc: discriptionList![indexPath.row - 3])
+                self.cell = cell
                 return cell
             }
            
@@ -108,7 +109,9 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         }
         else{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DiscriptionImageCell", for: indexPath) as! DiscriptionImageCell
-            cell.imageView.setImage(urlString: discriptionList![indexPath.row].image.url)
+            cell.setCell(disc: discriptionList![indexPath.row])
+            
+            self.imageCell = cell
             return cell
         }
     }
@@ -137,16 +140,18 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if isHome {
+            //1か2に変更する
             if indexPath.row < 3{
-                
+                //広告
             }
             else{
                 let cell = collectionView.cellForItem(at: indexPath) as! articleCell
                 //imageの場合
                 if discriptionList![indexPath.row - 3].type == "image"{
-                    delegate?.toDetailWithDiscriptionpCell(discription:  discriptionList![indexPath.row - 3], selectImage: cell.imageView.image!)
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3], selectImage: cell.imageView.image!)
                 }else{
                 //ビデオの場合
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3], videoPlayer: self.imageCell.videoView.player!)
                 }
                
                 
@@ -155,8 +160,13 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
             
         }
         else{
-            let cell = collectionView.cellForItem(at: indexPath) as! DiscriptionImageCell
-            delegate?.toDetailWithDiscriptionpCell(discription:  discriptionList![indexPath.row], selectImage: cell.imageView.image!)
+            if discriptionList![indexPath.row].type == "image"{
+                delegate?.toDetailWithDiscriptionpCell(discription:  discriptionList![indexPath.row], selectImage: self.cell.imageView.image!)
+            }
+            else{
+                delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row], videoPlayer: imageCell.videoView.player!)
+            }
+          
         }
        
         
@@ -177,8 +187,12 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     
 }
 
+
+import AVFoundation
+
 protocol transitionDelegate: class  {
     func toDetailWithDiscriptionpCell(discription:Discription,selectImage:UIImage)
+    func toDetailWithDiscriptionpCell(discription:Discription,videoPlayer:AVPlayer)
     func toFriendList()
     func scroll()
 }

@@ -155,6 +155,19 @@ class StorageManager{
             print("画像削除完了")
         }
     }
+    func deleteDiscriptionVideo(video:ProfileImage){
+        let userid = FirebaseManager.shered.getMyUserid()
+        let filename = video.name
+        let videoRef = Storage.storage().reference().child("/users/\(userid)/video/\(filename).mov")
+        print("画像を削除します")
+        videoRef.delete { (error) in
+            if let error = error {
+                print("エラー",error)
+                return
+            }
+            print("画像削除完了")
+        }
+    }
     func deleteAll(userid:String){
         let imageRef = Storage.storage().reference().child("/users").child(userid)
         print("------------削除します----------------------")

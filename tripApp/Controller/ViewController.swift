@@ -96,6 +96,7 @@ class MapViewController: UIViewController {
 
 
 extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,reloadDelegate,mapCellDelegate,transitionDelegate{
+   
     func scroll() {
         collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
     }
@@ -105,6 +106,12 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
         let vc = detailViewController()
         vc.discription = discription
 
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    func toDetailWithDiscriptionpCell(discription: Discription, videoPlayer: AVPlayer) {
+        let vc = detailViewController()
+        vc.cell.videoView.player = videoPlayer
+        vc.discription = discription
         navigationController?.pushViewController(vc, animated: true)
     }
     func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
@@ -232,6 +239,7 @@ extension MapViewController {
 
 
 class articleCell:UICollectionViewCell{
+    var discription: Discription?
     //profile画像　username
     let profileImageView: UIImageView = {
         let imageView = UIImageView()
@@ -250,6 +258,8 @@ class articleCell:UICollectionViewCell{
         imageView.image = UIImage(named: "background")
         return imageView
     }()
+    
+    let videoView = VideoPlayer()
     let username:UILabel = {
         let label = UILabel()
         return label
@@ -265,14 +275,32 @@ class articleCell:UICollectionViewCell{
         setupViews()
     }
     func setupViews(){
-        contentView.addSubview(imageView)
-        addConstraint()
+       
     }
     func addConstraint(){
         self.addSubview(profileImageView)
         self.addSubview(username)
         self.addSubview(dateLabel)
-        self.addSubview(imageView)
+        
+        
+        if discription!.type == "image"{
+            self.addSubview(imageView)
+            imageView.anchor(top: username.bottomAnchor, paddingTop: 10,
+                             left: profileImageView.rightAnchor, paddingLeft: 0,
+                             right: self.rightAnchor, paddingRight: 10,
+                             bottom: self.bottomAnchor, paddingBottom: 0,
+                             width: self.frame.width - 70, height: self.frame.width - 70)
+        }
+        else{
+            self.addSubview(videoView)
+            videoView.anchor(top: username.bottomAnchor, paddingTop: 10,
+                             left: profileImageView.rightAnchor, paddingLeft: 0,
+                             right: self.rightAnchor, paddingRight: 10,
+                             bottom: self.bottomAnchor, paddingBottom: 0,
+                             width: self.frame.width - 70, height: self.frame.width - 70)
+        }
+      
+        
         profileImageView.anchor(top: self.topAnchor, paddingTop: 10,
                                 left: self.leftAnchor, paddingLeft: 10,
                                 width: 50, height: 50)
@@ -286,15 +314,22 @@ class articleCell:UICollectionViewCell{
                         left: username.rightAnchor, paddingLeft: 5,
                         right: self.rightAnchor, paddingRight: 5)
         
-        imageView.anchor(top: username.bottomAnchor, paddingTop: 10,
-                         left: profileImageView.rightAnchor, paddingLeft: 0,
-                         right: self.rightAnchor, paddingRight: 10,
-                         bottom: self.bottomAnchor, paddingBottom: 0,
-                         width: self.frame.width - 70, height: self.frame.width - 70)
+       
         
     }
-    func setCell(userid:String){
-        getProfile(userid: userid)
+    func setCell(disc:Discription){
+        discription = disc
+        getProfile(userid: disc.userid)
+        if disc.type == "image" {
+            imageView.setImage(urlString: disc.image.url)
+        }
+        else{
+            videoView.loadVideo(urlString: disc.image.url)
+            videoView.setup()
+        }
+        contentView.addSubview(imageView)
+        addConstraint()
+       
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

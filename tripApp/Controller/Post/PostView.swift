@@ -295,6 +295,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         view.addSubview(closeImageViewButton)
         view.addSubview(videoPlayer)
         videoPlayer.setup()
+        videoPlayer.setupVideoTap()
         selectImageView.anchor(left:view.leftAnchor, paddingLeft: 10,
                                right: view.rightAnchor, paddingRight: 10,
                                height: view.frame.width)
@@ -444,8 +445,9 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
 
 
 extension PostViewController:CropViewControllerDelegate{
-
-    
+    //mdium       3.0mg
+    //type640x480 2.36mg
+    //low         603kb
     
     @objc func selectImage(sender:UITapGestureRecognizer){
         //画像であれば　正方形にカットする
@@ -454,6 +456,9 @@ extension PostViewController:CropViewControllerDelegate{
         picker.sourceType = .savedPhotosAlbum
         picker.mediaTypes = ["public.image", "public.movie"]
         picker.delegate = self
+        picker.videoQuality = .typeMedium
+        picker.videoMaximumDuration = 30
+        picker.allowsEditing = true
         present(picker, animated: true, completion: nil)
     }
     

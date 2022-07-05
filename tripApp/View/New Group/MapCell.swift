@@ -186,7 +186,8 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                 //動画
                 print("動画")
                 videoView.loadVideo(urlString: descriptionList![i].image.url)
-                
+                videoView.setup()
+                videoView.setupVideoTap()
                 let button = UIButton()
                     button.setTitle("＞＞", for: .normal)
                     button.setTitleColor(.darkGray, for: .normal)
@@ -206,6 +207,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                 // 画像
                 imageView.setImage(urlString: descriptionList![i].image.url) { [self] image in
                     let imageView = UIImageView()
+                    imageView.image = image
                     if  image != nil {
                         print("画像準備完了")
                         let button = UIButton()

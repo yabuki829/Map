@@ -73,7 +73,10 @@ class detailViewController:UIViewController{
         
     }
     override func viewDidDisappear(_ animated: Bool) {
-        cell.videoView.player!.replaceCurrentItem(with: nil)
+        if discription?.type == "video"{
+            cell.videoView.player!.replaceCurrentItem(with: nil)
+        }
+       
     }
     @objc func keyboardWillShow(_ notification: Notification) {
          
@@ -179,12 +182,12 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0{
-            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! DetailViewCell
+//            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! DetailViewCell
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
            
             cell.setCell(disc: discription!, widthSize: view.frame.width, heightSize: subheight)
             cell.delegate = self
-            self.cell = cell
+         
             return cell
         }
         else{
@@ -259,10 +262,16 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
     }
     func deleteAlert(){
         let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .alert)
-                let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { _ in
+        let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { [self] _ in
                     DataManager.shere.delete(id: self.discription!.id)
                     FirebaseManager.shered.deleteDiscription(postID: self.discription!.id)
-                    StorageManager.shered.deleteDiscriptionImage(image: self.discription!.image)
+            
+                    if discription!.type == "image"{
+                        StorageManager.shered.deleteDiscriptionImage(image: self.discription!.image)
+                    }else{
+                        StorageManager.shered.deleteDiscriptionVideo(video: discription!.image)
+                    }
+                    
                     
                     self.navigationController?.popViewController(animated: true)
                 })

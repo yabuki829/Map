@@ -58,6 +58,7 @@ class DetailViewCell: UITableViewCell {
         else{
             videoView.loadVideo(urlString: disc.image.url)
             videoView.setup()
+            videoView.setupVideoTap()
         }
         usernameButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
