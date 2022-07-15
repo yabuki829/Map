@@ -45,7 +45,9 @@ class DiscriptionImageCell:UICollectionViewCell{
                              bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
             videoView.loadVideo(urlString: discription!.image.url)
             videoView.setup()
+            videoView.setupVideoTap()
         }
+        
        
     }
     required init?(coder: NSCoder) {

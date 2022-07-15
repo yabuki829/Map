@@ -43,7 +43,6 @@ class textFieldView:UIView,UITextFieldDelegate{
         fatalError("init(coder:) has not been implemented")
     }
     func setupViews(messageid:String){
-        print("B")
         messageID = messageid
         
         addSubview(textfield)

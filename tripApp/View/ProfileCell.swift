@@ -13,6 +13,7 @@ class ProfileCell: BaseCell{
     let profileImage = UIImageView()
     let usernameLabel = UILabel()
     let textLabel = UILabel()
+    var isMyprofile = true
     weak var delegate:transitionDelegate? = nil
     let postStackView: UIStackView = {
         let stackview = UIStackView()
@@ -26,17 +27,42 @@ class ProfileCell: BaseCell{
         stackview.alignment = .fill
         return stackview
     }()
+    let editButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("edit", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.setTitleColor(.darkGray, for: .highlighted)
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 12
+        button.layer.borderWidth = 0.5
+        button.layer.borderColor = UIColor.darkGray.cgColor
+        button.clipsToBounds = true
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 12)
+        return button
+    }()
     var postCountLabel = UILabel()
     var friendCountLabel = UILabel()
     
     override func setupViews() {
+        
         contentView.addSubview(backgroundImage)
+        contentView.addSubview(profileImage)
+        contentView.addSubview(usernameLabel)
+        contentView.addSubview(textLabel)
         backgroundImage.anchor(top: safeAreaLayoutGuide.topAnchor, paddingTop: 0.0,
                                left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 0.0,
                                right: safeAreaLayoutGuide.rightAnchor, paddingRight: 0.0,
                                width: self.frame.width, height: self.frame.width / 2)
+        if isMyprofile {
+            contentView.addSubview(editButton)
+            editButton.anchor(top: backgroundImage.topAnchor, paddingTop: 10,
+                              right: backgroundImage.rightAnchor, paddingRight: 10,
+                              width: 60)
+            editButton.addTarget(self, action: #selector(edit(sender:)), for: .touchDown)
+        }
         
-        contentView.addSubview(profileImage)
+        
+       
         let profileImageSize = frame.width / 4
         profileImage.anchor(top: backgroundImage.bottomAnchor, paddingTop: -profileImageSize / 2 ,
                             left:safeAreaLayoutGuide.leftAnchor , paddingLeft: frame.width / 2 - profileImageSize / 2 ,
@@ -45,14 +71,14 @@ class ProfileCell: BaseCell{
         profileImage.backgroundColor = .white
         profileImage.clipsToBounds = true
         
-        contentView.addSubview(usernameLabel)
+      
         usernameLabel.textAlignment = .center
         usernameLabel.anchor(top: profileImage.bottomAnchor, paddingTop: 0.0,
                              left: safeAreaLayoutGuide.leftAnchor, paddingLeft: 10,
                              right: safeAreaLayoutGuide.rightAnchor, paddingRight: 10,
                              height: 40)
         
-        contentView.addSubview(textLabel)
+        
         textLabel.numberOfLines = 0
         textLabel.font = UIFont.boldSystemFont(ofSize: 12.0)
         textLabel.textColor = .darkGray
@@ -126,6 +152,7 @@ class ProfileCell: BaseCell{
         textLabel.text = profile.text
         //自分の投稿でなければFriendListへの遷移をさせない
         friendStackView.isUserInteractionEnabled = false
+        editButton.isHidden = true
     }
     //自分のprofileを表示する
     func setCellA(profile:MyProfile, followList:[Friend],postList:[Discription]){
@@ -136,7 +163,7 @@ class ProfileCell: BaseCell{
         }
         else if profile.backgroundImage.name == "" || profile.backgroundImage.url != ""{
             
-            backgroundImage.setImage(urlString:profile.backgroundImage.url )
+            backgroundImage.setImage(urlString:profile.backgroundImage.url)
         }
         else{
             backgroundImage.image = UIImage(data: profile.backgroundImage.imageData)
@@ -150,7 +177,7 @@ class ProfileCell: BaseCell{
         else{
             profileImage.image = UIImage(data:profile.profileImage.imageData)
         }
-        
+        editButton.isHidden = false
         friendCountLabel.text = String(followList.count)
         postCountLabel.text = String(postList.count)
         usernameLabel.text = profile.username
@@ -165,5 +192,10 @@ class ProfileCell: BaseCell{
     @objc internal func tapPost(sender:UITapGestureRecognizer ){
         print("投稿一覧")
         delegate?.scroll()
+    }
+    @objc internal func edit(sender:UIButton ){
+        print("編集画面に遷移")
+        delegate?.toEditPageWithProfileCell()
+       
     }
 }

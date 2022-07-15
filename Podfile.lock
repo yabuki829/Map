@@ -813,6 +813,9 @@ PODS:
   - Nuke (10.7.1)
   - PKHUD (5.3.0)
   - PromisesObjC (2.1.1)
+  - Purchases (3.14.2):
+    - PurchasesCoreSwift (= 3.14.2)
+  - PurchasesCoreSwift (3.14.2)
 
 DEPENDENCIES:
   - CropViewController
@@ -828,6 +831,7 @@ DEPENDENCIES:
   - NendSDK_iOS
   - Nuke
   - PKHUD (~> 5.0)
+  - Purchases
 
 SPEC REPOS:
   trunk:
@@ -866,6 +870,8 @@ SPEC REPOS:
     - Nuke
     - PKHUD
     - PromisesObjC
+    - Purchases
+    - PurchasesCoreSwift
 
 SPEC CHECKSUMS:
   abseil: ebe5b5529fb05d93a8bdb7951607be08b7fa71bc
@@ -903,7 +909,9 @@ SPEC CHECKSUMS:
   Nuke: 279f17a599fd1c83cf51de5e0e1f2db143a287b0
   PKHUD: 98f3e4bc904b9c916f1c5bb6d765365b5357291b
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  Purchases: 5af37054554583f973b0ad0b9653e412bb8649db
+  PurchasesCoreSwift: 588d3702282fb96222d7d5e05acd84f37e50a1ce
 
-PODFILE CHECKSUM: f019548725162d2a0c92b0a18375bd4f3ae66551
+PODFILE CHECKSUM: a8278fa83c54c9dbf1e1ab44a5010a2720337371
 
 COCOAPODS: 1.11.3

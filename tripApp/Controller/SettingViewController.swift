@@ -26,11 +26,14 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
     let settingdata = [
         menuItem(name: "お問い合わせ", icon: "phone.circle"),
         menuItem(name: "レビューを書く", icon: "pencil"),
-        menuItem(name: "サインアウト", icon: "rectangle.portrait.and.arrow.right"),
-        menuItem(name: "アカウントの削除", icon: "trash"),
-        menuItem(name: "comming soon", icon: "questionmark.circle"),
+        menuItem(name: "アカウントについて", icon: "pencil"),
+            menuItem(name: "ブロックしたアカウント一覧", icon: "questionmark.circle"),
+            menuItem(name: "サブスクリプションについて", icon: "questionmark.circle"),
+            menuItem(name: "サインアウト", icon: "rectangle.portrait.and.arrow.right"),
+            menuItem(name: "アカウントの削除", icon: "trash"),
+            
         menuItem(name: "開発者のその他アプリ", icon: "pencil"),
-        menuItem(name: "TasksTodo", icon: "doc"),
+            menuItem(name: "TasksTodo", icon: "doc"),
     ]
        
     
@@ -57,21 +60,26 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
        
     
     func addCollectionViewConstraint(){
-           collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
-           collectionView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
-           collectionView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
-           collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
+        collectionView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 0).isActive = true
+        collectionView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: 0).isActive = true
+        collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
     }
        
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-           return settingdata.count
+        return settingdata.count
     }
        
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print(indexPath.row)
-        if indexPath.row == 5{
+        if indexPath.row == 2{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "section", for: indexPath) as! SectionCell
-            
+            cell.setCell(title:settingdata[indexPath.row].name )
+            return cell
+        }
+        else if indexPath.row == 7{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "section", for: indexPath) as! SectionCell
+            cell.setCell(title:settingdata[indexPath.row].name )
             return cell
         }
         else{
@@ -101,23 +109,27 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
         else if indexPath.row == 1{
             //レビューを書く
         }
-        else if indexPath.row == 2{
-            //sign out ここから
-            signoutAlert()
-            //useridを削除する
-            //login pageに遷移する
-           
-        }
         else if indexPath.row == 3{
-            //アカウント削除　ここから
-           deleteAccountAlert()
-         
+            //ブロックしたアカウントを表示する
+            let vc = FriendListViewController()
+            vc.isBlockList = true
+            navigationController?.pushViewController(vc, animated: true)
+        }
+        else if indexPath.row == 4{
+            let nav = UINavigationController(rootViewController: SubscriptionViewController())
+            self.present(nav, animated: true, completion: nil)
+            
+           
         }
         else if indexPath.row == 5{
-           //commingsoon
-           
+            signoutAlert()
+            
         }
         else if indexPath.row == 6{
+            deleteAccountAlert()
+           
+        }
+        else if indexPath.row == 8{
             openApp("id1592943322")
         }
     }

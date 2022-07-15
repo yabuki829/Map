@@ -23,7 +23,7 @@ class FriendListViewController:UIViewController{
         return collecitonview
     }()
     var profileList = [Profile]()
-    
+    var isBlockList = false
     override func viewDidLoad() {
         print("フレンド一覧")
         view.backgroundColor = .white
@@ -33,18 +33,34 @@ class FriendListViewController:UIViewController{
         setNav()
         settingCollectionView()
         getFriendProfile()
+        if isBlockList {
+            title = "Blocked User"
+        }
     }
 
     func getFriendProfile(){
         //インディケーター回す
         print("取得します")
-        let friendList = FollowManager.shere.getFollow()
-        FirebaseManager.shered.getFriendProfile(friendList: friendList ) { (result) in
-            print("取得完了")
-            //インディケーターを止める
-            self.profileList = result
-            self.collectionView.reloadData()
+        if isBlockList {
+            print("ブロックした友達")
+            let friendList = FollowManager.shere.getBlockedUser()
+            FirebaseManager.shered.getBlockUserProfile(friendList: friendList) { (result) in
+                //インディケーターを止める
+                self.profileList = result
+                self.collectionView.reloadData()
+            }
         }
+        else{
+            let friendList = FollowManager.shere.getFollow()
+            FirebaseManager.shered.getFriendProfile(friendList: friendList ) { (result) in
+                print("取得完了")
+                //インディケーターを止める
+                self.profileList = result
+                self.collectionView.reloadData()
+            }
+        }
+       
+        
     }
     func settingCollectionView(){
         collectionView.delegate = self
@@ -60,24 +76,35 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListCell", for: indexPath) as! FriendListCell
-        cell.setCell(imageurl: profileList[indexPath.row].profileImageUrl, username: profileList[indexPath.row].username, text: profileList[indexPath.row].text!)
-        return cell
+        if isBlockList{
+            print("blockUser cell")
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListCell", for: indexPath) as! FriendListCell
+            cell.isBlockList = true
+            cell.setCell(imageurl: profileList[indexPath.row].profileImageUrl, username: profileList[indexPath.row].username, text: profileList[indexPath.row].text!, userid: profileList[indexPath.row].userid)
+            
+            return cell
+        }
+        else{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListCell", for: indexPath) as! FriendListCell
+            cell.setCell(imageurl: profileList[indexPath.row].profileImageUrl, username: profileList[indexPath.row].username, text: profileList[indexPath.row].text!, userid: profileList[indexPath.row].userid)
+            return cell
+        }
+       
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.width, height: view.frame.height / 12)
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //遷移する
-        let layout = UICollectionViewFlowLayout()
-       
-        layout.scrollDirection = .vertical
-        layout.estimatedItemSize = .zero
-        let vc = profileViewController(collectionViewLayout: layout)
-        vc.profile = profileList[indexPath.row]
-        vc.isMyProfile = false
-        navigationController?.pushViewController(vc, animated: true)
-
+        if !isBlockList {
+            let layout = UICollectionViewFlowLayout()
+            layout.scrollDirection = .vertical
+            layout.estimatedItemSize = .zero
+            let vc = profileViewController(collectionViewLayout: layout)
+            vc.profile = profileList[indexPath.row]
+            vc.isMyProfile = false
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
 }
@@ -104,6 +131,25 @@ extension FriendListViewController{
     
     @objc func back(sender : UIButton){
         print("Back")
+        //ここでブロックの解除を決定する
+        var users = FollowManager.shere.getBlockedUser()
+        for i in 0..<users.count {
+            if !users[i].isBlock {
+                users.remove(at: i)
+                //フォローし直す
+                if DataManager.shere.getSubScriptionState() {
+                    FollowManager.shere.follow(userid:users[i].userid)
+                }
+                else{
+                    if FollowManager.shere.getFollow().count < 10 {
+                        FollowManager.shere.follow(userid:users[i].userid)
+                    }
+                    
+                }
+               
+            }
+        }
+        FollowManager.shere.saveBlockList(blockList: users)
         self.navigationController?.popViewController(animated: true)
     }
 }

@@ -26,7 +26,9 @@ class SectionCell :BaseCell{
         self.backgroundColor = .systemGray5
         addtitleConstraint()
     }
-   
+    func setCell(title:String){
+        titleLabel.text = title
+    }
    
     func addtitleConstraint(){
         titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 0).isActive = true

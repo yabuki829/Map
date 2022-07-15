@@ -9,18 +9,18 @@ import Foundation
 
 class DataManager{
     static let shere = DataManager()
-    let userDefalts = UserDefaults.standard
+    let userDefaults = UserDefaults.standard
     
     func get() -> [Discription]{
         var diary = [Discription]()
-        if let data:[Discription] = userDefalts.codable(forKey: "discription")  {
+        if let data:[Discription] = userDefaults.codable(forKey: "discription")  {
             diary = data
         }
         return diary
     }
     
     func getDiscriptionSince48Hours() -> [Discription]{
-        var disc = get()
+        let disc = get()
         let date = Calendar.current.date(byAdding: .hour, value: 48, to: Date())!
         var modifiedDisc = [Discription]()
         for i in 0..<disc.count{
@@ -31,7 +31,7 @@ class DataManager{
         return modifiedDisc
     }
     func save(data:[Discription]){
-        userDefalts.setCodable(data, forKey: "discription")
+        userDefaults.setCodable(data, forKey: "discription")
     }
     
     func delete(id:String){
@@ -45,7 +45,7 @@ class DataManager{
         }
     }
     func setMyProfile(profile:MyProfile){
-        userDefalts.setCodable(profile, forKey: "myprofile")
+        userDefaults.setCodable(profile, forKey: "myprofile")
     }
     
     func getMyProfile() -> MyProfile {
@@ -55,9 +55,23 @@ class DataManager{
                                 backgroundImage: imageData(imageData: Data(), name: "background", url: "background" ),
                                 profileImage: imageData(imageData: Data(), name: "person.crop.circle.fill", url: "background"))
         
-        if let data:MyProfile = userDefalts.codable(forKey: "myprofile")  {
+        if let data:MyProfile = userDefaults.codable(forKey: "myprofile")  {
             profile = data
         }
         return profile
+    }
+    
+    //サブスクの状態を返す
+    func getSubScriptionState()-> Bool{
+        let isResult = false
+        
+        if let isSubscrive = userDefaults.bool(forKey: "isSubscribe") as? Bool{
+            
+            return isSubscrive
+        }
+        return isResult
+    }
+    func saveSubScriptionState(isSubscribe:Bool){
+        userDefaults.set(isSubscribe, forKey: "isSubscribe")
     }
 }

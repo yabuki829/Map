@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-
+import AVFoundation
 class detailViewController:UIViewController{
     var profile = Profile(userid: "error", username: "No name", backgroundImageUrl: "background", profileImageUrl: "person.crop.circle.fill")
     
@@ -17,7 +17,7 @@ class detailViewController:UIViewController{
 
         }
     }
-    
+    var image = UIImage()
     var cell = DetailViewCell()
     
     let fieldView :textFieldView = {
@@ -27,8 +27,10 @@ class detailViewController:UIViewController{
     var textFieldViewBottomConstraint: NSLayoutConstraint!
     let tableView = UITableView()
     var commentList = [Comment]()
-    
+    var player = AVPlayer()
     var subheight = CGFloat()
+    var isMapVC = false
+    var isProfile = false
     override func viewDidLoad() {
         view.backgroundColor = .white
         view.addSubview(tableView)
@@ -48,6 +50,7 @@ class detailViewController:UIViewController{
         
         settingTableView()
         setNav()
+        
     }
     
     func settingTableView(){
@@ -72,12 +75,7 @@ class detailViewController:UIViewController{
                      object: nil)
         
     }
-    override func viewDidDisappear(_ animated: Bool) {
-        if discription?.type == "video"{
-            cell.videoView.player!.replaceCurrentItem(with: nil)
-        }
-       
-    }
+
     @objc func keyboardWillShow(_ notification: Notification) {
          
         let info = notification.userInfo!
@@ -147,6 +145,13 @@ class detailViewController:UIViewController{
 
 extension detailViewController:UITableViewDelegate,UITableViewDataSource,profileCellDelegate{
     @objc func back(sender : UIButton){
+//        if discription?.type == "video"{
+//            cell.videoView.stop()
+//        }
+        
+        if isMapVC {
+            self.navigationController?.dismiss(animated: true, completion: nil)
+        }
         self.navigationController?.popViewController(animated: true)
 
     }
@@ -165,7 +170,10 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         
         let vc = profileViewController(collectionViewLayout: layout)
         vc.profile = profile
+       
         if profile.userid != myProfile.userid {
+            print("自分のじゃないよ")
+            print(profile)
             vc.isMyProfile = false
         }
         let rootVC = UIApplication.shared.windows.first?.rootViewController as? UITabBarController
@@ -182,10 +190,17 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0{
-//            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! DetailViewCell
+            if discription!.type == "image"{
+                cell.discImageView.image = image
+            }
+            else {
+                cell.videoView.player = player
+            }
+
+            
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
-           
             cell.setCell(disc: discription!, widthSize: view.frame.width, heightSize: subheight)
+            
             cell.delegate = self
          
             return cell
@@ -204,6 +219,10 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
         fieldView.textfield.endEditing(true)
     }
     @objc func report(sender : UIButton){
+        alert()
+    }
+    
+    func reportAlert(){
         let myAlert: UIAlertController = UIAlertController(title: "Report", message: "通報内容を選択してください", preferredStyle: .alert)
                
             // userid, post id と 報告内容
@@ -248,39 +267,95 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
                // UIAlertを発動する.
                present(myAlert, animated: true, completion: nil)
     }
-    
-    
     func OKAlert(title:String,message:String){
         let myAlert: UIAlertController = UIAlertController(title:title, message: message, preferredStyle: .alert)
         let oklAlert = UIAlertAction(title: "OK", style: .cancel)
         myAlert.addAction(oklAlert)
         present(myAlert, animated: true, completion: nil)
     }
+    
+    func alert(){
+        let myAlert: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let alertA = UIAlertAction(title: "報告する", style: .destructive) { [self] action in
+            
+            reportAlert()
+        }
+        let alertB = UIAlertAction(title: "ブロックする", style: .default) { [self] action in
+            blockFriend()
+        }
+        let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
+               print("キャンセル")
+           }
+        myAlert.addAction(alertA)
+        myAlert.addAction(alertB)
+        myAlert.addAction(cancelAlert)
+        
+
+        // UIAlertを発動する.
+        present(myAlert, animated: true, completion: nil)
+    }
+    func blockFriend(){
+        //ブロックする
+        FollowManager.shere.block(userid: discription!.userid)
+        //フォローを解除する
+        FollowManager.shere.unfollow(userid: discription!.userid)
+//        FirebaseManager.shered.unfollow(friendid: discription!.userid)
+        //前の画面に戻る
+        let nav = self.navigationController
+        
+        if isProfile {
+            let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! profileViewController
+            preVC.isReload = true
+        }
+        else {
+            let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! MapViewController
+            preVC.isReload = true
+        }
+        
+        self.navigationController?.popViewController(animated: true)
+        //ブロックした人の投稿は見れないようにする
+        
+        
+    }
        
     @objc func delete(sender : UIButton){
        deleteAlert()
     }
     func deleteAlert(){
-        let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .alert)
+        let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .actionSheet)
         let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { [self] _ in
-                    DataManager.shere.delete(id: self.discription!.id)
-                    FirebaseManager.shered.deleteDiscription(postID: self.discription!.id)
-            
-                    if discription!.type == "image"{
-                        StorageManager.shered.deleteDiscriptionImage(image: self.discription!.image)
-                    }else{
-                        StorageManager.shered.deleteDiscriptionVideo(video: discription!.image)
-                    }
-                    
-                    
-                    self.navigationController?.popViewController(animated: true)
-                })
-                let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
+                DataManager.shere.delete(id: self.discription!.id)
+                FirebaseManager.shered.deleteDiscription(postID: self.discription!.id)
+        
+                if discription!.type == "image"{
+                    StorageManager.shered.deleteDiscriptionImage(image: self.discription!.image)
+                }else{
+                    StorageManager.shered.deleteDiscriptionVideo(video: discription!.image)
+                }
+                
+                //前の画面がmapなのかprofileなのかで処理がかわる
+           
+            if isMapVC {
+                print("MapViewController")
+                let nav = self.navigationController
+                let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! MapViewController
+                preVC.isReload = true
+                self.navigationController?.popViewController(animated: true)
+            }
+            else {
+                print("profileViewController")
+                let nav = self.navigationController
+                let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! profileViewController
+                preVC.isReload = true
+                self.navigationController?.popViewController(animated: true)
+            }
+                  
+            })
+            let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
+            alert.addAction(selectAction)
+            alert.addAction(cancelAction)
 
-                alert.addAction(selectAction)
-                alert.addAction(cancelAction)
-
-                present(alert, animated: true)
+            present(alert, animated: true)
     }
 }
 

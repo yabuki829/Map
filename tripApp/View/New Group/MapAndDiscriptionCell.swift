@@ -7,6 +7,8 @@
 
 import Foundation
 import UIKit
+import SwiftUI
+import AVFoundation
 
 
 // MapAndDiscription -> MapCell
@@ -29,7 +31,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
         collecitonview.dataSource = self
         collecitonview.delegate = self
-        collecitonview.isScrollEnabled = false
+//        collecitonview.isScrollEnabled = false
         collecitonview.automaticallyAdjustsScrollIndicatorInsets = false
         return collecitonview
     }()
@@ -54,13 +56,14 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         return 2
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
         return CGSize(width: self.frame.width, height: self.frame.height)
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        print("mapanddisc呼ばれてます")
         if indexPath.row == 0{
             mapCell.descriptionList = discriptionList!
             mapCell.viewWidth = viewWidth
+            
             return mapCell
         }
         else{
@@ -74,13 +77,10 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
-    func scroll(indexPath:IndexPath){
-        print("Scroll")
-        if indexPath.row == 0{
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-        }
-        else{
-            collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredHorizontally)
-        }
-    }
+    
+    
+
+   
 }
+
+

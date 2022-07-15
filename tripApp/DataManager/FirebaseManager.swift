@@ -32,7 +32,6 @@ class FirebaseManager{
         
         database.collection("Comments").document(messageid).collection("Comment").order(by:"created", descending: false).addSnapshotListener{ (snapshot, error) in
             var array = [Comment]()
-            print("array",array)
             for document in snapshot!.documents {
                 let data = document.data()
                 
@@ -213,7 +212,40 @@ class FirebaseManager{
     func getMyUserid() -> String{
         return Auth.auth().currentUser!.uid
     }
-    
+    func getBlockUserProfile(friendList: [BlockUser],compleation:@escaping ([Profile]) -> Void){
+        var profileList = [Profile]()
+        print(friendList.count,"回")
+        for i in 0..<friendList.count{
+            print(i + 1 , "回目")
+            let userid = friendList[i].userid
+            self.database.collection("Profile").document(userid).addSnapshotListener { (snapshot, error) in
+                if let error = error{
+                    print(error)
+                    return
+                }
+                let data = snapshot!.data()
+                if let userid       = data!["userid"],
+                   let username     = data!["username"],
+                   let profileimage = data!["profileImage"],
+                   let bgimage      = data!["backgroundImage"],
+                   let text         = data!["text"]{
+                    print("OK")
+                    let profile = Profile(userid: userid as! String,
+                                          username: username as! String,
+                                          text: text as? String,
+                                          backgroundImageUrl: bgimage as! String,
+                                          profileImageUrl:profileimage as! String)
+                    profileList.append(profile)
+                }
+                
+                DispatchQueue.main.async {
+                    if i == friendList.count - 1{
+                        compleation(profileList)
+                    }
+                }
+            }
+        }
+    }
     
     func getFriendProfile(friendList: [Friend],compleation:@escaping ([Profile]) -> Void){
         var profileList = [Profile]()
@@ -250,12 +282,12 @@ class FirebaseManager{
         }
     }
     
+    
     func postDiscription(disc:Discription){
         let friendList = FollowManager.shere.getFollow()
         print("friend",friendList)
         var receiver = [String]()
         for i in 0..<friendList.count{
-            print(i)
             let frienduserid = friendList[i].userid
             if friendList[i].isSend{
                 receiver.append(frienduserid)
@@ -345,6 +377,41 @@ class FirebaseManager{
         return false
     }
     
+    func getAd(compleation:@escaping ([Discription]) -> Void){
+        var discriptionList = [Discription]()
+        database.collection("Ad").getDocuments { snapshot, error in
+            for document in snapshot!.documents {
+                let data = document.data()
+                if let id = data["id"],
+                   let userid = data["userid"],
+                   let text = data["text"],
+                   let latitude = data["latitude"],
+                   let longitude = data["longitude"],
+                   let created = data["created"] as? Timestamp,
+                   let imageurl = data["imageurl"],
+                   let imagename = data["imagename"],
+                   let type = data["type"]{
+                    let date = created.dateValue()
+                    let disc = Discription(id: id as! String,
+                                           userid: userid as! String,
+                                           text: text as! String,
+                                           location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
+                                           image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
+                
+                        discriptionList.append(disc)
+                    
+                   
+                }
+                
+            }
+            DispatchQueue.main.async {
+                print("取得完了")
+                //48
+                compleation(discriptionList)
+            }
+        }
+        
+    }
     func getFriendDiscription(compleation:@escaping ([Discription]) -> Void){
         print("友達の投稿を取得します")
         let userid = getMyUserid()
@@ -381,7 +448,12 @@ class FirebaseManager{
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
                                            image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
-                    discriptionList.append(disc)
+                    
+                    if FollowManager.shere.isFollow(userid: userid as! String) && !FollowManager.shere.isBlock(userid: userid as! String){
+                        
+                        discriptionList.append(disc)
+                    }
+                   
                 }
                 
             }
@@ -500,6 +572,10 @@ extension FirebaseManager{
         )
     }
     
+    func unfollow(friendid :String){
+        let userid = Auth.auth().currentUser!.uid
+        self.database.collection("Users").document(userid).collection("FriendIdList").document(friendid).delete()
+    }
     func getFriendIdList(userid:String,compleation:@escaping ([Friend]) -> Void){
         
         var friendIdList = [Friend]()

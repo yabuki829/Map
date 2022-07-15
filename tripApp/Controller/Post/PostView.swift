@@ -50,8 +50,8 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
     let closeImageViewButton:UIButton = {
         let button = UIButton()
         button.isHidden = true
-        button.tintColor = .black
-        button.setBackgroundImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        button.tintColor = .white
+        button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
         
         return button
     }()
@@ -197,6 +197,9 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
     @objc func closeImage(sender: UIButton){
         closeImageViewButton.isHidden = true
         //初期化
+        selectImageView.isHidden = false
+        videoPlayer.isHidden = true
+        videoPlayer.player = AVPlayer()
         selectImageView.image = UIImage(systemName: "photo")
         
     }
@@ -206,6 +209,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         //画像が選択されている
         //ロケーションが設定されている
         //フレンドリストが表示されていない　場合に投稿する
+
         if isVideo && textView.text.count != 0 && isLocation && !isOpen {
             //動画の場合
             print("動画")
@@ -224,7 +228,10 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                 DataManager.shere.save(data: data)
                 FirebaseManager.shered.postDiscription(disc: disc)
                 HUD.hide()
-                self.presentingViewController?.dismiss(animated: true, completion: nil)
+                let nav = self.navigationController
+                let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! MapViewController
+                preVC.isReload = true
+                self.navigationController?.popViewController(animated: true)
             }
         }
         else if isVideo == false && textView.text.count != 0 &&
@@ -249,7 +256,11 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                 DataManager.shere.save(data: data)
                 FirebaseManager.shered.postDiscription(disc: disc)
                 HUD.hide()
-                self.presentingViewController?.dismiss(animated: true, completion: nil)
+                let nav = self.navigationController
+                let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! MapViewController
+                preVC.isReload = true
+                self.navigationController?.popViewController(animated: true)
+                
             }
        
         }
@@ -276,7 +287,8 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
     }
     @objc func back(){
         print("前の画面に戻る")
-        self.presentingViewController?.dismiss(animated: true, completion: nil)
+//        self.presentingViewController?.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
     @objc  func getMyLocation (sender: UIButton){
         print("位置情報を取得")
@@ -292,8 +304,9 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         view.addSubview(selectImageView)
         view.addSubview(friendListView)
         view.addSubview(openFriendListButton)
-        view.addSubview(closeImageViewButton)
         view.addSubview(videoPlayer)
+        view.addSubview(closeImageViewButton)
+        
         videoPlayer.setup()
         videoPlayer.setupVideoTap()
         selectImageView.anchor(left:view.leftAnchor, paddingLeft: 10,
@@ -451,15 +464,18 @@ extension PostViewController:CropViewControllerDelegate{
     
     @objc func selectImage(sender:UITapGestureRecognizer){
         //画像であれば　正方形にカットする
-        //動画であれば　何もせず動画　の画像を表示する
-        let picker = UIImagePickerController()
-        picker.sourceType = .savedPhotosAlbum
-        picker.mediaTypes = ["public.image", "public.movie"]
-        picker.delegate = self
-        picker.videoQuality = .typeMedium
-        picker.videoMaximumDuration = 30
-        picker.allowsEditing = true
-        present(picker, animated: true, completion: nil)
+        //サブスクリプションユーザーならば　動画も投稿できるようにする
+//        picker.mediaTypes = ["public.image"]
+       
+ 
+            let picker = UIImagePickerController()
+            picker.sourceType = .savedPhotosAlbum
+            picker.mediaTypes = ["public.image", "public.movie"]
+            picker.delegate = self
+            picker.videoQuality = .typeMedium
+            picker.videoMaximumDuration = 30
+            picker.allowsEditing = true
+            present(picker, animated: true, completion: nil)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -472,31 +488,49 @@ extension PostViewController:CropViewControllerDelegate{
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
         if let videoURL = info[UIImagePickerController.InfoKey.mediaURL] as? URL{
             videoUrl = videoURL
             videoPlayer.isHidden = false
-            isVideo = true
-            print(videoUrl!)
-            videoPlayer.player = AVPlayer(url: videoUrl!)
-            
+            closeImageViewButton.isHidden = false
             selectImageView.isHidden = true
+            isVideo = true
+            print("videoUrl",videoUrl!)
+            videoPlayer.player = AVPlayer(url: videoUrl!)
             picker.dismiss(animated: false, completion: nil)
            
         }
-        
-        guard let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else{ return }
-        let cropController = CropViewController(croppingStyle: .default, image: image)
-        cropController.delegate = self
-        cropController.customAspectRatio = CGSize(width: view.frame.width, height: view.frame.width)
-        cropController.aspectRatioPickerButtonHidden = true
-        cropController.resetAspectRatioEnabled = false
-        cropController.rotateButtonsHidden = true
-        
-        cropController.cropView.cropBoxResizeEnabled = false
-        picker.dismiss(animated: true) {
-            self.present(cropController, animated: true, completion: nil)
+        if let editingImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+            print("editind")
+            videoPlayer.isHidden = true
+            closeImageViewButton.isHidden = false
+            selectImageView.isHidden = false
+            selectImageView.image = editingImage
+            picker.dismiss(animated: false, completion: nil)
         }
+        else {
+            if let original = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+                print("original")
+                let cropController = CropViewController(croppingStyle: .default, image: original)
+                cropController.delegate = self
+                cropController.customAspectRatio = CGSize(width: view.frame.width, height: view.frame.width)
+                cropController.aspectRatioPickerButtonHidden = true
+                cropController.resetAspectRatioEnabled = false
+                cropController.rotateButtonsHidden = true
+                videoPlayer.isHidden = true
+                closeImageViewButton.isHidden = false
+                cropController.cropView.cropBoxResizeEnabled = false
+
+                picker.dismiss(animated: true) {
+                    self.present(cropController, animated: true, completion: nil)
+                }
+            }
+        }
+//        guard let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else{ return }
+        
+
+        
+        
+       
         
     }
     func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {

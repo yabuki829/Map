@@ -19,5 +19,5 @@ target 'tripApp' do
   pod 'IQKeyboardManagerSwift'
   pod 'lottie-ios'
   pod 'NendSDK_iOS'
-  
+  pod 'Purchases'
 end

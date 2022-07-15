@@ -8,13 +8,17 @@
 import Foundation
 import UIKit
 import MapKit
+import AVFoundation
 
 //画像を探すためのやつ
 struct uiimageData {
     var postId:String
     var image :UIImage
 }
-
+struct videoData {
+    var postId:String
+    var video :VideoPlayer
+}
 class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     weak var delegateWithMapCell:mapCellDelegate? = nil
     let menuButton: UIButton = {
@@ -32,20 +36,31 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     
     var descriptionList : [Discription]?{
         didSet {
-            print("mapcelllllllllll")
-            setData()
+            if selectVideo.player == nil {
+                setData()
+            }
+           
         }
     }
-
     var selectImage = UIImage()
+    var imageViewArray = [uiimageData]()
+    var videoArray = [videoData]()
+    var selectIndex :Int?
+    var preIndex: Int?
+    var selectVideo = VideoPlayer()
+    var preVideo = VideoPlayer()
+    
+    
+    
     
     var mapView =  MKMapView()
     var selectDiary:Discription?
     var isOpen = false
     var viewWidth = CGFloat()
     var locationManager: CLLocationManager!
+    
     override func setupViews() {
-        
+        print("map呼ばれてます")
         backgroundColor = .black
         mapView.delegate = self
         contentView.addSubview(mapView)
@@ -122,16 +137,63 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     }
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         //viewtitle と discriptionの　titleが同じ
-    
        
         //postid と　id　が同じ
         for i in 0..<descriptionList!.count{
-            if view.annotation?.title == descriptionList![i].created.covertString()
-                && view.annotation?.subtitle == descriptionList![i].text {
+            
+            if view.annotation?.subtitle == descriptionList![i].text + descriptionList![i].created.covertString() {
+                print("同じ")
+                
+                
                 selectDiary = descriptionList![i]
-                if mapView.region.span.latitudeDelta > 0.00015 {
+                
+                if descriptionList![i].type == "image"{
+                    print("image")
+                    for j in 0..<imageViewArray.count {
+                        if descriptionList![i].id == imageViewArray[j].postId{
+                            print("みつかりました")
+                            selectImage = imageViewArray[j].image
+                            
+                            break
+                        }
+                    }
+                }
+                else{
+                    for j in 0..<videoArray.count {
+                        if descriptionList![i].id == videoArray[j].postId{
+                           
+                            print("みつかりました!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                            if selectVideo.player != nil {
+                                
+                                print("2回目以降--------------------------------------------")
+                                if videoArray[j].video.player != selectVideo.player {
+                                    print("別のビデオを再生しています")
+                                    selectVideo.stop()
+                                }
+                                
+                                preVideo = selectVideo
+                                selectVideo = videoArray[j].video
+//                                videoArray[selectIndex!].video.stop()
+//                                preIndex = selectIndex
+//                                selectIndex = j
+                               
+                                break
+                                
+                            }
+                            else {
+                                print("1回目--------------------------------------------")
+                                selectVideo = videoArray[j].video
+//                                selectIndex = j
+                            }
+                           
                     
-                    let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 0.0001, longitude: (view.annotation?.coordinate.longitude)! )
+                            
+                        }
+                    }
+                }
+                
+                if mapView.region.span.latitudeDelta > 0.00015 {
+                    let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 0.21, longitude: (view.annotation?.coordinate.longitude)! )
                     let span = MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
                         let region = MKCoordinateRegion(center: aa, span: span)
                         mapView.setRegion(region, animated: true)
@@ -165,10 +227,10 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         let pinView =  MKPinAnnotationView(annotation: annotation, reuseIdentifier: nil)
         pinView.canShowCallout = true
         
-       
+        
     outLoop: for i in 0..<descriptionList!.count{
-        if annotation.title == descriptionList![i].created.covertString() &&
-            annotation.subtitle == descriptionList![i].text {
+        
+        if annotation.subtitle == descriptionList![i].text + descriptionList![i].created.covertString() {
             
 
             let stackview = setStackView()
@@ -176,7 +238,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             let imageView = UIImageView()
             let videoView = VideoPlayer()
             stackview.addGestureRecognizer(tapStackView)
-            
+        
             if FirebaseManager.shered.getMyUserid() != descriptionList![i].userid {
                 pinView.pinTintColor = .link
             }
@@ -184,10 +246,10 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             
             if descriptionList![i].type == "video"{
                 //動画
-                print("動画")
-                videoView.loadVideo(urlString: descriptionList![i].image.url)
+                videoView.loadVideo(urlString:descriptionList![i].image.url)
                 videoView.setup()
                 videoView.setupVideoTap()
+                videoArray.append(videoData(postId:descriptionList![i].id , video: videoView))
                 let button = UIButton()
                     button.setTitle("＞＞", for: .normal)
                     button.setTitleColor(.darkGray, for: .normal)
@@ -198,8 +260,8 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                     stackview.addArrangedSubview(videoView)
 
                     stackview.addArrangedSubview(button)
-                videoView.anchor(width:viewWidth / 2, height:  viewWidth / 2)
-                let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 2 )
+                videoView.anchor(width:viewWidth / 3 * 2, height:  viewWidth / 3 * 2)
+                let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 3 * 2 )
                        stackview.addConstraint(widthConstraint)
                 pinView.detailCalloutAccessoryView = stackview
             }
@@ -207,9 +269,10 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                 // 画像
                 imageView.setImage(urlString: descriptionList![i].image.url) { [self] image in
                     let imageView = UIImageView()
-                    imageView.image = image
+                    
                     if  image != nil {
-                        print("画像準備完了")
+                        imageView.image = image
+                        imageViewArray.append(uiimageData(postId: descriptionList![i].id, image: image!))
                         let button = UIButton()
                             button.setTitle("＞＞", for: .normal)
                             button.setTitleColor(.darkGray, for: .normal)
@@ -224,11 +287,11 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                             let gcd = MathManager.shered.getGreatestCommonDivisor(Int((image?.size.width)!), Int((image?.size.height)!))
                             let ration = MathManager.shered.calcAspectRation(Double(image!.size.width) ,Double(image!.size.height) , gcd: gcd)
                             let times = MathManager.shered.howmanyTimes(aspectRation: ration)
-                            let width = viewWidth / 2
+                            let width = viewWidth / 3 * 2
                       
                             imageView.anchor(height: width * times)
                             
-                        let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 2 )
+                        let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 3 * 2 )
                                stackview.addConstraint(widthConstraint)
                             
                             pinView.detailCalloutAccessoryView = stackview
@@ -245,11 +308,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
 
          
             }
-            else{
-                print("違います",descriptionList![i].text)
-                
-            }
-            
+
         
         }
         return pinView
@@ -264,26 +323,28 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         return stackview
     }
     @objc internal func sendtoDetailView(sender: UIButton) {
-       
-        if selectDiary != nil{
-            delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!)
+        
+        if selectDiary?.type == "image"{
+            delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, selectImage: selectImage)
         }
         else{
-            print("画像が入ってない")
+          
+//            delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, player: videoArray[selectIndex!].video.player!)
+            delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, player: selectVideo.player!)
+            
         }
     }
     func setData(){
         //ピンがあれば,まずすべて取り除く
         mapView.removeAnnotations(mapView.annotations)
-        print("setData")
        
         for i in 0..<descriptionList!.count{
             let annotation = MKPointAnnotation()
             
             if descriptionList![i].location != nil{
                 annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
-                annotation.title = descriptionList![i].created.covertString()
-                annotation.subtitle = descriptionList![i].text
+//                annotation.title = descriptionList![i].created.covertString()
+                annotation.subtitle = descriptionList![i].text + descriptionList![i].created.covertString()
                 self.mapView.addAnnotation(annotation)
             }
         }
@@ -291,6 +352,8 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
 
    
 }
+
+
 
 
 
@@ -324,5 +387,10 @@ extension MapCell {
     }
 }
 protocol mapCellDelegate: class  {
-    func toDetailWithMapCell(discription:Discription)
+    func toDetailWithMapCell(discription:Discription,player:AVPlayer)
+    func toDetailWithMapCell(discription:Discription,selectImage:UIImage)
 }
+
+
+
+

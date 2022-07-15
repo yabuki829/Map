@@ -1,0 +1,57 @@
+{
+  "identifier" : "95A34C1E",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "15CC4AAC",
+      "localizations" : [
+
+      ],
+      "name" : "Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.5",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "F345091A",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "",
+              "displayName" : "一ヶ月サブスクリプション",
+              "locale" : "ja"
+            }
+          ],
+          "productID" : "com.sho.tripApp.onemonth",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "サブスクリプション1ヶ月",
+          "subscriptionGroupID" : "15CC4AAC",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 1,
+    "minor" : 2
+  }
+}

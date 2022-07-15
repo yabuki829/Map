@@ -62,7 +62,7 @@ extension NewChatViewController:UICollectionViewDelegate,UICollectionViewDataSou
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListCell", for: indexPath) as! FriendListCell
-        cell.setCell(imageurl: (profileList[indexPath.row].profileImageUrl), username: profileList[indexPath.row].username, text: profileList[indexPath.row].text!)
+        cell.setCell(imageurl: (profileList[indexPath.row].profileImageUrl), username: profileList[indexPath.row].username, text: profileList[indexPath.row].text!, userid:profileList[indexPath.row].userid )
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

@@ -34,40 +34,49 @@ class MapViewController: UIViewController {
     var discriptipns = [Discription]()
     var selectDiary:Discription?
     var selectImage = UIImage()
-    
+    var isReload = false
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = .white
-       
+
         view.addSubview(collectionView)
         view.addSubview(postButton)
-        
+
         addConstraint()
         postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
-       
-        
+
+
         setupNavigationItems()
         settingCollectionView()
-      
+        getDiscription()
         
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        getDiscription()
+        print("viewWillAppear")
+//        collectionView.reloadData()
+//        mapAndDiscriptionCell?.mapCell.setData() 
+        mapAndDiscriptionCell?.discriptioncell.collectionView.reloadData()
+        
+        if isReload {
+            print("getdiscription")
+            getDiscription()
+            isReload = false
+        }
+        
     }
     
     @objc internal func sendtoPostView(sender: UIButton) {
-        let nav = UINavigationController(rootViewController: PostViewController())
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
-      }
-    @objc internal func sendtoDetailView(sender: UIButton) {
-        let vc = detailViewController()
-        vc.discription = selectDiary!
+        let vc = PostViewController()
+       
+       
         navigationController?.pushViewController(vc, animated: true)
-    }
+      }
+
     @objc func tapSettingIcon(){
+        
+      
         let layout = UICollectionViewFlowLayout()
         let nav = UINavigationController(rootViewController: SettingViewController(collectionViewLayout: layout))
         nav.modalPresentationStyle = .fullScreen
@@ -80,13 +89,11 @@ class MapViewController: UIViewController {
     func getDiscription(){
       //自分の投稿と友達の投稿あとprofileを取得する
         discriptipns = []
-//        discriptipns = DataManager.shere.get()
+        
         FirebaseManager.shered.getFriendDiscription { [self] result in
             print(discriptipns.count)
             refresher.endRefreshing()
             discriptipns.append(contentsOf: result)
-            
-           
             collectionView.reloadData()
         }
     
@@ -96,30 +103,63 @@ class MapViewController: UIViewController {
 
 
 extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,reloadDelegate,mapCellDelegate,transitionDelegate{
+    func toEditPageWithProfileCell(){}
+    func toDetailWithDiscriptionpCell(discription: Discription, player: AVPlayer) {
+        
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.player = player
+        vc.isMapVC = true
+        navigationController?.pushViewController(vc, animated: true)
+        
+//        let nav = UINavigationController(rootViewController:vc )
+//        nav.modalPresentationStyle = .fullScreen
+//        self.present(nav, animated: true, completion: nil)
+    }
+    
+
+    
+    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.image = selectImage
+        vc.isMapVC = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+
+    
+    
+    func toDetailWithMapCell(discription: Discription, player: AVPlayer) {
+        print("ここだよ動画を止めます")
+//        let vc = detailViewController()
+//        vc.discription = discription
+//        vc.player = player
+//        vc.isMapVC = true
+//        navigationController?.pushViewController(vc, animated: true)
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.player = player
+        vc.isMapVC = true
+        navigationController?.pushViewController(vc, animated: true)
+        
+//        let nav = UINavigationController(rootViewController:vc )
+//        nav.modalPresentationStyle = .fullScreen
+//        self.present(nav, animated: true, completion: nil)
+    }
+    
+    func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.image = selectImage
+        vc.isMapVC = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
    
     func scroll() {
         collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
     }
     
-    func toDetailWithMapCell(discription: Discription){
-        print("mapから遷移します")
-        let vc = detailViewController()
-        vc.discription = discription
-
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    func toDetailWithDiscriptionpCell(discription: Discription, videoPlayer: AVPlayer) {
-        let vc = detailViewController()
-        vc.cell.videoView.player = videoPlayer
-        vc.discription = discription
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
-        let vc = detailViewController()
-        
-        vc.discription = discription
-        navigationController?.pushViewController(vc, animated: true)
-    }
     
     func toFriendList() {
         let vc = FriendListViewController()
@@ -127,11 +167,23 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
     }
     
     func reload() {
+        
         if menuCell?.selectedIndexPath?.row == 0{
+            print("reload MapCell")
+            if mapAndDiscriptionCell?.mapCell.selectVideo.player !=  nil {
+                print("videoStop")
+                    //止まらない
+                mapAndDiscriptionCell?.mapCell.selectVideo.stop()
+            }
             mapAndDiscriptionCell?.collectionView.scrollToItem(at:IndexPath(row: 0, section: 0) , at: .centeredHorizontally, animated: true)
-            
         }
         else{
+            print("reload DiscriptionCell")
+            if mapAndDiscriptionCell?.mapCell.selectVideo.player !=  nil {
+                print("videoStop")
+                    //止まらない
+                mapAndDiscriptionCell?.mapCell.selectVideo.stop()
+            }
             mapAndDiscriptionCell?.collectionView.scrollToItem(at:IndexPath(row: 1, section: 0) , at: .centeredHorizontally, animated: true)
         }
     }
@@ -145,6 +197,7 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
     
         if indexPath.row == 0{
             // Profile
+            
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MenuCell", for: indexPath) as! MenuCell
             cell.delegate = self
             cell.menuBarTitleArray = ["map","house"]
@@ -152,6 +205,7 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
             return cell
         }
         else{
+            print("MapAndDiscriptionCell")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MapAndDiscriptionCell", for: indexPath) as! MapAndDiscriptionCell
             cell.discriptionList = discriptipns
             cell.discriptioncell.isHome = true
@@ -179,7 +233,7 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
             let tabbarHeight = tabBarController?.tabBar.frame.size.height ?? 83
             let height = view.frame.height - statusBarHeight - navigationBarHeight - tabbarHeight
             print("height",height)
-            return CGSize(width: view.frame.width, height:height - 25)
+            return CGSize(width: view.frame.width, height:height - 25) //25でなく30にするとリフレッシュがしにくい
         }
        
     }
@@ -246,7 +300,7 @@ class articleCell:UICollectionViewCell{
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .white
         imageView.contentMode = .scaleToFill
-        imageView.image = UIImage(named: "background")
+//        imageView.image = UIImage(named: "background")
         return imageView
     }()
     
@@ -255,7 +309,7 @@ class articleCell:UICollectionViewCell{
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .black
         imageView.contentMode = .scaleAspectFit
-        imageView.image = UIImage(named: "background")
+//        imageView.image = UIImage(named: "background")
         return imageView
     }()
     
@@ -322,12 +376,14 @@ class articleCell:UICollectionViewCell{
         getProfile(userid: disc.userid)
         if disc.type == "image" {
             imageView.setImage(urlString: disc.image.url)
+            contentView.addSubview(imageView)
         }
         else{
-            videoView.loadVideo(urlString: disc.image.url)
+            videoView.loadVideo(urlString:disc.image.url)
             videoView.setup()
+//            videoView.setupVideoTap()
         }
-        contentView.addSubview(imageView)
+       
         addConstraint()
        
     }
@@ -389,3 +445,42 @@ class MenuView:UIView{
     }
 }
 
+
+
+/*
+ 同じ
+ みつかりました!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 1回目--------------------------------------------
+ 止める必要なし
+ -----------------------
+ -----------------------
+ 同じ
+ みつかりました!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 2回目以降--------------------------------------------
+ stoppppppp Optional(<AVPlayer: 0x2839fa090>)
+ stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
+ -----------------------
+ 同じ
+ みつかりました!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 3回目以降--------------------------------------------
+ stoppppppp Optional(<AVPlayer: 0x2839fa090>)
+ stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
+ stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
+
+ 
+ 3回目以降--------------------------------------------
+ stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
+ stoppppppp Optional(<AVPlayer: 0x2839fa090>)
+ 
+ 3回目以降--------------------------------------------
+ stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
+ stoppppppp Optional(<AVPlayer: 0x2839fa090>)
+ ここだよ動画を止めます
+ 
+↓ 止まらない
+ 3回目以降--------------------------------------------
+ stoppppppp Optional(<AVPlayer: 0x2839fa090>)
+ stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
+ ここだよ動画を止めます
+
+ */

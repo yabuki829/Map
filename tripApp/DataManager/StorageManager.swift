@@ -114,26 +114,27 @@ class StorageManager{
         let videoRef = Storage.storage().reference().child("/users/\(userid)/video/\(filename).mov")
       
         var videoData : Data = Data()
-                
             do{
+                print("1")
                 videoData = try Data(contentsOf: videourl)
             }
             catch{
                 print(error.localizedDescription)
                 return
             }
-        print("videodata",videoData)
+        print("2")
         videoRef.putData(videoData, metadata: nil) {   (_, error) in
             if let error = error {
                 print("1.エラー",error)
                 return
             }
-            print(videoRef)
+            print("3")
             videoRef.downloadURL { (url, error) in
                 if let error = error {
                     print("2.エラー",error)
                     return
                 }
+                print("4")
                 guard let url = url else { return }
                 let urlString = url.absoluteString
                 let data = ProfileImage(url: urlString, name: filename)
@@ -159,13 +160,13 @@ class StorageManager{
         let userid = FirebaseManager.shered.getMyUserid()
         let filename = video.name
         let videoRef = Storage.storage().reference().child("/users/\(userid)/video/\(filename).mov")
-        print("画像を削除します")
+        print("動画を削除します")
         videoRef.delete { (error) in
             if let error = error {
                 print("エラー",error)
                 return
             }
-            print("画像削除完了")
+            print("動画削除完了")
         }
     }
     func deleteAll(userid:String){

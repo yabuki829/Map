@@ -151,7 +151,6 @@ extension SelectLocationMapViewController:CLLocationManagerDelegate{
     }
     func getLocationName(location:Location,compleation:@escaping (String) -> Void) {
         let Location = CLLocation(latitude: location.latitude, longitude:location.longitude)
-        print(Location)
         CLGeocoder().reverseGeocodeLocation(Location) { [self] placemarks, error in
             if let placemark = placemarks?.first {
                 print(placemark)

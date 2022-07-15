@@ -72,4 +72,49 @@ class FollowManager {
             return false
         }
     }
+    
+    func getBlockedUser() -> [BlockUser] {
+        var blockUser = [BlockUser]()
+        print("blockUser",blockUser)
+        if let data:[BlockUser] = userDefaults.codable(forKey: "block"){
+            blockUser = data
+        }
+        return blockUser
+    }
+    func block(userid:String){
+        var blockUser = getBlockedUser()
+        let user = BlockUser(userid: userid, isBlock: true)
+        blockUser.append(user)
+        print(user)
+       saveBlockList(blockList: blockUser)
+    }
+    func unBlock(userid:String){
+        var blockedUser = getBlockedUser()
+        
+        for i in 0..<blockedUser.count {
+            if userid == blockedUser[i].userid{
+                blockedUser[i].isBlock = !blockedUser[i].isBlock
+                saveBlockList(blockList: blockedUser)
+                break
+            }
+        }
+    }
+    func isBlock(userid:String) -> Bool{
+        let blockUser = getBlockedUser()
+        for i in 0..<blockUser.count {
+            if blockUser[i].userid == userid {
+                print("ブロックしています")
+                return true
+            }
+        }
+        return false
+    }
+    func saveBlockList(blockList:[BlockUser]){
+        userDefaults.setCodable(blockList, forKey: "block")
+    }
+}
+
+struct BlockUser: Codable,Equatable{
+    let userid:String
+    var isBlock:Bool
 }

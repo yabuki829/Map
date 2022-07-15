@@ -20,7 +20,7 @@ class profileViewController:UICollectionViewController{
     var friendList = [Friend]()
     var menuCell:MenuCell?
     var mapAndDiscriptionCell:MapAndDiscriptionCell?
-    
+    var isReload = false
     override func viewDidLoad() {
         settingCollectionView()
         setNav()
@@ -29,11 +29,14 @@ class profileViewController:UICollectionViewController{
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if isMyProfile{
+        mapAndDiscriptionCell?.mapCell.setData()
+        mapAndDiscriptionCell?.discriptioncell.collectionView.reloadData()
+        if isMyProfile && isReload {
             myprofile = DataManager.shere.getMyProfile()
             discriptionList = DataManager.shere.get().reversed()
             friendList = FollowManager.shere.getFollow()
             collectionView.reloadData()
+            isReload = false
         }
     }
     
@@ -44,9 +47,6 @@ class profileViewController:UICollectionViewController{
         collectionView.register(MenuCell.self, forCellWithReuseIdentifier: "MenuCell")
         collectionView.register(MapAndDiscriptionCell.self, forCellWithReuseIdentifier: "MapAndDiscriptionCell")
         collectionView.backgroundColor = .white
-        
-        
-      
     }
     
     func getDiscription(){
@@ -88,10 +88,10 @@ class profileViewController:UICollectionViewController{
             searchItem.tintColor = .link
             navigationItem.leftBarButtonItem = searchItem
             
-            let settinghButton = UIImage(systemName: "gearshape")
-            let settingItem = UIBarButtonItem(image:settinghButton, style: .plain, target: self, action: #selector(setting(sender:)))
+//            let settinghButton = UIImage(systemName: "gearshape")
+//            let settingItem = UIBarButtonItem(image:settinghButton, style: .plain, target: self, action: #selector(setting(sender:)))
             searchItem.tintColor = .link
-            navigationItem.rightBarButtonItem = settingItem
+//            navigationItem.right7BarButtonItem = settingItem
         }
         else{
             print("友達のプロフィール")
@@ -127,27 +127,47 @@ class profileViewController:UICollectionViewController{
 
 
 extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegate,transitionDelegate,mapCellDelegate{
-    func scroll() {
-        collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
+    func toEditPageWithProfileCell() {
+        let vc = EditViewController()
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+    }
+    func toDetailWithMapCell(discription: Discription, player: AVPlayer) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.player = player
+        vc.isMapVC = true
+        vc.isProfile = true
+        navigationController?.pushViewController(vc, animated: true)
     }
     
-    func toDetailWithDiscriptionpCell(discription: Discription, videoPlayer: AVPlayer) {
+  
+    //Mapから遷移
+    func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
         let vc = detailViewController()
         vc.discription = discription
-        vc.cell.videoView.player = videoPlayer
+        vc.image = selectImage
+        vc.isMapVC = true
+        vc.isProfile = true
         navigationController?.pushViewController(vc, animated: true)
     }
-    func toDetailWithMapCell(discription: Discription){
-        print("mapから遷移します")
+    
+  
+    //discriptionからの遷移
+    func toDetailWithDiscriptionpCell(discription: Discription,player:AVPlayer) {
         let vc = detailViewController()
         vc.discription = discription
-        
+        vc.player = player
+        vc.isProfile = true
         navigationController?.pushViewController(vc, animated: true)
     }
+    
     func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
         let vc = detailViewController()
-        vc.cell.discImageView.image = selectImage
+        vc.image = selectImage
         vc.discription = discription
+        vc.isProfile = true
         navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -156,11 +176,12 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    func scroll() {
+        collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
+    }
     func reload() {
-        
         if menuCell?.selectedIndexPath?.row == 0{
             mapAndDiscriptionCell?.collectionView.scrollToItem(at:IndexPath(row: 0, section: 0) , at: .centeredHorizontally, animated: true)
-            
         }
         else{
             mapAndDiscriptionCell?.collectionView.scrollToItem(at:IndexPath(row: 1, section: 0) , at: .centeredHorizontally, animated: true)
@@ -180,9 +201,11 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
             if isMyProfile{
                 //myprofileに変更する
                 cell.setCellA(profile:myprofile, followList: friendList, postList: discriptionList)
+                cell.isMyprofile = isMyProfile
             }
             else{
                 cell.setCellB(profile: profile, followList: friendList, postList: discriptionList)
+                cell.isMyprofile = isMyProfile
             }
           
             cell.delegate = self

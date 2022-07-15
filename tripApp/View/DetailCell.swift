@@ -26,7 +26,7 @@ class DetailViewCell: UITableViewCell {
     let discImageView = UIImageView()
     let discTextLabel = UILabel()
     let dateLabel     = UILabel()
-    let videoView:VideoPlayer = {
+    var videoView:VideoPlayer = {
         let view = VideoPlayer()
         return view
     }()
@@ -52,13 +52,13 @@ class DetailViewCell: UITableViewCell {
         addView()
         getProfile()
         if disc.type == "image"{
-            discImageView.setImage(urlString:disc.image.url )
             discImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapImage)))
         }
         else{
-            videoView.loadVideo(urlString: disc.image.url)
+//            videoView.loadVideo(urlString: disc.image.url)
             videoView.setup()
             videoView.setupVideoTap()
+            videoView.setupSlider()
         }
         usernameButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
@@ -93,15 +93,15 @@ class DetailViewCell: UITableViewCell {
         else{
             contentView.addSubview(videoView)
            
-            print("heigthhhhhhhhhhhhhh",subHeight)
-            videoView.anchor(left: contentView.leftAnchor, paddingLeft: 0,
-                                 right: contentView.rightAnchor, paddingRight: 0,
-                                 bottom: contentView.bottomAnchor,paddingBottom: 10,
-                                 height: width)
-            dateLabel.anchor(top:discTextLabel.bottomAnchor , paddingTop: 2.0,
-                             left: contentView.leftAnchor, paddingLeft: 10.0,
-                             right: contentView.rightAnchor, paddingRight: 10.0,
-                             bottom: videoView.topAnchor,paddingBottom: 10)
+            videoView.anchor(top:discTextLabel.bottomAnchor , paddingTop: 2.0,
+                             left: contentView.leftAnchor, paddingLeft: 0,
+                             right: contentView.rightAnchor, paddingRight: 0,
+                             bottom: contentView.bottomAnchor,paddingBottom: 0,
+                             height: width)
+            
+            dateLabel.anchor(top:videoView.topAnchor , paddingTop: 2.0,
+                             right: videoView.rightAnchor, paddingRight: 10.0)
+
         }
        
         profileImageView.layer.cornerRadius = width / 7 / 2
@@ -152,7 +152,9 @@ class DetailViewCell: UITableViewCell {
        
     }
     @objc func tapUserIconOrUsername(){
+        videoView.stop()
         delegate?.toProfilePage()
+        
     }
     
     weak var delegate:profileCellDelegate? = nil

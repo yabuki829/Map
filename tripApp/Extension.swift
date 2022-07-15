@@ -65,7 +65,6 @@ extension Date{
     func covertString() -> String{
         let formatter = DateFormatter()
         let location = LanguageManager.shered.getlocation()
-        print("location",location)
         if location == "ja"{
             formatter.locale = Locale(identifier: "ja_JP")
             formatter.dateFormat = "yyy年MM月dd日(eee)HH:mm"
@@ -212,10 +211,7 @@ extension UIImageView{
         
         Nuke.loadImage(with: url, options: option, into: self) { result in
             compleation(self.image)
-        
-           
         }
-      
         
     }
     

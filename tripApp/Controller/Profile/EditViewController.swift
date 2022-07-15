@@ -9,7 +9,7 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     
     let backgraundImage:UIImageView = {
         let imageview = UIImageView()
-        imageview.image = UIImage(named: "person.crop.circle.fill")
+        imageview.image = UIImage(systemName: "person.crop.circle.fill")
         imageview.isUserInteractionEnabled = true
         return imageview
     }()
