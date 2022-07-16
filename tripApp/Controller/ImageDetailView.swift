@@ -29,10 +29,14 @@ class ImageDetailViewContriller:UIViewController,UIScrollViewDelegate{
         super.viewDidLoad()
         
         view.backgroundColor = .white
-     
-        
         addConstraint()
         settingNav()
+    }
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+        return true
     }
     func addConstraint(){
         view.addSubview(scrollView)

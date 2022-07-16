@@ -100,7 +100,12 @@ class LoginViewController:UIViewController{
         checkButton.addTarget(self, action: #selector(chack), for: .touchDown)
         privacyPolicyButton.addTarget(self, action: #selector(registerWithEmail), for: .touchDown)
     }
-    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+                return false
+    }
 
     func move(){
         let nav = MainTabBarController()

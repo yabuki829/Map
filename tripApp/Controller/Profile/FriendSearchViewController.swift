@@ -73,6 +73,12 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         
         return label
     }()
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+                return true
+    }
     override func viewDidLoad() {
         self.view.backgroundColor = .white
        

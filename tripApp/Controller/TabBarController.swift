@@ -9,6 +9,12 @@ final class MainTabBarController: UITabBarController {
         setupTab()
     }
 
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+    }
+    override var shouldAutorotate: Bool {
+        return true
+    }
     func setupTab() {
  
         if #available(iOS 15.0, *) {

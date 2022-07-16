@@ -50,6 +50,12 @@ class SelectLocationMapViewController :UIViewController,MKMapViewDelegate {
         centerPinImage.anchor(width:view.frame.width / 10,height: view.frame.width / 10)
         setupNavigationItems()
     }
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+                return true
+    }
     @objc internal func setMyLocation(sender: UIButton) {
         setupLocationManager()
     }

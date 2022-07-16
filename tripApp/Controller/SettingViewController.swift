@@ -36,9 +36,14 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
             menuItem(name: "TasksTodo", icon: "doc"),
     ]
        
-    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+        return true
+    }
        override func viewDidLoad() {
-           
+           print("settingviewcontroller")
             let accountImage = UIImage(systemName: "multiply")
             let accountItem = UIBarButtonItem(image: accountImage, style: .plain, target: self, action: #selector(onClickMyButton(sender:)))
             accountItem.tintColor = .darkGray
@@ -52,10 +57,10 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
             view.addSubview(collectionView)
             addCollectionViewConstraint()
        }
-       @objc func onClickMyButton(sender : UIButton){
-
-           self.navigationController?.dismiss(animated: true, completion: nil)
-       }
+  
+    @objc func onClickMyButton(sender : UIButton){
+        self.navigationController?.popViewController(animated: true)
+    }
        
        
     

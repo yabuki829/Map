@@ -11,6 +11,8 @@ import PKHUD
 import AVFoundation
 
 class profileViewController:UICollectionViewController{
+
+    
     var isMyProfile = true
     var profile = Profile(userid: "error", username: "No Name", backgroundImageUrl:"background" , profileImageUrl: "person.crop.circle.fill")
     var myprofile = MyProfile(userid: "", username: "", text: "",
@@ -26,6 +28,12 @@ class profileViewController:UICollectionViewController{
         setNav()
         getDiscription()
         tabBarController?.tabBar.isHidden = false
+    }
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+                return true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -116,7 +124,8 @@ class profileViewController:UICollectionViewController{
         let vc = EditViewController()
         let nav = UINavigationController(rootViewController: vc)
         nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
+        vc.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(vc, animated: true)
     }
     @objc func back(sender : UIButton){
         print("Back")
@@ -126,55 +135,8 @@ class profileViewController:UICollectionViewController{
 }
 
 
-extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegate,transitionDelegate,mapCellDelegate{
-    func toEditPageWithProfileCell() {
-        let vc = EditViewController()
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
-    }
-    func toDetailWithMapCell(discription: Discription, player: AVPlayer) {
-        let vc = detailViewController()
-        vc.discription = discription
-        vc.player = player
-        vc.isMapVC = true
-        vc.isProfile = true
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
-  
-    //Mapから遷移
-    func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
-        let vc = detailViewController()
-        vc.discription = discription
-        vc.image = selectImage
-        vc.isMapVC = true
-        vc.isProfile = true
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
-  
-    //discriptionからの遷移
-    func toDetailWithDiscriptionpCell(discription: Discription,player:AVPlayer) {
-        let vc = detailViewController()
-        vc.discription = discription
-        vc.player = player
-        vc.isProfile = true
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
-    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
-        let vc = detailViewController()
-        vc.image = selectImage
-        vc.discription = discription
-        vc.isProfile = true
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
-    func toFriendList() {
-        let vc = FriendListViewController()
-        navigationController?.pushViewController(vc, animated: true)
-    }
+extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegate{
+
     
     func scroll() {
         collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
@@ -265,3 +227,59 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
     }
 }
 
+
+extension profileViewController {
+    
+}
+extension profileViewController:transitionDelegate {
+    func toEditPageWithProfileCell() {
+        let vc = EditViewController()
+        vc.modalPresentationStyle = .fullScreen
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+   
+    
+  
+    //discriptionからの遷移
+    func toDetailWithDiscriptionpCell(discription: Discription,player:AVPlayer) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.player = player
+        vc.isProfile = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
+        let vc = detailViewController()
+        vc.image = selectImage
+        vc.discription = discription
+        vc.isProfile = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func toFriendList() {
+        let vc = FriendListViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}
+extension profileViewController:mapCellDelegate{
+    func toDetailWithMapCell(discription: Discription, player: AVPlayer) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.player = player
+        vc.isMapVC = true
+        vc.isProfile = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+  
+    //Mapから遷移
+    func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.image = selectImage
+        vc.isMapVC = true
+        vc.isProfile = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+}

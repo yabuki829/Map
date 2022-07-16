@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 import AVFoundation
 class detailViewController:UIViewController{
+    let customTransition = DetailtoVideoViewContorllerTransition()
     var profile = Profile(userid: "error", username: "No name", backgroundImageUrl: "background", profileImageUrl: "person.crop.circle.fill")
     
     var myProfile = MyProfile(userid: "", username: "", text: "",
@@ -31,6 +32,7 @@ class detailViewController:UIViewController{
     var subheight = CGFloat()
     var isMapVC = false
     var isProfile = false
+    
     override func viewDidLoad() {
         view.backgroundColor = .white
         view.addSubview(tableView)
@@ -52,7 +54,13 @@ class detailViewController:UIViewController{
         setNav()
         
     }
-    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+    }
+    override var shouldAutorotate: Bool {
+        print("回転禁止")
+        return false
+    }
     func settingTableView(){
         tableView.rowHeight = UITableView.automaticDimension
         tableView.register(DetailViewCell.self, forCellReuseIdentifier: "Cell")
@@ -143,43 +151,15 @@ class detailViewController:UIViewController{
 }
 
 
-extension detailViewController:UITableViewDelegate,UITableViewDataSource,profileCellDelegate{
+extension detailViewController:UITableViewDelegate,UITableViewDataSource{
+    
+    
     @objc func back(sender : UIButton){
-//        if discription?.type == "video"{
-//            cell.videoView.stop()
-//        }
-        
         if isMapVC {
             self.navigationController?.dismiss(animated: true, completion: nil)
         }
         self.navigationController?.popViewController(animated: true)
 
-    }
-    func toDetail(image: UIImage) {
-        //遷移する
-        let vc = ImageDetailViewContriller()
-        vc.image = image
-        vc.modalPresentationStyle = .fullScreen
-        let nav = UINavigationController(rootViewController: vc)
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
-        
-    }
-    func toProfilePage() {
-        let layout = UICollectionViewFlowLayout()
-        
-        let vc = profileViewController(collectionViewLayout: layout)
-        vc.profile = profile
-       
-        if profile.userid != myProfile.userid {
-            print("自分のじゃないよ")
-            print(profile)
-            vc.isMyProfile = false
-        }
-        let rootVC = UIApplication.shared.windows.first?.rootViewController as? UITabBarController
-        let navigationController = rootVC?.children[1] as? UINavigationController
-        rootVC?.selectedIndex = 1
-        navigationController?.pushViewController(vc, animated: false)
     }
    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -195,9 +175,9 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
             }
             else {
                 cell.videoView.player = player
+                cell.videoView.updateSlider()
             }
 
-            
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
             cell.setCell(disc: discription!, widthSize: view.frame.width, heightSize: subheight)
             
@@ -359,5 +339,198 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource,profile
     }
 }
 
+extension detailViewController:profileCellDelegate {
+    func expandVideo(player: AVPlayer) {
+        print("videoView")
+        let vc = VideoViewController()
+        vc.videoView.player = player
+       
+        vc.videoView.updateSlider()
+        if cell.videoView.isStart{
+            vc.videoView.isStart = true
+            vc.videoView.startButton.isHidden = true
+        }
+        vc.modalPresentationStyle = .fullScreen
+        vc.transitioningDelegate = customTransition
+        self.present(vc, animated: true, completion: nil)
+    }
+    
+    func toDetail(image: UIImage) {
+        //遷移する
+        let vc = ImageDetailViewContriller()
+        vc.image = image
+        vc.modalPresentationStyle = .fullScreen
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .fullScreen
+        self.present(nav, animated: true, completion: nil)
+        
+    }
+    func toProfilePage() {
+        let layout = UICollectionViewFlowLayout()
+        
+        let vc = profileViewController(collectionViewLayout: layout)
+        vc.profile = profile
+       
+        if profile.userid != myProfile.userid {
+            print("自分のじゃないよ")
+            print(profile)
+            vc.isMyProfile = false
+        }
+        let rootVC = UIApplication.shared.windows.first?.rootViewController as? UITabBarController
+        let navigationController = rootVC?.children[1] as? UINavigationController
+        rootVC?.selectedIndex = 1
+        navigationController?.pushViewController(vc, animated: false)
+    }
+   
+}
+
+class VideoViewController:UIViewController {
+    let videoView = VideoPlayer()
+    let backButon: UIButton = {
+        let button = UIButton()
+        button.setBackgroundImage(UIImage(systemName: "multiply"), for: .normal)
+        button.tintColor = .white
+        return button
+    }()
+    override func viewDidLoad() {
+        print("videoViewController")
+        view.backgroundColor = .black
+        videoView.start()
+        videoView.setup()
+        videoView.setupSlider()
+        videoView.setupVideoTap()
+        addConstraint()
+    }
+
+      // 画面を回転させるかどうか
+    override var shouldAutorotate: Bool {
+        return true
+    }
+    func addConstraint(){
+        view.addSubview(videoView)
+        view.addSubview(backButon)
+        videoView.anchor(top: view.topAnchor, paddingTop: 0,
+                         left: view.leftAnchor, paddingLeft: 0,
+                         right: view.rightAnchor, paddingRight: 0,
+                         bottom: view.bottomAnchor, paddingBottom: 0)
+        backButon.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 10,
+                         left:view.safeAreaLayoutGuide.leftAnchor ,paddingLeft: 10,
+                         width: 30,height: 30)
+        backButon.addTarget(self, action: #selector(back), for: .touchDown)
+    }
+    @objc func back(){
+        //前の画面に戻る
+        print("back")
+        self.presentingViewController?.dismiss(animated: true, completion: nil)
+    }
+}
 
 
+class DetailtoVideoViewContorllerTransition: NSObject, UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning{
+    class var sharedInstance : DetailtoVideoViewContorllerTransition {
+        struct Static {
+            static let instance : DetailtoVideoViewContorllerTransition = DetailtoVideoViewContorllerTransition()
+        }
+        return Static.instance
+    }
+        
+    fileprivate var isPresent = false
+    
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        return 0.7
+    }
+
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        if isPresent {
+            presentTransition(transitionContext: transitionContext)
+        } else {
+            dissmissalTransition(transitionContext: transitionContext)
+        }
+    }
+    func presentTransition(transitionContext: UIViewControllerContextTransitioning) {
+        // 遷移元、遷移先及び、遷移コンテナの取得
+        let firstViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as! detailViewController
+        let secondViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as! VideoViewController
+        let containerView = transitionContext.containerView
+
+        // 遷移元のセルの取得
+        let cell:DetailViewCell = firstViewController.tableView.cellForRow(at: (firstViewController.tableView.indexPathsForSelectedRows?.first)!) as! DetailViewCell
+        if cell.discription?.type == "image"{
+        }
+        else{
+            let videoView = cell.videoView
+            // 遷移元のセルのイメージビューからアニメーション用のビューを作成
+           
+            videoView.frame = containerView.convert(cell.videoView.frame, from: cell.videoView.superview)
+            // 遷移元のセルのイメージビューを非表示にする
+            cell.videoView.isHidden = true
+
+            //遷移後のビューコントローラーを、予め最後の位置まで移動完了させ非表示にする
+            secondViewController.view.frame = transitionContext.finalFrame(for: secondViewController)
+            secondViewController.view.alpha = 0
+            // 遷移後のイメージは、アニメーションが完了するまで非表示にする
+            secondViewController.videoView.isHidden = true
+
+            // 遷移コンテナに、遷移後のビューと、アニメーション用のビューを追加する
+            containerView.addSubview(secondViewController.view)
+            containerView.addSubview(videoView)
+
+            UIView.animate(withDuration: transitionDuration(using: transitionContext), animations: {
+                // 遷移後のビューを徐々に表示する
+                secondViewController.view.alpha = 1.0
+                // アニメーション用のビューを、遷移後のイメージの位置までアニメーションする
+                videoView.frame = containerView.convert(secondViewController.videoView.frame, from: secondViewController.view)
+            }, completion: {
+                finished in
+                // 遷移後のイメージを表示する
+                secondViewController.videoView.isHidden = false
+                // セルのイメージの非表示を元に戻す
+                cell.videoView.isHidden = false
+                // アニメーション用のビューを削除する
+                videoView.removeFromSuperview()
+                transitionContext.completeTransition(true)
+            })
+        }
+
+    }
+    func dissmissalTransition(transitionContext: UIViewControllerContextTransitioning) {
+        // 遷移元、遷移先及び、遷移コンテナの取得
+        let firstViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as! detailViewController
+        let secondViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as! VideoViewController
+        let containerView = transitionContext.containerView
+        
+        // 遷移元のイメージビューからアニメーション用のビューを作成
+        let animationView = secondViewController.videoView.snapshotView(afterScreenUpdates: false)
+        animationView?.frame = containerView.convert(secondViewController.videoView.frame, from: secondViewController.videoView.superview)
+        // 遷移元のイメージを非表示にする
+        secondViewController.videoView.isHidden = true
+
+        // 遷移先のセルを取得
+        let cell:DetailViewCell = firstViewController.tableView.cellForRow(at: (firstViewController.tableView.indexPathsForSelectedRows?.first)!) as! DetailViewCell
+        // 遷移先のセルのイメージを非表示
+        cell.videoView.isHidden = true
+
+        //遷移後のビューコントローラーを、予め最後の位置まで移動完了させ非表示にする
+        firstViewController.view.frame = transitionContext.finalFrame(for: firstViewController)
+
+        // 遷移コンテナに、遷移後のビューと、アニメーション用のビューを追加する
+        containerView.insertSubview(firstViewController.view, belowSubview: secondViewController.view)
+        containerView.addSubview(animationView!)
+
+        UIView.animate(withDuration: transitionDuration(using: transitionContext), animations: {
+            // 遷移元のビューを徐々に非表示にする
+            secondViewController.view.alpha = 0
+            // アニメーションビューは、遷移後のイメージの位置まで、アニメーションする
+            animationView?.frame = containerView.convert(cell.videoView.frame, from: cell.videoView.superview)
+        }, completion: {
+            finished in
+            // アニメーション用のビューを削除する
+            animationView?.removeFromSuperview()
+            // 遷移元のイメージの非表示を元に戻す
+            secondViewController.videoView.isHidden = false
+            // セルのイメージの非表示を元に戻す
+            cell.videoView.isHidden = false
+            transitionContext.completeTransition(true)
+        })
+    }
+}

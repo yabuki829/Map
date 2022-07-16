@@ -63,20 +63,23 @@ class VideoPlayer: UIView {
         player?.automaticallyWaitsToMinimizeStalling = false
         player?.addObserver(self, forKeyPath: "timeControlStatus", options: .new, context: nil)
         if isStart {
-            startButton.isHidden = true
+            startButton.isHidden = false
+            start()
+           
         }
         else {
-            startButton.isHidden = false
+            stop()
+            startButton.isHidden = true
         }
     }
     
     @objc func handleSliderChange(){
+        print("handle Slider")
         if let duration = player?.currentItem?.duration {
             let total = CMTimeGetSeconds(duration)
             let value = Float64(slider.value) * total
             let seekTime = CMTime(value: Int64(value), timescale: 1)
             player?.seek(to: seekTime, completionHandler: { result in
-                
             })
         }
         print(slider.value)
@@ -86,9 +89,10 @@ class VideoPlayer: UIView {
         self.addSubview(startButton)
         startButton.center(inView: self)
         startButton.addTarget(self, action: #selector(closeImage(sender:)), for: .touchDown)
-        player?.addObserver(self, forKeyPath: "timeControlStatus", options: .new, context: nil)
+//        player?.addObserver(self, forKeyPath: "timeControlStatus", options: .new, context: nil)
         if isStart {
             startButton.isHidden = true
+            
         }
         else {
             startButton.isHidden = false
@@ -118,6 +122,31 @@ class VideoPlayer: UIView {
         
         slider.addTarget(self, action: #selector(handleSliderChange), for: .valueChanged)
     }
+    func updateSlider(){
+        if let duration = player?.currentItem?.duration {
+           
+            let seconds = CMTimeGetSeconds(duration)
+            if seconds.isNaN == false {
+              
+                let secondText = Int(seconds.truncatingRemainder(dividingBy: 60))
+                let fixText = String(format: "%02d", secondText)
+                videoLengthLabel.text = "00:\(fixText)"
+            }
+            
+        }
+        let interval = CMTime(value: 1, timescale:2)
+        player?.addPeriodicTimeObserver(forInterval: interval, queue: nil , using: { [self](currentTime) in
+            let seconds = CMTimeGetSeconds(currentTime)
+            let secondText = Int(seconds.truncatingRemainder(dividingBy: 60))
+            let fixText = String(format: "%02d", secondText)
+            currntLengthLabel.text = "00:\(fixText)"
+            //sliderを動かす
+            if let duration = player?.currentItem?.duration {
+                let currntseconds = CMTimeGetSeconds(duration)
+                slider.value = Float(seconds / currntseconds)
+            }
+        })
+    }
     
     @objc func tapVideo(sender: UIButton){
         isStart = !isStart
@@ -139,11 +168,17 @@ class VideoPlayer: UIView {
     }
     func stop(){
         startButton.isHidden = false
-        player!.pause()
+        if player != nil {
+            player!.pause()
+        }
+      
     }
     func start(){
         startButton.isHidden = true
-        player?.play()
+        if player != nil {
+            player?.play()
+        }
+       
     }
     func loadVideo(urlString:String){
         CacheManager.shared.getFileWith(stringUrl: urlString) { [self]  result in
@@ -168,37 +203,15 @@ class VideoPlayer: UIView {
     }
     
     
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-       
-        if keyPath == "timeControlStatus"{
-          
-            if let duration = player?.currentItem?.duration {
-               
-                let seconds = CMTimeGetSeconds(duration)
-                if seconds.isNaN == false {
-                  
-                    let secondText = Int(seconds.truncatingRemainder(dividingBy: 60))
-                    let fixText = String(format: "%02d", secondText)
-                    videoLengthLabel.text = "00:\(fixText)"
-                }
-                
-            }
-            let interval = CMTime(value: 1, timescale:2)
-            player?.addPeriodicTimeObserver(forInterval: interval, queue: nil , using: { [self](currentTime) in
-                let seconds = CMTimeGetSeconds(currentTime)
-                let secondText = Int(seconds.truncatingRemainder(dividingBy: 60))
-                let fixText = String(format: "%02d", secondText)
-                currntLengthLabel.text = "00:\(fixText)"
-                //sliderを動かす
-                if let duration = player?.currentItem?.duration {
-                    let currntseconds = CMTimeGetSeconds(duration)
-                    slider.value = Float(seconds / currntseconds)
-                }
-            })
-            
-            
-        }
-    }
+//    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+//       print("aaamamamamam")
+//        if keyPath == "timeControlStatus"{
+//
+//
+//
+//
+//        }
+//    }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

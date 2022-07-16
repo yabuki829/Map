@@ -31,7 +31,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
         collecitonview.dataSource = self
         collecitonview.delegate = self
-//        collecitonview.isScrollEnabled = false
+        collecitonview.isScrollEnabled = false
         collecitonview.automaticallyAdjustsScrollIndicatorInsets = false
         return collecitonview
     }()

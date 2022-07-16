@@ -20,6 +20,7 @@
 		1ACB9EFF2875BBBF00E0BEA5 /* StoreKitTestCertificate.cer in Resources */ = {isa = PBXBuildFile; fileRef = 1ACB9EFE2875BBBF00E0BEA5 /* StoreKitTestCertificate.cer */; };
 		1ACB9F012875CAC600E0BEA5 /* SubscriptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ACB9F002875CAC600E0BEA5 /* SubscriptionViewController.swift */; };
 		1ACB9F042875D88D00E0BEA5 /* earth.json in Resources */ = {isa = PBXBuildFile; fileRef = 1ACB9F032875D88D00E0BEA5 /* earth.json */; };
+		1ADB78AF2882689400641846 /* CustomCalloutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ADB78AE2882689400641846 /* CustomCalloutView.swift */; };
 		1AE0BD5F28681B02000F45A7 /* selectLocationMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AE0BD5E28681B02000F45A7 /* selectLocationMapViewController.swift */; };
 		1AE7CC90287933A8009F8BBF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AE7CC8F287933A8009F8BBF /* StoreKit.framework */; };
 		1AEC03B628619D6D005EF02C /* FollowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEC03B528619D6D005EF02C /* FollowManager.swift */; };
@@ -86,6 +87,7 @@
 		1ACB9EFE2875BBBF00E0BEA5 /* StoreKitTestCertificate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = StoreKitTestCertificate.cer; sourceTree = "<group>"; };
 		1ACB9F002875CAC600E0BEA5 /* SubscriptionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionViewController.swift; sourceTree = "<group>"; };
 		1ACB9F032875D88D00E0BEA5 /* earth.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = earth.json; path = ../../../../Downloads/earth.json; sourceTree = "<group>"; };
+		1ADB78AE2882689400641846 /* CustomCalloutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCalloutView.swift; sourceTree = "<group>"; };
 		1AE0BD5E28681B02000F45A7 /* selectLocationMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = selectLocationMapViewController.swift; sourceTree = "<group>"; };
 		1AE7CC8F287933A8009F8BBF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		1AEC03B528619D6D005EF02C /* FollowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowManager.swift; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				1A71AFB5287FCAE1005D4883 /* MapView.swift */,
 				707F88C2284BB2350054521A /* MapCell.swift */,
 				1A71AFB7287FCB52005D4883 /* DiscriptionView.swift */,
+				1ADB78AE2882689400641846 /* CustomCalloutView.swift */,
 			);
 			path = "New Group";
 			sourceTree = "<group>";
@@ -481,6 +484,7 @@
 				707F88C3284BB2350054521A /* MapCell.swift in Sources */,
 				7052C6E4284F0B6100A16413 /* ChatRoomViewController.swift in Sources */,
 				706696CE282CC63900E8DDC1 /* SettingViewController.swift in Sources */,
+				1ADB78AF2882689400641846 /* CustomCalloutView.swift in Sources */,
 				707278EC28407579009567C1 /* FriendListViewController.swift in Sources */,
 				709433062827AE9B00A9AC3B /* ViewController.swift in Sources */,
 				707278F028407883009567C1 /* StorageManager.swift in Sources */,

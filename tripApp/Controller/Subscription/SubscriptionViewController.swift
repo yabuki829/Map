@@ -85,6 +85,12 @@ class SubscriptionViewController : UIViewController{
             }
         }
     }
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+        return true
+    }
     func addConstraint(){
         view.addSubview(backgroundImage)
         view.addSubview(animationView)

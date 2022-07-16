@@ -109,6 +109,13 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         
         
     }
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+        return true
+        
+    }
     func settingButton(){
         locationButton.addTarget(self, action: #selector(getMyLocation(sender:)), for: .touchUpInside)
         openFriendListButton.addTarget(self, action: #selector(showFriendListView(sender:)), for: .touchUpInside)

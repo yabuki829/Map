@@ -38,6 +38,9 @@ class FriendListViewController:UIViewController{
         }
     }
 
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
     func getFriendProfile(){
         //インディケーター回す
         print("取得します")

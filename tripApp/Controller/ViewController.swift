@@ -35,6 +35,14 @@ class MapViewController: UIViewController {
     var selectDiary:Discription?
     var selectImage = UIImage()
     var isReload = false
+
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        print("縦画面")
+        return .portrait
+    }
+    override var shouldAutorotate: Bool {
+        return true
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -69,18 +77,16 @@ class MapViewController: UIViewController {
     
     @objc internal func sendtoPostView(sender: UIButton) {
         let vc = PostViewController()
-       
-       
         navigationController?.pushViewController(vc, animated: true)
       }
 
     @objc func tapSettingIcon(){
         
-      
+      print("setting")
         let layout = UICollectionViewFlowLayout()
-        let nav = UINavigationController(rootViewController: SettingViewController(collectionViewLayout: layout))
-        nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion: nil)
+        let vc = SettingViewController(collectionViewLayout: layout)
+        vc.modalPresentationStyle = .fullScreen
+        navigationController?.pushViewController(vc, animated: true)
      }
     @objc func refresh(){
         print("Refreshh")
@@ -102,69 +108,14 @@ class MapViewController: UIViewController {
 }
 
 
-extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,reloadDelegate,mapCellDelegate,transitionDelegate{
-    func toEditPageWithProfileCell(){}
-    func toDetailWithDiscriptionpCell(discription: Discription, player: AVPlayer) {
-        
-        let vc = detailViewController()
-        vc.discription = discription
-        vc.player = player
-        vc.isMapVC = true
-        navigationController?.pushViewController(vc, animated: true)
-        
-//        let nav = UINavigationController(rootViewController:vc )
-//        nav.modalPresentationStyle = .fullScreen
-//        self.present(nav, animated: true, completion: nil)
-    }
-    
-
-    
-    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
-        let vc = detailViewController()
-        vc.discription = discription
-        vc.image = selectImage
-        vc.isMapVC = true
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
-
-    
-    
-    func toDetailWithMapCell(discription: Discription, player: AVPlayer) {
-        print("ここだよ動画を止めます")
-//        let vc = detailViewController()
-//        vc.discription = discription
-//        vc.player = player
-//        vc.isMapVC = true
-//        navigationController?.pushViewController(vc, animated: true)
-        let vc = detailViewController()
-        vc.discription = discription
-        vc.player = player
-        vc.isMapVC = true
-        navigationController?.pushViewController(vc, animated: true)
-        
-//        let nav = UINavigationController(rootViewController:vc )
-//        nav.modalPresentationStyle = .fullScreen
-//        self.present(nav, animated: true, completion: nil)
-    }
-    
-    func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
-        let vc = detailViewController()
-        vc.discription = discription
-        vc.image = selectImage
-        vc.isMapVC = true
-        navigationController?.pushViewController(vc, animated: true)
-    }
+extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,reloadDelegate{
    
     func scroll() {
         collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
     }
     
     
-    func toFriendList() {
-        let vc = FriendListViewController()
-        navigationController?.pushViewController(vc, animated: true)
-    }
+  
     
     func reload() {
         
@@ -211,7 +162,6 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
             cell.discriptioncell.isHome = true
             cell.viewWidth = view.frame.width
             cell.mapCell.delegateWithMapCell = self
-            
             mapAndDiscriptionCell = cell
             mapAndDiscriptionCell?.discriptioncell.delegate = self
             
@@ -446,41 +396,57 @@ class MenuView:UIView{
 }
 
 
+extension MapViewController:mapCellDelegate {
+    func toDetailWithMapCell(discription: Discription, player: AVPlayer) {
+        
+        let vc = detailViewController()
+       
+        vc.discription = discription
+        vc.player = player
+        vc.isMapVC = true
+        if mapAndDiscriptionCell?.mapCell.selectVideo.isStart == true {
+            vc.cell.videoView.startButton.isHidden = true
+            vc.cell.videoView.isStart = true
+            
+        }
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.image = selectImage
+        vc.isMapVC = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    
+}
+extension MapViewController :transitionDelegate{
+    func toEditPageWithProfileCell(){}
+    func toFriendList() {
+        let vc = FriendListViewController()
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func toDetailWithDiscriptionpCell(discription: Discription, player: AVPlayer) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.player = player
+        vc.isMapVC = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
 
-/*
- 同じ
- みつかりました!!!!!!!!!!!!!!!!!!!!!!!!!!
- 1回目--------------------------------------------
- 止める必要なし
- -----------------------
- -----------------------
- 同じ
- みつかりました!!!!!!!!!!!!!!!!!!!!!!!!!!
- 2回目以降--------------------------------------------
- stoppppppp Optional(<AVPlayer: 0x2839fa090>)
- stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
- -----------------------
- 同じ
- みつかりました!!!!!!!!!!!!!!!!!!!!!!!!!!
- 3回目以降--------------------------------------------
- stoppppppp Optional(<AVPlayer: 0x2839fa090>)
- stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
- stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
+    
+    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
+        let vc = detailViewController()
+        vc.discription = discription
+        vc.image = selectImage
+        vc.isMapVC = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+}
 
- 
- 3回目以降--------------------------------------------
- stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
- stoppppppp Optional(<AVPlayer: 0x2839fa090>)
- 
- 3回目以降--------------------------------------------
- stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
- stoppppppp Optional(<AVPlayer: 0x2839fa090>)
- ここだよ動画を止めます
- 
-↓ 止まらない
- 3回目以降--------------------------------------------
- stoppppppp Optional(<AVPlayer: 0x2839fa090>)
- stoppppppp Optional(<AVPlayer: 0x2839b92e0>)
- ここだよ動画を止めます
 
- */

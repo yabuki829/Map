@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate ,MessagingDelegate, UNUser
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         //firebse
+        var restrictRotation:UIInterfaceOrientationMask = .portrait
         FirebaseApp.configure()
 //        Messaging.messaging().delegate = self
 //        //通知

@@ -77,6 +77,12 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
             wordCountLabel.text =  "\(textView.text.count) / 80"
         }
     }
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .portrait
+     }
+    override var shouldAutorotate: Bool {
+                return true
+    }
     override func viewDidLoad() {
         view.backgroundColor = .white
        
@@ -159,7 +165,7 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     }
     @objc func back(sender : UIButton){
         print("Back")
-        self.navigationController?.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
