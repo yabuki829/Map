@@ -158,6 +158,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
         if isMapVC {
             self.navigationController?.dismiss(animated: true, completion: nil)
         }
+        cell.videoView.stop()
         self.navigationController?.popViewController(animated: true)
 
     }
@@ -308,9 +309,9 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                 FirebaseManager.shered.deleteDiscription(postID: self.discription!.id)
         
                 if discription!.type == "image"{
-                    StorageManager.shered.deleteDiscriptionImage(image: self.discription!.image)
+                    StorageManager.shered.deleteDiscriptionImage(image: self.discription!.data)
                 }else{
-                    StorageManager.shered.deleteDiscriptionVideo(video: discription!.image)
+                    StorageManager.shered.deleteDiscriptionVideo(video: discription!.data)
                 }
                 
                 //前の画面がmapなのかprofileなのかで処理がかわる
@@ -351,8 +352,7 @@ extension detailViewController:profileCellDelegate {
             vc.videoView.startButton.isHidden = true
         }
         vc.modalPresentationStyle = .fullScreen
-        vc.transitioningDelegate = customTransition
-        self.present(vc, animated: true, completion: nil)
+        present(vc, animated: true, completion: nil)
     }
     
     func toDetail(image: UIImage) {
@@ -422,10 +422,11 @@ class VideoViewController:UIViewController {
         //前の画面に戻る
         print("back")
         self.presentingViewController?.dismiss(animated: true, completion: nil)
+//        dismiss(animated: true, completion: nil)
     }
 }
 
-
+//詳細画面からビデオ画面への遷移
 class DetailtoVideoViewContorllerTransition: NSObject, UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning{
     class var sharedInstance : DetailtoVideoViewContorllerTransition {
         struct Static {

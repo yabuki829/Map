@@ -15,15 +15,17 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     var discriptionList : [Discription]?{
         didSet{
             if isHome {
-             
                 if discriptionList?.count != 0{
                     emptyLabel.isHidden = true
                     collectionView.isHidden = false
                     collectionView.reloadData()
                 }
                 else{
-                    print("")
+                    print("投稿はありません")
                     emptyLabel.text = "投稿がありません"
+                    emptyLabel.isHidden = false
+                    collectionView.isHidden = true
+                    collectionView.reloadData()
                 }
             }
             
@@ -32,6 +34,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
                     emptyLabel.text = "投稿がありません"
                     emptyLabel.isHidden = false
                     collectionView.isHidden = true
+                    collectionView.reloadData()
                 }
                 else{
                     emptyLabel.isHidden = true
@@ -79,13 +82,20 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if DataManager.shere.getSubScriptionState() {
+            if discriptionList!.count > 10{
+                return 10
+            }
             return discriptionList!.count
         }
         else {
             if isHome{
+                if discriptionList!.count > 10{
+                    return 10 + 3
+                }
                 return discriptionList!.count + 3
             }
             else{
+               
                 return discriptionList!.count
             }
         }

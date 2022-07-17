@@ -123,6 +123,7 @@ class StorageManager{
                 return
             }
         print("2")
+ 
         videoRef.putData(videoData, metadata: nil) {   (_, error) in
             if let error = error {
                 print("1.エラー",error)

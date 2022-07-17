@@ -37,8 +37,8 @@ class profileViewController:UICollectionViewController{
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        mapAndDiscriptionCell?.mapCell.setData()
-        mapAndDiscriptionCell?.discriptioncell.collectionView.reloadData()
+//        mapAndDiscriptionCell?.mapCell.setData()
+//        mapAndDiscriptionCell?.discriptioncell.collectionView.reloadData()
         if isMyProfile && isReload {
             myprofile = DataManager.shere.getMyProfile()
             discriptionList = DataManager.shere.get().reversed()
@@ -191,7 +191,7 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
             
             mapAndDiscriptionCell = cell
             mapAndDiscriptionCell?.mapCell.delegateWithMapCell = self
-            
+            mapAndDiscriptionCell?.mapCell.isProfile = true
             return cell
         }
     }

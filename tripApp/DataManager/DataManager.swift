@@ -21,7 +21,7 @@ class DataManager{
     
     func getDiscriptionSince48Hours() -> [Discription]{
         let disc = get()
-        let date = Calendar.current.date(byAdding: .hour, value: 48, to: Date())!
+        let date = Calendar.current.date(byAdding: .hour, value: 24, to: Date())!
         var modifiedDisc = [Discription]()
         for i in 0..<disc.count{
             if date >= disc[i].created{
@@ -64,9 +64,7 @@ class DataManager{
     //サブスクの状態を返す
     func getSubScriptionState()-> Bool{
         let isResult = false
-        
         if let isSubscrive = userDefaults.bool(forKey: "isSubscribe") as? Bool{
-            
             return isSubscrive
         }
         return isResult

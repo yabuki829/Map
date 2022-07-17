@@ -228,7 +228,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                                        userid: userid,
                                        text:   textView.text,
                                        location: location,
-                                       image: ProfileImage(url:result.url, name: result.name),
+                                       data: ProfileImage(url:result.url, name: result.name),
                                        created: Date(), type: "video")
                 var data = DataManager.shere.get()
                 data.append(disc)
@@ -255,7 +255,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                                        userid: userid,
                                        text:   textView.text,
                                        location: location,
-                                       image: ProfileImage(url:result.url, name: result.name),
+                                       data: ProfileImage(url:result.url, name: result.name),
                                        created: Date(), type: "image")
                 
                 var data = DataManager.shere.get()
@@ -532,7 +532,6 @@ extension PostViewController:CropViewControllerDelegate{
                 }
             }
         }
-//        guard let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else{ return }
         
 
         

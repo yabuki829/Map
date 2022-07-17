@@ -34,7 +34,7 @@ class DiscriptionImageCell:UICollectionViewCell{
                              left: self.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
                              right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
                              bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
-            imageView.setImage(urlString: discription!.image.url)
+            imageView.setImage(urlString: discription!.data.url)
         }
         else{
             print("VideoView")
@@ -43,9 +43,8 @@ class DiscriptionImageCell:UICollectionViewCell{
                              left: self.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
                              right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
                              bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
-            videoView.loadVideo(urlString: discription!.image.url)
+            videoView.loadVideo(urlString: discription!.data.url)
             videoView.setup()
-            videoView.setupVideoTap()
         }
         
        

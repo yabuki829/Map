@@ -45,11 +45,10 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     var selectImage = UIImage()
     var imageViewArray = [uiimageData]()
     var videoArray = [videoData]()
-    var selectIndex :Int?
-    var preIndex: Int?
+    
     var selectVideo = VideoPlayer()
     var preVideo = VideoPlayer()
-    
+    var isProfile = false
     
     
     
@@ -125,16 +124,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
        print("zoomout")
         
     }
-   
-    func getData(){
-        print("取得します")
-        descriptionList!.removeAll()
-        FirebaseManager.shered.getDiscription(userid:FirebaseManager.shered.getMyUserid() ) { (result) in
-            print("完了",result.count)
-            self.descriptionList = DataManager.shere.get()
-            self.setData()
-        }   
-    }
+
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         //viewtitle と discriptionの　titleが同じ
        
@@ -173,9 +163,6 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                                 
                                 preVideo = selectVideo
                                 selectVideo = videoArray[j].video
-//                                videoArray[selectIndex!].video.stop()
-//                                preIndex = selectIndex
-//                                selectIndex = j
                                
                                 break
                                 
@@ -220,6 +207,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        print(annotation.subtitle,"---------------pinの設定をしています--------------")
         if annotation is MKUserLocation {
             return nil
         }
@@ -236,7 +224,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             let stackview = setStackView()
             let tapStackView = UITapGestureRecognizer(target: self, action: #selector(sendtoDetailView(sender:)))
             let imageView = UIImageView()
-            let videoView = VideoPlayer()
+            var videoView = VideoPlayer()
             stackview.addGestureRecognizer(tapStackView)
         
             if FirebaseManager.shered.getMyUserid() != descriptionList![i].userid {
@@ -246,10 +234,12 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             
             if descriptionList![i].type == "video"{
                 //動画
-                videoView.loadVideo(urlString:descriptionList![i].image.url)
-                videoView.setup()
-                videoView.setupVideoTap()
-                videoArray.append(videoData(postId:descriptionList![i].id , video: videoView))
+                for j in 0..<videoArray.count{
+                    if descriptionList![i].id == videoArray[j].postId {
+                        videoView = videoArray[j].video
+                    }
+                }
+               
                 let button = UIButton()
                     button.setTitle("＞＞", for: .normal)
                     button.setTitleColor(.darkGray, for: .normal)
@@ -263,11 +253,14 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                 videoView.anchor(width:viewWidth / 3 * 2, height:  viewWidth / 3 * 2)
                 let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 3 * 2 )
                        stackview.addConstraint(widthConstraint)
-                pinView.detailCalloutAccessoryView = stackview
+//                DispatchQueue.main.async {
+                    pinView.detailCalloutAccessoryView = stackview
+//                }
+               
             }
             else{
                 // 画像
-                imageView.setImage(urlString: descriptionList![i].image.url) { [self] image in
+                imageView.setImage(urlString: descriptionList![i].data.url) { [self] image in
                     let imageView = UIImageView()
                     
                     if  image != nil {
@@ -299,15 +292,14 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                             
                         }
                         else{
-                            print("画像エラー", descriptionList![i].image.url,descriptionList![i].image.name,image)
+                            print("画像エラー", descriptionList![i].data.url,descriptionList![i].data.name,image)
                         
                         }
                 
                     }
-            }
-
-         
-            }
+                }
+            
+        }
 
         
         }
@@ -337,21 +329,51 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     func setData(){
         //ピンがあれば,まずすべて取り除く
         mapView.removeAnnotations(mapView.annotations)
-       
+        
         for i in 0..<descriptionList!.count{
-            let annotation = MKPointAnnotation()
+            if isProfile {
+               
+                let annotation = MKPointAnnotation()
+                if descriptionList![i].location != nil{
+                    annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
+                    annotation.subtitle = descriptionList![i].text + descriptionList![i].created.covertString()
+                    self.mapView.addAnnotation(annotation)
+                    let videoView = VideoPlayer()
+                    videoView.loadVideo(urlString:self.descriptionList![i].data.url)
+                    videoView.setup()
+                    videoView.setupVideoTap()
+                    
+                    DispatchQueue.main.async {
+                        self.videoArray.append(videoData(postId:self.descriptionList![i].id , video: videoView))
+                    }
+                }
+            }
+            else{
+                if i < 10{
+                    let annotation = MKPointAnnotation()
+                    if descriptionList![i].location != nil{
+                        annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
+            //               annotation.title = descriptionList![i].created.covertString()
+                        annotation.subtitle = descriptionList![i].text + descriptionList![i].created.covertString()
+                        self.mapView.addAnnotation(annotation)
+                        let videoView = VideoPlayer()
+                        videoView.loadVideo(urlString:self.descriptionList![i].data.url)
+                        videoView.setup()
+                        videoView.setupVideoTap()
+                        DispatchQueue.main.async {
+                            self.videoArray.append(videoData(postId:self.descriptionList![i].id , video: videoView))
+                        }
+                            
+                        }
+                }
+            }
             
-            if descriptionList![i].location != nil{
-                annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
-//                annotation.title = descriptionList![i].created.covertString()
-                annotation.subtitle = descriptionList![i].text + descriptionList![i].created.covertString()
-                self.mapView.addAnnotation(annotation)
             }
         }
-    }
+}
 
    
-}
+
 
 
 

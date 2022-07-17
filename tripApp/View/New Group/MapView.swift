@@ -234,7 +234,7 @@ class MapView:baseView,MKMapViewDelegate,CLLocationManagerDelegate{
             
             if descriptionList![i].type == "video"{
                 //動画
-                videoView.loadVideo(urlString:descriptionList![i].image.url)
+                videoView.loadVideo(urlString:descriptionList![i].data.url)
                 videoView.setup()
                 videoView.setupVideoTap()
                 videoArray.append(videoData(postId:descriptionList![i].id , video: videoView))
@@ -255,7 +255,7 @@ class MapView:baseView,MKMapViewDelegate,CLLocationManagerDelegate{
             }
             else{
                 // 画像
-                imageView.setImage(urlString: descriptionList![i].image.url) { [self] image in
+                imageView.setImage(urlString: descriptionList![i].data.url) { [self] image in
                     let imageView = UIImageView()
                     
                     if  image != nil {
@@ -287,7 +287,7 @@ class MapView:baseView,MKMapViewDelegate,CLLocationManagerDelegate{
                             
                         }
                         else{
-                            print("画像エラー", descriptionList![i].image.url,descriptionList![i].image.name,image)
+                            print("画像エラー", descriptionList![i].data.url,descriptionList![i].data.name,image)
                         
                         }
                 

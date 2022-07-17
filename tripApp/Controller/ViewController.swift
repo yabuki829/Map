@@ -63,9 +63,6 @@ class MapViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         print("viewWillAppear")
-//        collectionView.reloadData()
-//        mapAndDiscriptionCell?.mapCell.setData() 
-        mapAndDiscriptionCell?.discriptioncell.collectionView.reloadData()
         
         if isReload {
             print("getdiscription")
@@ -164,6 +161,7 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
             cell.mapCell.delegateWithMapCell = self
             mapAndDiscriptionCell = cell
             mapAndDiscriptionCell?.discriptioncell.delegate = self
+          
             
             return cell
             
@@ -325,11 +323,11 @@ class articleCell:UICollectionViewCell{
         discription = disc
         getProfile(userid: disc.userid)
         if disc.type == "image" {
-            imageView.setImage(urlString: disc.image.url)
+            imageView.setImage(urlString: disc.data.url)
             contentView.addSubview(imageView)
         }
         else{
-            videoView.loadVideo(urlString:disc.image.url)
+            videoView.loadVideo(urlString:disc.data.url)
             videoView.setup()
 //            videoView.setupVideoTap()
         }

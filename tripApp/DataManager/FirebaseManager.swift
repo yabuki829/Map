@@ -287,6 +287,7 @@ class FirebaseManager{
         let friendList = FollowManager.shere.getFollow()
         print("friend",friendList)
         var receiver = [String]()
+        
         for i in 0..<friendList.count{
             let frienduserid = friendList[i].userid
             if friendList[i].isSend{
@@ -297,8 +298,8 @@ class FirebaseManager{
                         "text":disc.text,
                         "latitude":disc.location?.latitude as Any,"longitude":disc.location?.longitude as Any,
                         "created":FieldValue.serverTimestamp(),
-                        "imageurl":disc.image.url,
-                        "imagename":disc.image.name,
+                        "imageurl":disc.data.url,
+                        "imagename":disc.data.name,
                         "type":disc.type
                         
                     ]
@@ -314,8 +315,8 @@ class FirebaseManager{
                      "text":disc.text,
                      "latitude":disc.location?.latitude as Any,"longitude":disc.location?.longitude as Any,
                      "created":FieldValue.serverTimestamp(),
-                     "imageurl":disc.image.url,
-                     "imagename":disc.image.name,
+                     "imageurl":disc.data.url,
+                     "imagename":disc.data.name,
                      "receiverList":receiver,
                      "type":disc.type
                      
@@ -355,7 +356,7 @@ class FirebaseManager{
                                                userid: userid as! String,
                                                text: text as! String,
                                                location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                               image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
+                                               data: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
                         discriptionList.append(disc)
                         
                     }
@@ -396,7 +397,7 @@ class FirebaseManager{
                                            userid: userid as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                           image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
+                                           data: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
                 
                         discriptionList.append(disc)
                     
@@ -422,7 +423,7 @@ class FirebaseManager{
         //一年以内の投稿を取得する
         //全てを取得する
         
-        let modifiedDate = Calendar.current.date(byAdding: .hour, value: -48, to: Date())!
+        let modifiedDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date())!
         let timeStamp = Timestamp(date: modifiedDate)
         
         database.collection("Users").document(userid).collection("FriendDiscription").whereField("created", isGreaterThan: timeStamp).order(by:"created", descending: false).getDocuments{ (snapshot, error) in
@@ -447,7 +448,7 @@ class FirebaseManager{
                                            userid: userid as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                           image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
+                                           data: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
                     
                     if FollowManager.shere.isFollow(userid: userid as! String) && !FollowManager.shere.isBlock(userid: userid as! String){
                         
@@ -633,7 +634,7 @@ extension FirebaseManager {
                                            userid: userid as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                           image: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: "image")
+                                           data: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: "image")
                     adDiscriptionList.append(disc)
                 }
                 
