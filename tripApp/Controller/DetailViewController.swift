@@ -28,12 +28,16 @@ class detailViewController:UIViewController{
     var textFieldViewBottomConstraint: NSLayoutConstraint!
     let tableView = UITableView()
     var commentList = [Comment]()
-    var player = AVPlayer()
+    var player: AVPlayer? {
+        didSet{}
+    }
     var subheight = CGFloat()
     var isMapVC = false
     var isProfile = false
     
     override func viewDidLoad() {
+        
+
         view.backgroundColor = .white
         view.addSubview(tableView)
         view.addSubview(fieldView)
@@ -175,7 +179,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                 cell.discImageView.image = image
             }
             else {
-                cell.videoView.player = player
+                cell.videoView.player = player!
                 cell.videoView.updateSlider()
             }
 

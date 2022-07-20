@@ -187,7 +187,10 @@ extension UITextField {
 
 
 let imageCache = NSCache<AnyObject, UIImage>()
-
+extension AVPlayer {
+    func loadVideo(urlString:String){
+    }
+}
 extension UIImageView{
     
     func setImage(urlString:String){
@@ -214,43 +217,7 @@ extension UIImageView{
         }
         
     }
-    
-//    func loadImageUsingUrlString(urlString:String){
-//        image = nil
-//        let url = URL(string: urlString)
-//        var request = URLRequest(url: url!)
-//        request.httpMethod = "GET"
-//            
-//        let task = URLSession.shared.dataTask(with: url!) {  (data, response, error) in
-//            if error != nil{
-//                return
-//            }
-//            DispatchQueue.main.async {
-//                self.image = UIImage(data: data!)
-//            }
-//          
-//        }
-//        task.resume()
-//    }
-//    func loadImageUsingUrlString(urlString:String,compleation:@escaping (UIImage?) -> Void){
-//        image = nil
-//        let url = URL(string: urlString)
-//        var request = URLRequest(url: url!)
-//        request.httpMethod = "GET"
-//
-//        let task = URLSession.shared.dataTask(with: url!) {  (data, response, error) in
-//            if error != nil{
-//                compleation(nil)
-//                return
-//            }
-//            DispatchQueue.main.async {
-//                self.image = UIImage(data: data!)
-//                compleation(self.image)
-//            }
-//
-//        }
-//        task.resume()
-//    }
+
 }
 
 
@@ -331,8 +298,26 @@ extension UIView{
         anchor(top: topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: bottomAnchor)
     }
 }
+import AVFoundation
+import AVKit
 
+extension AVAsset {
 
+    func generateThumbnail(completion: @escaping (UIImage?) -> Void) {
+        DispatchQueue.global().async {
+            let imageGenerator = AVAssetImageGenerator(asset: self)
+            let time = CMTime(seconds: 0.0, preferredTimescale: 600)
+            let times = [NSValue(time: time)]
+            imageGenerator.generateCGImagesAsynchronously(forTimes: times, completionHandler: { _, image, _, _, _ in
+                if let image = image {
+                    completion(UIImage(cgImage: image, scale: 0, orientation: .right))
+                } else {
+                    completion(nil)
+                }
+            })
+        }
+    }
+}
 
 extension String {
 

@@ -148,12 +148,15 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     @objc internal func Follow(sender: UIButton) {
         print("Follow")
         //userdefaultsにuseridを保存する
+        //フレンドの人数を確認 10人いれば　サブスク画面に遷移する
+        
         if profile?.userid != "" || profile?.userid.isEmpty == false{
             print("Followします")
             FollowManager.shere.follow(userid: profile!.userid)
             FirebaseManager.shered.follow(friendid: profile!.userid)
-            followButton.setTitle("友達になりました", for: .normal)
+            followButton.setTitle("友達です", for: .normal)
             followButton.isEnabled = false
+            self.navigationController?.dismiss(animated: true, completion: nil)
         }
     }
     @objc func showFriendId(){

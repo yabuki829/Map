@@ -36,7 +36,7 @@ class MathManager{
     func calcAspectRation(_ width: Double,_ height: Double, gcd:Int) -> ascpectRation {
         let a = Int(width) / gcd
         let b = Int(height) / gcd
-        print(a,b)
+       
         return ascpectRation(x: a, y: b)
     }
     //widthの何倍なのか
@@ -50,7 +50,7 @@ class MathManager{
         b = Double(aspectRation.y)
       
         let times = floor(b / a * 100)  / 100
-        print("times",times)
+     
         return times
     }
     

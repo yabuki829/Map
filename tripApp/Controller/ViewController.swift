@@ -28,7 +28,7 @@ class MapViewController: UIViewController {
         return cv
     }()
     var menuCell:MenuCell?
-    var mapAndDiscriptionCell:MapAndDiscriptionCell?
+    var mapCell:MapCell?
     let refresher = UIRefreshControl()
     var locationManager:CLLocationManager!
     var discriptipns = [Discription]()
@@ -66,10 +66,21 @@ class MapViewController: UIViewController {
         
         if isReload {
             print("getdiscription")
+            mapCell!.imageViewArray.removeAll()
+            mapCell!.selectVideo.player = nil
+            mapCell!.preVideo.player = nil
+            
             getDiscription()
             isReload = false
         }
         
+    }
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(true)
+        if  mapCell!.selectVideo.player != nil {
+            mapCell!.selectVideo.stop()
+        }
+       
     }
     
     @objc internal func sendtoPostView(sender: UIButton) {
@@ -94,7 +105,6 @@ class MapViewController: UIViewController {
         discriptipns = []
         
         FirebaseManager.shered.getFriendDiscription { [self] result in
-            print(discriptipns.count)
             refresher.endRefreshing()
             discriptipns.append(contentsOf: result)
             collectionView.reloadData()
@@ -105,72 +115,46 @@ class MapViewController: UIViewController {
 }
 
 
-extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,reloadDelegate{
+extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
    
-    func scroll() {
-        collectionView.scrollToItem(at:IndexPath(row: 2, section: 0) , at: .centeredVertically, animated: true)
-    }
+
     
     
   
     
-    func reload() {
-        
-        if menuCell?.selectedIndexPath?.row == 0{
-            print("reload MapCell")
-            if mapAndDiscriptionCell?.mapCell.selectVideo.player !=  nil {
-                print("videoStop")
-                    //止まらない
-                mapAndDiscriptionCell?.mapCell.selectVideo.stop()
-            }
-            mapAndDiscriptionCell?.collectionView.scrollToItem(at:IndexPath(row: 0, section: 0) , at: .centeredHorizontally, animated: true)
-        }
-        else{
-            print("reload DiscriptionCell")
-            if mapAndDiscriptionCell?.mapCell.selectVideo.player !=  nil {
-                print("videoStop")
-                    //止まらない
-                mapAndDiscriptionCell?.mapCell.selectVideo.stop()
-            }
-            mapAndDiscriptionCell?.collectionView.scrollToItem(at:IndexPath(row: 1, section: 0) , at: .centeredHorizontally, animated: true)
-        }
-    }
+  
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return 1
     }
 
     
    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     
-        if indexPath.row == 0{
-            // Profile
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MenuCell", for: indexPath) as! MenuCell
-            cell.delegate = self
-            cell.menuBarTitleArray = ["map","house"]
-            menuCell = cell
-            return cell
-        }
-        else{
-            print("MapAndDiscriptionCell")
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MapAndDiscriptionCell", for: indexPath) as! MapAndDiscriptionCell
-            cell.discriptionList = discriptipns
-            cell.discriptioncell.isHome = true
-            cell.viewWidth = view.frame.width
-            cell.mapCell.delegateWithMapCell = self
-            mapAndDiscriptionCell = cell
-            mapAndDiscriptionCell?.discriptioncell.delegate = self
+//        if indexPath.row == 1{
+//            // Profile
+//
+//            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MenuCell", for: indexPath) as! MenuCell
+//            cell.delegate = self
+//            cell.menuBarTitleArray = ["house","map"]
+//            menuCell = cell
+//            return cell
+//        }
+//        else{
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MapCell", for: indexPath) as! MapCell
           
-            
+            cell.descriptionList = discriptipns
+            cell.viewWidth =  view.frame.width
+            cell.delegateWithMapCell = self
+       mapCell = cell
             return cell
             
-        }
+//        }
      
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if indexPath.row == 0{
+        if indexPath.row == 1{
             // Profile
             return CGSize(width: view.frame.width, height: 30)
         }
@@ -181,7 +165,7 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
             let tabbarHeight = tabBarController?.tabBar.frame.size.height ?? 83
             let height = view.frame.height - statusBarHeight - navigationBarHeight - tabbarHeight
             print("height",height)
-            return CGSize(width: view.frame.width, height:height - 25) //25でなく30にするとリフレッシュがしにくい
+            return CGSize(width: view.frame.width, height:height ) //25でなく30にするとリフレッシュがしにくい
         }
        
     }
@@ -216,8 +200,7 @@ extension MapViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(MenuCell.self, forCellWithReuseIdentifier: "MenuCell")
-        collectionView.register(MapAndDiscriptionCell.self, forCellWithReuseIdentifier: "MapAndDiscriptionCell")
-       
+        collectionView.register(MapCell.self, forCellWithReuseIdentifier: "MapCell")
         refresher.addTarget(self, action: #selector(refresh), for: .valueChanged)
         collectionView.addSubview(refresher)
         
@@ -248,7 +231,6 @@ class articleCell:UICollectionViewCell{
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .white
         imageView.contentMode = .scaleToFill
-//        imageView.image = UIImage(named: "background")
         return imageView
     }()
     
@@ -257,7 +239,6 @@ class articleCell:UICollectionViewCell{
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .black
         imageView.contentMode = .scaleAspectFit
-//        imageView.image = UIImage(named: "background")
         return imageView
     }()
     
@@ -322,14 +303,16 @@ class articleCell:UICollectionViewCell{
     func setCell(disc:Discription){
         discription = disc
         getProfile(userid: disc.userid)
+        
         if disc.type == "image" {
+            imageView.image = UIImage()
             imageView.setImage(urlString: disc.data.url)
-            contentView.addSubview(imageView)
         }
         else{
+            videoView.player = AVPlayer()
             videoView.loadVideo(urlString:disc.data.url)
             videoView.setup()
-//            videoView.setupVideoTap()
+            videoView.startButton.isEnabled = false
         }
        
         addConstraint()
@@ -396,17 +379,13 @@ class MenuView:UIView{
 
 extension MapViewController:mapCellDelegate {
     func toDetailWithMapCell(discription: Discription, player: AVPlayer) {
-        
+        print("遷移mapから")
         let vc = detailViewController()
        
         vc.discription = discription
-        vc.player = player
         vc.isMapVC = true
-        if mapAndDiscriptionCell?.mapCell.selectVideo.isStart == true {
-            vc.cell.videoView.startButton.isHidden = true
-            vc.cell.videoView.isStart = true
-            
-        }
+        vc.player = player
+//        mapCell!.selectVideo.stop()
         navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -421,6 +400,7 @@ extension MapViewController:mapCellDelegate {
     
 }
 extension MapViewController :transitionDelegate{
+    func scroll() {}
     func toEditPageWithProfileCell(){}
     func toFriendList() {
         let vc = FriendListViewController()
@@ -428,9 +408,15 @@ extension MapViewController :transitionDelegate{
     }
     
     func toDetailWithDiscriptionpCell(discription: Discription, player: AVPlayer) {
+        print("遷移")
         let vc = detailViewController()
         vc.discription = discription
         vc.player = player
+  
+        if mapCell!.selectVideo.isStart == true {
+            vc.cell.videoView.startButton.isHidden = true
+            vc.cell.videoView.isStart = true
+        }
         vc.isMapVC = true
         navigationController?.pushViewController(vc, animated: true)
     }

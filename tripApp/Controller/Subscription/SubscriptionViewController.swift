@@ -52,7 +52,7 @@ class SubscriptionViewController : UIViewController{
     }()
     let priceLabel:UILabel = {
         let label = UILabel()
-        label.text = "1ヶ月180円でご利用いただけます"
+        label.text = "1ヶ月250円でご利用いただけます"
         label.textAlignment = .center
         label.textColor = .darkGray
         label.font =  UIFont.systemFont(ofSize: 12)
@@ -148,10 +148,12 @@ class SubscriptionViewController : UIViewController{
 //
         let label2 = UILabel()
 //        label2.textColor = .white
-        label2.text = "1. 友達数の制限が5人から無制限に"
+        label2.text = "1. 友達数の制限が10人から無制限に"
+        label2.font = UIFont.systemFont(ofSize: 12)
         stackView.addArrangedSubview(label2)
         
         let label3 = UILabel()
+        label3.font = UIFont.systemFont(ofSize: 12)
         label3.text = "2. 広告が非表示に"
 //        label3.textColor = .white
         stackView.addArrangedSubview(label3)

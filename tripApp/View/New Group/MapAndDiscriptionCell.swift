@@ -53,7 +53,7 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
                               bottom: bottomAnchor, paddingBottom: 0.0)
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return 1
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: self.frame.width, height: self.frame.height)
@@ -63,7 +63,6 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
         if indexPath.row == 0{
             mapCell.descriptionList = discriptionList!
             mapCell.viewWidth = viewWidth
-            
             return mapCell
         }
         else{

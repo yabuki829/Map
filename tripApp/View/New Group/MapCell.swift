@@ -23,7 +23,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     weak var delegateWithMapCell:mapCellDelegate? = nil
     let menuButton: UIButton = {
         let button = UIButton()
-        button.setBackgroundImage(UIImage(systemName: "map"), for: .normal)
+        button.setBackgroundImage(UIImage(systemName: "square.2.stack.3d.bottom.filled"), for: .normal)
         button.tintColor = .lightGray
         return button
     }()
@@ -143,7 +143,10 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                         if descriptionList![i].id == imageViewArray[j].postId{
                             print("みつかりました")
                             selectImage = imageViewArray[j].image
-                            
+                            if selectVideo.player != nil {
+                                selectVideo.stop()
+                            }
+                           
                             break
                         }
                     }
@@ -179,13 +182,15 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                     }
                 }
                 
-                if mapView.region.span.latitudeDelta > 0.00015 {
-                    let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 0.21, longitude: (view.annotation?.coordinate.longitude)! )
-                    let span = MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+//                if mapView.region.span.latitudeDelta > 0.00015 {
+                    let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 10, longitude: (view.annotation?.coordinate.longitude)! )
+                
+//                let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)!, longitude: (view.annotation?.coordinate.longitude)! )
+                let span = MKCoordinateSpan(latitudeDelta: 50, longitudeDelta: 50)
                         let region = MKCoordinateRegion(center: aa, span: span)
                         mapView.setRegion(region, animated: true)
                         
-                }
+//                }
                 
                 break
             }
@@ -207,7 +212,6 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        print(annotation.subtitle,"---------------pinの設定をしています--------------")
         if annotation is MKUserLocation {
             return nil
         }
@@ -320,8 +324,6 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, selectImage: selectImage)
         }
         else{
-          
-//            delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, player: videoArray[selectIndex!].video.player!)
             delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, player: selectVideo.player!)
             
         }
@@ -329,47 +331,27 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     func setData(){
         //ピンがあれば,まずすべて取り除く
         mapView.removeAnnotations(mapView.annotations)
-        
+        print("-------------------------------setData------------------------------")
         for i in 0..<descriptionList!.count{
-            if isProfile {
-               
                 let annotation = MKPointAnnotation()
                 if descriptionList![i].location != nil{
                     annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
                     annotation.subtitle = descriptionList![i].text + descriptionList![i].created.covertString()
-                    self.mapView.addAnnotation(annotation)
+                 
                     let videoView = VideoPlayer()
-                    videoView.loadVideo(urlString:self.descriptionList![i].data.url)
+                    videoView.loadVideo(urlString:self.descriptionList![i].data.url )
+//                    videoView.indicator.stopAnimating()
                     videoView.setup()
                     videoView.setupVideoTap()
-                    
-                    DispatchQueue.main.async {
-                        self.videoArray.append(videoData(postId:self.descriptionList![i].id , video: videoView))
-                    }
-                }
-            }
-            else{
-                if i < 10{
-                    let annotation = MKPointAnnotation()
-                    if descriptionList![i].location != nil{
-                        annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
-            //               annotation.title = descriptionList![i].created.covertString()
-                        annotation.subtitle = descriptionList![i].text + descriptionList![i].created.covertString()
-                        self.mapView.addAnnotation(annotation)
-                        let videoView = VideoPlayer()
-                        videoView.loadVideo(urlString:self.descriptionList![i].data.url)
-                        videoView.setup()
-                        videoView.setupVideoTap()
-                        DispatchQueue.main.async {
-                            self.videoArray.append(videoData(postId:self.descriptionList![i].id , video: videoView))
-                        }
-                            
-                        }
+                    self.videoArray.append(videoData(postId:self.descriptionList![i].id , video: videoView))
+                    self.mapView.addAnnotation(annotation)
+                        
                 }
             }
             
-            }
-        }
+         
+        print("完了")
+    }
 }
 
    

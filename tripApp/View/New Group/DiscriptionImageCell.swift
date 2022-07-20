@@ -44,6 +44,7 @@ class DiscriptionImageCell:UICollectionViewCell{
                              right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
                              bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
             videoView.loadVideo(urlString: discription!.data.url)
+            videoView.startButton.isEnabled = false
             videoView.setup()
         }
         

@@ -8,29 +8,31 @@
 import Foundation
 import AVFoundation
 import UIKit
-
+import PKHUD
 class VideoPlayer: UIView {
     var isStart = false
-    
     var player: AVPlayer? {
         get {
+            print("get")
             return playerLayer.player
         }
         set {
+            print("setsetsetsetsetsetsetsetsetsetsetsetset")
             playerLayer.player = newValue
         }
     }
     var playerLayer: AVPlayerLayer {
-          return layer as! AVPlayerLayer
-      }
+        layer.frame  = self.frame
+        return layer as! AVPlayerLayer
+    }
     override static var layerClass: AnyClass {
            return AVPlayerLayer.self
-       }
+    }
     let startButton: UIButton = {
         let button = UIButton()
         button.setBackgroundImage(UIImage(systemName: "play.fill"), for: .normal)
         button.tintColor = .white
-        
+        button.isHidden = true
         return button
     }()
     
@@ -59,6 +61,7 @@ class VideoPlayer: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+      
         self.backgroundColor = .black
         player?.automaticallyWaitsToMinimizeStalling = false
         player?.addObserver(self, forKeyPath: "timeControlStatus", options: .new, context: nil)
@@ -86,13 +89,14 @@ class VideoPlayer: UIView {
     }
     
     func setup(){
+        
         self.addSubview(startButton)
         startButton.center(inView: self)
         startButton.addTarget(self, action: #selector(closeImage(sender:)), for: .touchDown)
 //        player?.addObserver(self, forKeyPath: "timeControlStatus", options: .new, context: nil)
         if isStart {
             startButton.isHidden = true
-            
+
         }
         else {
             startButton.isHidden = false
@@ -105,10 +109,11 @@ class VideoPlayer: UIView {
         NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidReachEnd(_:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
     }
     func setupSlider(){
+
         self.addSubview(videoLengthLabel)
         self.addSubview(currntLengthLabel)
         self.addSubview(slider)
-    
+        
         videoLengthLabel.anchor(right: safeAreaLayoutGuide.rightAnchor, paddingRight: 8,
                                 bottom: safeAreaLayoutGuide.bottomAnchor, paddingBottom: 8)
         
@@ -181,18 +186,39 @@ class VideoPlayer: UIView {
        
     }
     func loadVideo(urlString:String){
+    
         CacheManager.shared.getFileWith(stringUrl: urlString) { [self]  result in
+            
             switch result {
                 case .success(let url):
+                print("1",url)
+                    startButton.isHidden = false
                     player = AVPlayer(url: url)
-                    startButton.isUserInteractionEnabled = false
                 case .failure(let error):
                     print(error)
                     // handle errror
                 }
         }
     }
-
+    func loadVideo(view:UIView,urlString:String,compleation:@escaping (Bool) -> Void){
+        CacheManager.shared.getFileWith(stringUrl: urlString) { [self]  result in
+            
+            switch result {
+                
+                case .success(let url):
+                    print("2",url)
+                  
+                    player = AVPlayer(url: url)
+                    compleation(true)
+              
+                case .failure(let error):
+                    print(error)
+                    compleation(false)
+                    // handle errror
+                }
+        }
+        
+    }
     
     @objc private func playerItemDidReachEnd(_ notification: Notification) {
            // 動画を最初に巻き戻す
@@ -202,16 +228,6 @@ class VideoPlayer: UIView {
         
     }
     
-    
-//    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-//       print("aaamamamamam")
-//        if keyPath == "timeControlStatus"{
-//
-//
-//
-//
-//        }
-//    }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

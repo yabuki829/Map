@@ -20,17 +20,18 @@ class AdCell:BaseCell{
         addAD()
         self.addSubview(nadView)
         self.addSubview(adLabel)
-        nadView.anchor(top: adLabel.bottomAnchor, paddingTop: 5,
+        nadView.anchor(top: self.topAnchor, paddingTop: 45,
                        right: self.rightAnchor,paddingRight: 10,
                        bottom: self.bottomAnchor, paddingBottom:10,
                        width: 320, height: 250)
-        adLabel.anchor(top: self.topAnchor, paddingTop: 0,
+        adLabel.anchor(top: self.topAnchor, paddingTop: 5,
                        left: self.leftAnchor, paddingLeft: 10,
-        height:  20)
-        adLabel.text = " Ad "
+                       width: 40,height:  40)
+        adLabel.text = "Ad"
         adLabel.backgroundColor = .black
+        adLabel.textAlignment = .center
         adLabel.textColor = .white
-        adLabel.layer.cornerRadius = 2
+        adLabel.layer.cornerRadius = 20
         adLabel.clipsToBounds = true
     }
 

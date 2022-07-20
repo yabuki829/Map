@@ -33,12 +33,11 @@ class profileViewController:UICollectionViewController{
         return .portrait
      }
     override var shouldAutorotate: Bool {
-                return true
+        return true
     }
     
     override func viewWillAppear(_ animated: Bool) {
-//        mapAndDiscriptionCell?.mapCell.setData()
-//        mapAndDiscriptionCell?.discriptioncell.collectionView.reloadData()
+        
         if isMyProfile && isReload {
             myprofile = DataManager.shere.getMyProfile()
             discriptionList = DataManager.shere.get().reversed()
@@ -80,7 +79,7 @@ class profileViewController:UICollectionViewController{
                     HUD.hide()
                     print("discriptionLost",discriptions.count)
                     print("follow",followList)
-                    self?.discriptionList = discriptions.reversed()
+                    self?.discriptionList = discriptions
                     self?.friendList = followList
                     self?.collectionView.reloadData()
                 }

@@ -82,16 +82,16 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if DataManager.shere.getSubScriptionState() {
-            if discriptionList!.count > 10{
-                return 10
-            }
+//            if discriptionList!.count > 30{
+//                return 3-
+//            }
             return discriptionList!.count
         }
         else {
             if isHome{
-                if discriptionList!.count > 10{
-                    return 10 + 3
-                }
+//                if discriptionList!.count > 40{
+//                    return 40 + 3
+//                }
                 return discriptionList!.count + 3
             }
             else{
@@ -210,21 +210,20 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
             }
         }
         else {
-            let index = IndexPath(row: indexPath.row - 3, section: 0)
-            let articleCell = collectionView.cellForItem(at: index) as! articleCell
             if isHome {
-               
                 //1か2に変更する
+              
                 if indexPath.row < 3{
                     //広告
                 }
                 else{
-                   
+                    let articleCell = collectionView.cellForItem(at: indexPath) as! articleCell
                     //imageの場合
                     if discriptionList![indexPath.row - 3].type == "image"{
                         delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3], selectImage: articleCell.imageView.image!)
                     }else{
                     //ビデオの場合
+                        
                         delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3],player:articleCell.videoView.player!)
                     }
                    

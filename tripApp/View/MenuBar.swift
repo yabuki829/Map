@@ -5,7 +5,8 @@ import UIKit
 
 class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
     var selectedIndexPath: IndexPath?
-    var menuBarTitleArray = ["map","squareshape.split.3x3"]
+    var menuBarTitleArray = ["squareshape.split.3x3","map"]
+   
     private let underlineView: UIView = {
          let view = UIView()
          return view
@@ -35,12 +36,12 @@ class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UI
         }
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return menuBarTitleArray.count
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! MenuBarCell
-        cell.setCell(title: menuBarTitleArray[indexPath.row])
+        cell.setCell(title: "map")
        
         if  selectedIndexPath?.row == indexPath.row {
                 cell.isSelected = true
@@ -55,7 +56,7 @@ class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UI
         return 0
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width:collectionView.frame.width / 2, height: frame.height )
+        return CGSize(width:collectionView.frame.width, height: frame.height )
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -76,8 +77,8 @@ class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UI
 class MenuBarCell:BaseCell{
     override var isSelected: Bool{
           didSet{
-              imageView.tintColor = isSelected ? .systemGray6 : .systemGray2
-              backgroundColor = isSelected ? .systemGray2 : .systemGray6
+//              imageView.tintColor = isSelected ? .systemGray6 : .systemGray2
+//              backgroundColor = isSelected ? .systemGray2 : .systemGray6
           }
       }
       
@@ -91,6 +92,7 @@ class MenuBarCell:BaseCell{
       override func  setupViews(){
           addSubview(imageView)
           backgroundColor = .systemGray6
+          imageView.tintColor = .lightGray
           imageView.setDimensions(width: 24, height: 24)
           imageView.center(inView: self)
       }

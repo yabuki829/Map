@@ -189,7 +189,16 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
                             
                             DataManager.shere.setMyProfile(profile: myprofile)
                             
-                            self.move()
+                            FirebaseManager.shered.getDiscription(userid:  Auth.auth().currentUser!.uid) { discription in
+                                DataManager.shere.save(data: discription)
+                                
+                                FirebaseManager.shered.getFriendIdList(userid: Auth.auth().currentUser!.uid) { friend in
+                                    print(friend)
+                                    FollowManager.shere.saveFollow(follower: friend)
+                                }
+                                self.move()
+                            }
+                           
                         }
                     }
                
