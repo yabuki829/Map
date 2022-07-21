@@ -277,7 +277,7 @@ extension EditViewController{
                                                     proImagedata: profileimagedata) { result in
                     HUD.hide()
                     if result {
-                        self.navigationController?.dismiss(animated: true, completion: nil)
+                        self.navigationController?.popViewController(animated: true)
                         return
                     }
                 }
@@ -296,7 +296,7 @@ extension EditViewController{
                     FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: nil, proImagedata: profileimagedata, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl: (profile?.profileImage.url)!) { result in
                         HUD.hide()
                         if result {
-                            self.navigationController?.dismiss(animated: true, completion: nil)
+                            self.navigationController?.popViewController(animated: true)
                             return
                         }
                     }
@@ -311,7 +311,7 @@ extension EditViewController{
                         FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: backgroundimagedata, proImagedata: nil, backgroundimageurl:(profile?.backgroundImage.url)!, profileimageurl:  (profile?.profileImage.url)!) { result in
                                 HUD.hide()
                             if result {
-                                self.navigationController?.dismiss(animated: true, completion: nil)
+                                self.navigationController?.popViewController(animated: true)
                                 return
                             }
                         }

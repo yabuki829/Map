@@ -8,6 +8,7 @@
 import Foundation
 import Firebase
 import FirebaseStorage
+import SwiftUI
 
 
 class StorageManager{
@@ -107,41 +108,63 @@ class StorageManager{
         
     }
     
-    func uploadMovie(videourl:URL,compleation:@escaping (ProfileImage) -> Void){
+    
+    
+    func uploadMovie(videourl:URL,thumnailData:Data,compleation:@escaping ([ProfileImage]) -> Void){
         print("uploadMovie")
         let filename = String().generateID(10)
         let userid = FirebaseManager.shered.getMyUserid()
         let videoRef = Storage.storage().reference().child("/users/\(userid)/video/\(filename).mov")
-      
+        let imageRef = Storage.storage().reference().child("/users/\(userid)/video/\(filename).jpg")
         var videoData : Data = Data()
             do{
-                print("1")
+                print("1.データ型(video)に変更しました")
                 videoData = try Data(contentsOf: videourl)
             }
             catch{
                 print(error.localizedDescription)
                 return
             }
-        print("2")
- 
+    
+        
         videoRef.putData(videoData, metadata: nil) {   (_, error) in
             if let error = error {
                 print("1.エラー",error)
                 return
             }
-            print("3")
+            print("2.データ(video)を保存しました")
             videoRef.downloadURL { (url, error) in
                 if let error = error {
                     print("2.エラー",error)
                     return
                 }
-                print("4")
+                print("3.データ(video)のurlを取得しました")
                 guard let url = url else { return }
                 let urlString = url.absoluteString
-                let data = ProfileImage(url: urlString, name: filename)
-                compleation(data)
+                let video = ProfileImage(url: urlString, name: filename)
+              
+                print("4.データ(thumnail)を保存します")
+                imageRef.putData(thumnailData) { _, error in
+                    if let error = error {
+                        print(error)
+                    return
+                    }
+                    print("4.データ(thumnail)を保存しました")
+                    imageRef.downloadURL { (url, error) in
+                        if let error = error {
+                            print(error)
+                        return
+                        }
+                        print("4.データ(thumnail)を保存します")
+                        guard let url = url else { return }
+                        let urlString = url.absoluteString
+                        let thumnail = ProfileImage(url: urlString, name: filename)
+                        compleation([video,thumnail])
+                    }
+                }
             }
         }
+        
     }
     
     func deleteDiscriptionImage(image:ProfileImage){
@@ -170,10 +193,9 @@ class StorageManager{
             print("動画削除完了")
         }
     }
-    func deleteAll(userid:String){
+    func deleteAll(userid:String,compleation:@escaping (Bool) -> Void){
         let imageRef = Storage.storage().reference().child("/users").child(userid)
         print("------------削除します----------------------")
-        print(imageRef)
         imageRef.listAll { result ,error in
             if let error = error {
                 print("エラー\(error)")
@@ -185,6 +207,9 @@ class StorageManager{
                             print("エラー\(error)")
                         } else {
                             print("storage削除成功！")
+                            
+                            
+                            
                         }
                     }
                 }
@@ -208,6 +233,24 @@ class StorageManager{
             }
             
         }
+        imageRef.child("video").listAll { result ,error in
+            if let error = error {
+                print("エラー\(error)")
+            } else {
+                for ref in result!.items {
+                    print("ref",ref)
+                    ref.delete { (error) in
+                        if let error = error {
+                            print("エラー\(error)")
+                        } else {
+                            print("ビデオを削除しました")
+                        }
+                    }
+                }
+            }
+            
+        }
+        compleation(true)
     }
     func deleteProfileImage(name:String){
         let filename = name

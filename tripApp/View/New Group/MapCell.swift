@@ -23,7 +23,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     weak var delegateWithMapCell:mapCellDelegate? = nil
     let menuButton: UIButton = {
         let button = UIButton()
-        button.setBackgroundImage(UIImage(systemName: "square.2.stack.3d.bottom.filled"), for: .normal)
+        button.setBackgroundImage(UIImage(systemName: "map"), for: .normal)
         button.tintColor = .lightGray
         return button
     }()
@@ -137,50 +137,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                 
                 selectDiary = descriptionList![i]
                 
-                if descriptionList![i].type == "image"{
-                    print("image")
-                    for j in 0..<imageViewArray.count {
-                        if descriptionList![i].id == imageViewArray[j].postId{
-                            print("みつかりました")
-                            selectImage = imageViewArray[j].image
-                            if selectVideo.player != nil {
-                                selectVideo.stop()
-                            }
-                           
-                            break
-                        }
-                    }
-                }
-                else{
-                    for j in 0..<videoArray.count {
-                        if descriptionList![i].id == videoArray[j].postId{
-                           
-                            print("みつかりました!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                            if selectVideo.player != nil {
-                                
-                                print("2回目以降--------------------------------------------")
-                                if videoArray[j].video.player != selectVideo.player {
-                                    print("別のビデオを再生しています")
-                                    selectVideo.stop()
-                                }
-                                
-                                preVideo = selectVideo
-                                selectVideo = videoArray[j].video
-                               
-                                break
-                                
-                            }
-                            else {
-                                print("1回目--------------------------------------------")
-                                selectVideo = videoArray[j].video
-//                                selectIndex = j
-                            }
-                           
-                    
-                            
-                        }
-                    }
-                }
+                
                 
 //                if mapView.region.span.latitudeDelta > 0.00015 {
                     let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 10, longitude: (view.annotation?.coordinate.longitude)! )
@@ -228,47 +185,67 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             let stackview = setStackView()
             let tapStackView = UITapGestureRecognizer(target: self, action: #selector(sendtoDetailView(sender:)))
             let imageView = UIImageView()
-            var videoView = VideoPlayer()
+            imageView.backgroundColor = .white
             stackview.addGestureRecognizer(tapStackView)
         
             if FirebaseManager.shered.getMyUserid() != descriptionList![i].userid {
                 pinView.pinTintColor = .link
             }
            
-            
-            if descriptionList![i].type == "video"{
-                //動画
-                for j in 0..<videoArray.count{
-                    if descriptionList![i].id == videoArray[j].postId {
-                        videoView = videoArray[j].video
-                    }
-                }
-               
-                let button = UIButton()
-                    button.setTitle("＞＞", for: .normal)
-                    button.setTitleColor(.darkGray, for: .normal)
-                    button.setTitleColor(.systemGray3, for: .highlighted)
-                    button.contentHorizontalAlignment = .right
-                    button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
-                
-                    stackview.addArrangedSubview(videoView)
 
-                    stackview.addArrangedSubview(button)
-                videoView.anchor(width:viewWidth / 3 * 2, height:  viewWidth / 3 * 2)
-                let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 3 * 2 )
-                       stackview.addConstraint(widthConstraint)
-//                DispatchQueue.main.async {
-                    pinView.detailCalloutAccessoryView = stackview
-//                }
-               
-            }
-            else{
                 // 画像
-                imageView.setImage(urlString: descriptionList![i].data.url) { [self] image in
-                    let imageView = UIImageView()
+            if descriptionList![i].type == "video" {
+                imageView.setImage(urlString: descriptionList![i].thumnail!.url) { [self] image in
+                 
                     
                     if  image != nil {
-                        imageView.image = image
+                        
+                        
+                        imageViewArray.append(uiimageData(postId: descriptionList![i].id, image: image!))
+                        let button = UIButton()
+                            button.setTitle("＞＞", for: .normal)
+                            button.setTitleColor(.darkGray, for: .normal)
+                            button.setTitleColor(.systemGray3, for: .highlighted)
+                            button.contentHorizontalAlignment = .right
+                            button.addTarget(self, action: #selector(sendtoDetailView(sender:)), for: .touchUpInside)
+                    
+                            stackview.addArrangedSubview(imageView)
+                            stackview.addArrangedSubview(button)
+                            stackview.translatesAutoresizingMaskIntoConstraints = false
+                          
+                            let playimage = UIImageView()
+                            playimage.image = UIImage(systemName: "play.fill")
+                            playimage.tintColor = .white
+                           
+                            imageView.addSubview(playimage)
+                            playimage.center(inView: imageView) 
+                            let gcd = MathManager.shered.getGreatestCommonDivisor(Int((image?.size.width)!), Int((image?.size.height)!))
+                            let ration = MathManager.shered.calcAspectRation(Double(image!.size.width) ,Double(image!.size.height) , gcd: gcd)
+                            let times = MathManager.shered.howmanyTimes(aspectRation: ration)
+                            let width = viewWidth / 3 * 2
+                      
+                            imageView.anchor(height: width * times)
+                            
+                        let widthConstraint = NSLayoutConstraint(item: stackview, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: viewWidth / 3 * 2 )
+                               stackview.addConstraint(widthConstraint)
+                            
+                            pinView.detailCalloutAccessoryView = stackview
+                        
+                            
+                        }
+                        else{
+                            print("画像エラー", descriptionList![i].data.url,descriptionList![i].data.name,image)
+                        
+                        }
+                
+                    }
+            }
+            else {
+                imageView.setImage(urlString: descriptionList![i].data.url) { [self] image in
+                 
+                    
+                    if  image != nil {
+                      
                         imageViewArray.append(uiimageData(postId: descriptionList![i].id, image: image!))
                         let button = UIButton()
                             button.setTitle("＞＞", for: .normal)
@@ -302,6 +279,8 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                 
                     }
                 }
+               
+                
             
         }
 
@@ -324,7 +303,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, selectImage: selectImage)
         }
         else{
-            delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!, player: selectVideo.player!)
+            delegateWithMapCell?.toDetailWithMapCell(discription: selectDiary!)
             
         }
     }
@@ -338,12 +317,6 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                     annotation.coordinate = CLLocationCoordinate2DMake(descriptionList![i].location!.latitude,descriptionList![i].location!.longitude)
                     annotation.subtitle = descriptionList![i].text + descriptionList![i].created.covertString()
                  
-                    let videoView = VideoPlayer()
-                    videoView.loadVideo(urlString:self.descriptionList![i].data.url )
-//                    videoView.indicator.stopAnimating()
-                    videoView.setup()
-                    videoView.setupVideoTap()
-                    self.videoArray.append(videoData(postId:self.descriptionList![i].id , video: videoView))
                     self.mapView.addAnnotation(annotation)
                         
                 }
@@ -391,7 +364,7 @@ extension MapCell {
     }
 }
 protocol mapCellDelegate: class  {
-    func toDetailWithMapCell(discription:Discription,player:AVPlayer)
+    func toDetailWithMapCell(discription:Discription)
     func toDetailWithMapCell(discription:Discription,selectImage:UIImage)
 }
 

@@ -13,6 +13,7 @@ import Photos
 import CropViewController
 import PKHUD
 import AVFoundation
+import SwiftUI
 
 class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDelegate,UIImagePickerControllerDelegate & UINavigationControllerDelegate{
     var isVideo = false
@@ -223,21 +224,22 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
             
             let userid = FirebaseManager.shered.getMyUserid()
             HUD.show(.progress)
-            StorageManager.shered.uploadMovie(videourl: videoUrl!){ [self] result in
+            
+            StorageManager.shered.uploadMovie(videourl: videoUrl!, thumnailData: thumnailImageForFileUrl(fileUrl: videoUrl!)!){ [self] result in
+                
                 let disc = Discription(id: String().generateID(10),
                                        userid: userid,
                                        text:   textView.text,
                                        location: location,
-                                       data: ProfileImage(url:result.url, name: result.name),
+                                       data: ProfileImage(url:result[0].url, name: result[0].name),
+                                       thumnail: ProfileImage(url:result[1].url, name: result[1].name),
                                        created: Date(), type: "video")
                 var data = DataManager.shere.get()
                 data.append(disc)
                 DataManager.shere.save(data: data)
                 FirebaseManager.shered.postDiscription(disc: disc)
                 HUD.hide()
-                let nav = self.navigationController
-                let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! MapViewController
-                preVC.isReload = true
+              
                 self.navigationController?.popViewController(animated: true)
             }
         }
@@ -256,16 +258,16 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                                        text:   textView.text,
                                        location: location,
                                        data: ProfileImage(url:result.url, name: result.name),
-                                       created: Date(), type: "image")
+                                       thumnail: nil,
+                                       created: Date(),
+                                       type: "image")
                 
                 var data = DataManager.shere.get()
                 data.append(disc)
                 DataManager.shere.save(data: data)
                 FirebaseManager.shered.postDiscription(disc: disc)
                 HUD.hide()
-                let nav = self.navigationController
-                let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! MapViewController
-                preVC.isReload = true
+             
                 self.navigationController?.popViewController(animated: true)
                 
             }
@@ -291,6 +293,21 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         }
        
         
+    }
+    func thumnailImageForFileUrl(fileUrl: URL) -> Data? {
+            let asset = AVAsset(url: fileUrl)
+
+            let imageGenerator = AVAssetImageGenerator(asset: asset)
+
+            do {
+                let thumnailCGImage = try imageGenerator.copyCGImage(at: CMTimeMake(value: 1,timescale: 60), actualTime: nil)
+                print("サムネイルの切り取り成功！")
+                let image = UIImage(cgImage: thumnailCGImage, scale: 0, orientation: .up)
+                return image.jpegData(compressionQuality: 0.85)
+            }catch let err{
+                print("エラー\(err)")
+            }
+            return nil
     }
     @objc func back(){
         print("前の画面に戻る")
@@ -419,10 +436,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         let longitude = location?.coordinate.longitude
         self.location = Location(latitude:latitude! , longitude: longitude!)
         
-        //少しだけ座標をずらしている -> 結局ずらしてない
-        //全く同じ場所で三回投稿するとmapでpinを選択できず、詳細画面に遷移できなくなるから
-//        let fixLatitude = latitude! + generateRondomDouble()
-//        let fixLongitude = longitude! + generateRondomDouble()
+ 
         
         let Location = CLLocation(latitude: latitude!, longitude: longitude!)
         
@@ -539,6 +553,8 @@ extension PostViewController:CropViewControllerDelegate{
        
         
     }
+    
+    
     func cropViewController(_ cropViewController: CropViewController, didCropToImage image: UIImage, withRect cropRect: CGRect, angle: Int) {
         guard let imageData = image.jpegData(compressionQuality: 0.25) else {  return }
         

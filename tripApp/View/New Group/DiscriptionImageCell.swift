@@ -7,12 +7,11 @@ class DiscriptionImageCell:UICollectionViewCell{
     let imageView:UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .systemGray6
+        imageView.backgroundColor = .black
         imageView.contentMode = .scaleAspectFit
         
         return imageView
     }()
-    let videoView = VideoPlayer()
     var discription:Discription?
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,24 +27,22 @@ class DiscriptionImageCell:UICollectionViewCell{
     
     }
     func addImageViewConstraint(){
+        contentView.addSubview(imageView)
+        imageView.anchor(top: self.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
+                         left: self.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
+                         right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
+                         bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
         if discription!.type == "image"{
-            contentView.addSubview(imageView)
-            imageView.anchor(top: self.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
-                             left: self.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
-                             right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
-                             bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
             imageView.setImage(urlString: discription!.data.url)
         }
-        else{
-            print("VideoView")
-            contentView.addSubview(videoView)
-            videoView.anchor(top: self.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
-                             left: self.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
-                             right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
-                             bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
-            videoView.loadVideo(urlString: discription!.data.url)
-            videoView.startButton.isEnabled = false
-            videoView.setup()
+        else {
+            let playimage = UIImageView()
+            playimage.image = UIImage(systemName: "play.fill")
+            playimage.tintColor = .white
+          
+            imageView.addSubview(playimage)
+            playimage.center(inView: imageView)
+            imageView.setImage(urlString: discription!.thumnail!.url)
         }
         
        

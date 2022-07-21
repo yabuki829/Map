@@ -181,7 +181,7 @@ class DiscriptionView:baseView,UICollectionViewDataSource, UICollectionViewDeleg
                 }else{
                     print("サブスクリプション 動画")
                 //ビデオの場合
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row], player:articleCell.videoView.player! )
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
                 }
             }
             else{
@@ -192,7 +192,7 @@ class DiscriptionView:baseView,UICollectionViewDataSource, UICollectionViewDeleg
                 }
                 else{
                     print("サブスクリプション 動画　profile")
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row],player:discriptionCell.videoView.player!)
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
                 }
               
             }
@@ -213,7 +213,7 @@ class DiscriptionView:baseView,UICollectionViewDataSource, UICollectionViewDeleg
                         delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3], selectImage: articleCell.imageView.image!)
                     }else{
                     //ビデオの場合
-                        delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3],player:articleCell.videoView.player!)
+                        delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3])
                     }
                    
                     
@@ -229,7 +229,7 @@ class DiscriptionView:baseView,UICollectionViewDataSource, UICollectionViewDeleg
                 }
                 else{
                     print("video")
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row],player:discriptionCell.videoView.player!)
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
                 }
               
             }

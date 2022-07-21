@@ -28,9 +28,7 @@ class detailViewController:UIViewController{
     var textFieldViewBottomConstraint: NSLayoutConstraint!
     let tableView = UITableView()
     var commentList = [Comment]()
-    var player: AVPlayer? {
-        didSet{}
-    }
+   
     var subheight = CGFloat()
     var isMapVC = false
     var isProfile = false
@@ -179,10 +177,12 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                 cell.discImageView.image = image
             }
             else {
-                cell.videoView.player = player!
+                cell.videoView.loadVideo(urlString: discription!.data.url, isWithCashe: true)
                 cell.videoView.updateSlider()
+                DispatchQueue.main.async {
+                    self.cell.expandButton.isHidden = false
+                }
             }
-
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
             cell.setCell(disc: discription!, widthSize: view.frame.width, heightSize: subheight)
             

@@ -11,18 +11,16 @@ import UIKit
 import PKHUD
 class VideoPlayer: UIView {
     var isStart = false
+    var indicator = UIActivityIndicatorView()
     var player: AVPlayer? {
         get {
-            print("get")
             return playerLayer.player
         }
         set {
-            print("setsetsetsetsetsetsetsetsetsetsetsetset")
             playerLayer.player = newValue
         }
     }
     var playerLayer: AVPlayerLayer {
-        layer.frame  = self.frame
         return layer as! AVPlayerLayer
     }
     override static var layerClass: AnyClass {
@@ -61,10 +59,17 @@ class VideoPlayer: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-      
+        addSubview(indicator)
+        indicator.center(inView: self)
+        indicator.center = self.center
+        indicator.color = .white
+        indicator.tintColor = .white
+        indicator.layer.zPosition = 1
+        
         self.backgroundColor = .black
         player?.automaticallyWaitsToMinimizeStalling = false
         player?.addObserver(self, forKeyPath: "timeControlStatus", options: .new, context: nil)
+     
         if isStart {
             startButton.isHidden = false
             start()
@@ -81,25 +86,52 @@ class VideoPlayer: UIView {
         if let duration = player?.currentItem?.duration {
             let total = CMTimeGetSeconds(duration)
             let value = Float64(slider.value) * total
-            let seekTime = CMTime(value: Int64(value), timescale: 1)
-            player?.seek(to: seekTime, completionHandler: { result in
-            })
+            if value != 0.0{
+                let seekTime = CMTime(value: Int64(value), timescale: 1)
+                player?.seek(to: seekTime, completionHandler: { result in
+                })
+            }
+         
         }
         print(slider.value)
     }
     
+   
     func setup(){
-        
+      
         self.addSubview(startButton)
         startButton.center(inView: self)
         startButton.addTarget(self, action: #selector(closeImage(sender:)), for: .touchDown)
-//        player?.addObserver(self, forKeyPath: "timeControlStatus", options: .new, context: nil)
+        player!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
         if isStart {
             startButton.isHidden = true
 
         }
         else {
             startButton.isHidden = false
+        }
+    }
+    override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "timeControlStatus", let change = change, let newValue = change[NSKeyValueChangeKey.newKey] as? Int, let oldValue = change[NSKeyValueChangeKey.oldKey] as? Int {
+            let oldStatus = AVPlayer.TimeControlStatus(rawValue: oldValue)
+            let newStatus = AVPlayer.TimeControlStatus(rawValue: newValue)
+            if newStatus != oldStatus {
+                DispatchQueue.main.async {[weak self] in
+                    if newStatus == .playing || newStatus == .paused {
+                        print("A")
+                        
+                        self?.indicator.stopAnimating()
+                        self?.slider.isHidden = false
+                        self?.videoLengthLabel.isHidden = false
+                        self?.currntLengthLabel.isHidden = false
+                        self?.setupSlider()
+                        self?.updateSlider()
+                    } else {
+                        print("B")
+//                        self?.loaderView.isHidden = false
+                    }
+                }
+            }
         }
     }
     func setupVideoTap(){
@@ -173,51 +205,26 @@ class VideoPlayer: UIView {
     }
     func stop(){
         startButton.isHidden = false
+        isStart = false
         if player != nil {
             player!.pause()
         }
       
     }
     func start(){
+        isStart = true
         startButton.isHidden = true
         if player != nil {
             player?.play()
         }
        
     }
-    func loadVideo(urlString:String){
-    
-        CacheManager.shared.getFileWith(stringUrl: urlString) { [self]  result in
-            
-            switch result {
-                case .success(let url):
-                print("1",url)
-                    startButton.isHidden = false
-                    player = AVPlayer(url: url)
-                case .failure(let error):
-                    print(error)
-                    // handle errror
-                }
-        }
-    }
-    func loadVideo(view:UIView,urlString:String,compleation:@escaping (Bool) -> Void){
-        CacheManager.shared.getFileWith(stringUrl: urlString) { [self]  result in
-            
-            switch result {
-                
-                case .success(let url):
-                    print("2",url)
-                  
-                    player = AVPlayer(url: url)
-                    compleation(true)
-              
-                case .failure(let error):
-                    print(error)
-                    compleation(false)
-                    // handle errror
-                }
-        }
+    func loadVideo(urlString:String,isWithCashe:Bool){
+        indicator.startAnimating()
+        let url = URL(string: urlString)!
+        player = AVPlayer(url: url)
         
+       
     }
     
     @objc private func playerItemDidReachEnd(_ notification: Notification) {

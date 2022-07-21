@@ -15,7 +15,7 @@ class SubscribeManager{
     func fetchOfferings(){
         Purchases.shared.offerings { offertings, error in
             guard let offertings = offertings, error == nil else {
-                print("エラー",error)
+                print("エラー1",error)
                 return
 
             }
@@ -27,7 +27,7 @@ class SubscribeManager{
     func fetchPackage(completion:@escaping(Purchases.Package) -> Void){
         Purchases.shared.offerings { offertings, error in
             guard let offertings = offertings, error == nil else {
-                print("エラー",error)
+                print("エラー2",error)
                 return
 
             }

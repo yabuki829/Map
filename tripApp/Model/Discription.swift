@@ -14,6 +14,7 @@ struct Discription:Codable,Equatable {
     let text     : String
     let location : Location?
     let data : ProfileImage
+    let thumnail: ProfileImage?
     let created  : Date
     let type     :String
 }

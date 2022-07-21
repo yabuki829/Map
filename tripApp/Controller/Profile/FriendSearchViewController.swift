@@ -234,4 +234,13 @@ class AlertManager{
            return alert
        
        }
+    func shewMessage(title:String?,message:String?) -> UIAlertController{
+        let alert = UIAlertController(title: title! , message: message!, preferredStyle: .alert)
+
+        let selectAction = UIAlertAction(title: "ok", style: .default, handler: nil)
+       
+
+        alert.addAction(selectAction)
+        return alert
+    }
 }

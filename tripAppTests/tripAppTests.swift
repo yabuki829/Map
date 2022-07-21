@@ -31,7 +31,9 @@ class tripAppTests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
-    func testPostDiscription(){}
+    func testPostDiscription(){
+        
+    }
     func testEditDiscription(){}
     func testDeleteDiscription(){}
     func testSignin(){}

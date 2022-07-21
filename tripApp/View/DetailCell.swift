@@ -12,6 +12,7 @@ import AVFoundation
 class DetailViewCell: UITableViewCell {
     var discription: Discription?{
         didSet{
+           
             discTextLabel.text = discription?.text
             dateLabel.text = discription?.created.covertString()
             
@@ -42,6 +43,7 @@ class DetailViewCell: UITableViewCell {
         let button = UIButton()
         button.setBackgroundImage(UIImage(systemName: "viewfinder"), for: .normal)
         button.tintColor = .white
+        button.isHidden = true
         return button
     }()
     
@@ -62,12 +64,11 @@ class DetailViewCell: UITableViewCell {
             discImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapImage)))
         }
         else{
+            videoView.start()
             videoView.setup()
             videoView.setupVideoTap()
-            videoView.setupSlider()
-            expandButton.addTarget(self, action: #selector(expandvideo(sender: )) , for:.touchDown)
-        
         }
+            expandButton.addTarget(self, action: #selector(expandvideo(sender: )) , for:.touchDown)
         usernameButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
      
@@ -110,8 +111,7 @@ class DetailViewCell: UITableViewCell {
                              bottom: contentView.bottomAnchor,paddingBottom: 0,
                              height: width)
             expandButton.layer.zPosition = 1
-            expandButton.anchor(top: videoView.topAnchor, paddingTop: 1,
-                                right: videoView.rightAnchor, paddingRight: 1)
+            expandButton.anchor(top:videoView.topAnchor,paddingTop: 5,right: videoView.rightAnchor, paddingRight: 5)
             
             dateLabel.anchor(top:discTextLabel.bottomAnchor , paddingTop: 2.0,
                              left: contentView.leftAnchor, paddingLeft: 10.0,

@@ -10,6 +10,11 @@ import Foundation
 class DataManager{
     static let shere = DataManager()
     let userDefaults = UserDefaults.standard
+    func allDelete(){
+        userDefaults.removeObject(forKey: "discription")
+        userDefaults.removeObject(forKey: "myprofile")
+        userDefaults.removeObject(forKey: "userid")
+    }
     
     func get() -> [Discription]{
         var diary = [Discription]()

@@ -22,6 +22,7 @@ class profileViewController:UICollectionViewController{
     var friendList = [Friend]()
     var menuCell:MenuCell?
     var mapAndDiscriptionCell:MapAndDiscriptionCell?
+    
     var isReload = false
     override func viewDidLoad() {
         settingCollectionView()
@@ -240,10 +241,10 @@ extension profileViewController:transitionDelegate {
     
   
     //discriptionからの遷移
-    func toDetailWithDiscriptionpCell(discription: Discription,player:AVPlayer) {
+    func toDetailWithDiscriptionpCell(discription: Discription) {
         let vc = detailViewController()
         vc.discription = discription
-        vc.player = player
+        
         vc.isProfile = true
         navigationController?.pushViewController(vc, animated: true)
     }
@@ -262,22 +263,21 @@ extension profileViewController:transitionDelegate {
     }
 }
 extension profileViewController:mapCellDelegate{
-    func toDetailWithMapCell(discription: Discription, player: AVPlayer) {
+    func toDetailWithMapCell(discription: Discription) {
         let vc = detailViewController()
         vc.discription = discription
-        vc.player = player
-        vc.isMapVC = true
+        vc.isMapVC = false
         vc.isProfile = true
         navigationController?.pushViewController(vc, animated: true)
     }
     
-  
+    
     //Mapから遷移
     func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
         let vc = detailViewController()
         vc.discription = discription
         vc.image = selectImage
-        vc.isMapVC = true
+        vc.isMapVC = false
         vc.isProfile = true
         navigationController?.pushViewController(vc, animated: true)
     }

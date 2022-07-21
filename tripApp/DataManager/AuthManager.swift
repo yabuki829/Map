@@ -90,31 +90,38 @@ class AuthManager{
        
         let user = Auth.auth().currentUser
         //2.profileの削除
+        print("profileの削除")
         Firestore.firestore().collection("Profile").document(user!.uid).delete()
         //3.friendidを取得して　useridを削除する
+        print("friendidを取得して　useridを削除する")
         FirebaseManager.shered.deleteUserid()
         //4.friend id List を削除
+        print("friend id List を削除")
         FirebaseManager.shered.deleteAllFollow(userid: user!.uid)
         
         //5.discription　frienddiscription mydiscription の削除
+        print("discription　frienddiscription mydiscription の削除")
         FirebaseManager.shered.deleteAllDiscriptions(userID: user!.uid)
         //6.userdefailtsの削除
-        let appDomain = Bundle.main.bundleIdentifier
-        UserDefaults.standard.removePersistentDomain(forName: appDomain!)
-        compleation(true)
+        print("userdefailtsの削除")
+        DataManager.shere.allDelete()
         
         //7.今まで投稿していた画像を全て削除する
-        StorageManager.shered.deleteAll(userid: user!.uid)
-        
-        //1.accountの削除
-       
-        user?.delete { error in
-            if let error = error {
-            print(error)
-            print("アカウント削除に失敗しました")
-            } else {
-            print("アカウントを削除しました")
+        print("今まで投稿していた画像を全て削除する")
+        StorageManager.shered.deleteAll(userid: (user?.uid)!) { result in
+            if result{
+                user?.delete { error in
+                    if let error = error {
+                    print(error)
+                    print("アカウント削除に失敗しました")
+                    } else {
+                    print("アカウントを削除しました")
+                        compleation(true)
+                    }
+                }
             }
         }
+        
+       
     }
 }

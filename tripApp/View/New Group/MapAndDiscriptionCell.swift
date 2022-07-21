@@ -53,14 +53,14 @@ class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionVie
                               bottom: bottomAnchor, paddingBottom: 0.0)
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return 2
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: self.frame.width, height: self.frame.height)
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print("mapanddisc呼ばれてます")
-        if indexPath.row == 0{
+        if indexPath.row == 1{
             mapCell.descriptionList = discriptionList!
             mapCell.viewWidth = viewWidth
             return mapCell

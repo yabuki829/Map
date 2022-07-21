@@ -195,6 +195,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1ACB6ACC2888E8A0005BD744 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				709433052827AE9B00A9AC3B /* ViewController.swift */,
+				706053E0282A92870067F63F /* DetailViewController.swift */,
+				706053E4282AAD940067F63F /* ImageDetailView.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
 		1ACB9F022875CEDA00E0BEA5 /* Subscription */ = {
 			isa = PBXGroup;
 			children = (
@@ -344,14 +354,12 @@
 		70AC68472828DD0B00CEC92E /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				1ACB6ACC2888E8A0005BD744 /* Main */,
 				1ACB9F022875CEDA00E0BEA5 /* Subscription */,
 				1AE0BD6028681B11000F45A7 /* Post */,
 				7052C6E0284F09DC00A16413 /* Chat */,
 				705B8CBF284DE521005DA26B /* Auth */,
 				70A94C1F28388B32004E5123 /* Profile */,
-				709433052827AE9B00A9AC3B /* ViewController.swift */,
-				706053E4282AAD940067F63F /* ImageDetailView.swift */,
-				706053E0282A92870067F63F /* DetailViewController.swift */,
 				706696CD282CC63900E8DDC1 /* SettingViewController.swift */,
 				70A20AC52834C9E70093FCBB /* TabBarController.swift */,
 			);

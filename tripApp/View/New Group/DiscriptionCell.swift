@@ -14,6 +14,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     var isHome = false
     var discriptionList : [Discription]?{
         didSet{
+            
             if isHome {
                 if discriptionList?.count != 0{
                     emptyLabel.isHidden = true
@@ -193,7 +194,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
                 }else{
                     print("サブスクリプション 動画")
                 //ビデオの場合
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row], player:articleCell.videoView.player! )
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
                 }
             }
             else{
@@ -204,7 +205,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
                 }
                 else{
                     print("サブスクリプション 動画　profile")
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row],player:discriptionCell.videoView.player!)
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
                 }
               
             }
@@ -224,7 +225,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
                     }else{
                     //ビデオの場合
                         
-                        delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3],player:articleCell.videoView.player!)
+                        delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3])
                     }
                    
                     
@@ -240,7 +241,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
                 }
                 else{
                     print("video")
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row],player:discriptionCell.videoView.player!)
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
                 }
               
             }
@@ -270,7 +271,7 @@ import AVFoundation
 
 protocol transitionDelegate: AnyObject  {
     func toDetailWithDiscriptionpCell(discription:Discription,selectImage:UIImage)
-    func toDetailWithDiscriptionpCell(discription:Discription,player:AVPlayer)
+    func toDetailWithDiscriptionpCell(discription:Discription)
     func toFriendList()
     func scroll()
     func toEditPageWithProfileCell()

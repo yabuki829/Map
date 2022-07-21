@@ -300,6 +300,8 @@ class FirebaseManager{
                         "created":FieldValue.serverTimestamp(),
                         "imageurl":disc.data.url,
                         "imagename":disc.data.name,
+                        "thumnailurl":disc.thumnail?.url,
+                        "thumnailname":disc.thumnail?.name,
                         "type":disc.type
                         
                     ]
@@ -317,6 +319,8 @@ class FirebaseManager{
                      "created":FieldValue.serverTimestamp(),
                      "imageurl":disc.data.url,
                      "imagename":disc.data.name,
+                     "thumnailurl":disc.thumnail?.url,
+                     "thumnailname":disc.thumnail?.name,
                      "receiverList":receiver,
                      "type":disc.type
                      
@@ -344,22 +348,43 @@ class FirebaseManager{
                    let imagename = data["imagename"],
                    let receiverList = data["receiverList"],
                    let type = data["type"] {
-                    
                     let myUserID = getMyUserid()
+                    //videoならサムネイルがあるのでサムネイルを追加で取得する
+                    if type as! String == "video"{
+                        let thumnailurl = data["thumnailurl"]
+                        let thumnailname = data["thumnailname"]
+                        
+                        let thumnail = ProfileImage(url: thumnailurl as! String, name: thumnailname as! String)
+                        if  myUserID == userid as! String || isReceiver(myuserid: myUserID, receiver: receiverList as! [String]){
+                            let date = created.dateValue()
+                            let disc = Discription(id: id as! String,
+                                                   userid: userid as! String,
+                                                   text: text as! String,
+                                                   location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
+                                                   data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: thumnail, created: date, type: type as! String)
+                            discriptionList.append(disc)
+                            
+                        }
+                    }
+                    else {
+                       
+                        if  myUserID == userid as! String || isReceiver(myuserid: myUserID, receiver: receiverList as! [String]){
+                            let date = created.dateValue()
+                            let disc = Discription(id: id as! String,
+                                                   userid: userid as! String,
+                                                   text: text as! String,
+                                                   location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
+                                                   data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: nil, created: date, type: type as! String)
+                            discriptionList.append(disc)
+                            
+                        }
+                    }
+                  
                     // 自分のユーザーid　と　投稿のユーザーidが同じかどうか --> 自分の投稿なので取得
                      
                     // 自分のユーザーid が receiverListにいるかどうか　  --> receiverListにいるので取得する
                     
-                    if  myUserID == userid as! String || isReceiver(myuserid: myUserID, receiver: receiverList as! [String]){
-                        let date = created.dateValue()
-                        let disc = Discription(id: id as! String,
-                                               userid: userid as! String,
-                                               text: text as! String,
-                                               location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                               data: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
-                        discriptionList.append(disc)
-                        
-                    }
+                  
                    
                 }
             }
@@ -397,7 +422,7 @@ class FirebaseManager{
                                            userid: userid as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                           data: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
+                                           data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: nil, created: date, type: type as! String)
                 
                         discriptionList.append(disc)
                     
@@ -443,17 +468,35 @@ class FirebaseManager{
                    let imageurl = data["imageurl"],
                    let imagename = data["imagename"],
                    let type = data["type"]{
-                    let date = created.dateValue()
-                    let disc = Discription(id: id as! String,
-                                           userid: userid as! String,
-                                           text: text as! String,
-                                           location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                           data: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: type as! String)
                     
-                    if FollowManager.shere.isFollow(userid: userid as! String) && !FollowManager.shere.isBlock(userid: userid as! String){
-                        
-                        discriptionList.append(disc)
+                    if type as! String == "video"{
+                        let thumnailurl = data["thumnailurl"]
+                        let thumnailname = data["thumnailname"]
+                        let thumnail = ProfileImage(url: thumnailurl as! String, name: thumnailname as! String)
+                        let date = created.dateValue()
+                        let disc = Discription(id: id as! String,
+                                               userid: userid as! String,
+                                               text: text as! String,
+                                               location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
+                                               data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: thumnail, created: date, type: type as! String)
+                        if FollowManager.shere.isFollow(userid: userid as! String) && !FollowManager.shere.isBlock(userid: userid as! String){
+                            discriptionList.append(disc)
+                        }
                     }
+                    else {
+                        let date = created.dateValue()
+                        let disc = Discription(id: id as! String,
+                                               userid: userid as! String,
+                                               text: text as! String,
+                                               location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
+                                               data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: nil, created: date, type: type as! String)
+                        if FollowManager.shere.isFollow(userid: userid as! String) && !FollowManager.shere.isBlock(userid: userid as! String){
+                            
+                            discriptionList.append(disc)
+                        }
+                    }
+                    
+                   
                    
                 }
                 
@@ -634,7 +677,7 @@ extension FirebaseManager {
                                            userid: userid as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
-                                           data: ProfileImage(url: imageurl as! String, name: imagename as! String), created: date, type: "image")
+                                           data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: nil, created: date, type: "image")
                     adDiscriptionList.append(disc)
                 }
                 
