@@ -20,4 +20,12 @@ target 'tripApp' do
   pod 'lottie-ios'
   pod 'NendSDK_iOS'
   pod 'Purchases'
+  
+  target 'tripAppTests' do
+    
+    inherit! :search_paths
+    pod 'Firebase'
+  end
+
 end
+

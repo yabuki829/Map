@@ -45,6 +45,12 @@ class MapViewController: UIViewController, reloadDelegate {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+            //10人以上で　かつ　サブスクに登録していない
+        if FollowManager.shere.getFollow().count > 10 && !DataManager.shere.getSubScriptionState() {
+            //友達を減らしてください。
+            alert()
+        }
         view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = .white
 
@@ -57,25 +63,35 @@ class MapViewController: UIViewController, reloadDelegate {
 
         setupNavigationItems()
         settingCollectionView()
-        getDiscription()
         
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         print("viewWillAppear")
-        
-        if isReload {
-            print("getdiscription")
+        getDiscription()
 
-            
-            getDiscription()
-            isReload = false
-        }
-        
     }
     
+    func alert(){
+        let myAlert: UIAlertController = UIAlertController(title: "友たちが10人を超えています", message: "どちらか選択してください", preferredStyle: .alert)
+               
+            let alertA = UIAlertAction(title: "友達を整理する", style: .default) {  action in
+                //友達リストに遷移する
+                self.toFriendList()
+            }
+            let alertC = UIAlertAction(title: "サブスクリプション", style: .default) {  action in
+                //サブスクリプションに遷移する
+                let vc = SubscriptionViewController()
+                self.navigationController?.pushViewController(vc, animated: true)
+                
+            }
+        myAlert.addAction(alertA)
+        myAlert.addAction(alertC)
+        present(myAlert, animated: true, completion: nil)
+    }
     @objc internal func sendtoPostView(sender: UIButton) {
-        if DataManager.shere.get().count < 100 {
+     
+        if DataManager.shere.get().count < 15 || DataManager.shere.getSubScriptionState()  {
             let vc = PostViewController()
             navigationController?.pushViewController(vc, animated: true)
         }
@@ -83,6 +99,7 @@ class MapViewController: UIViewController, reloadDelegate {
             let alert = AlertManager.shared.shewMessage(title: "15件までしか投稿できません", message: "投稿を削除してしてください")
             present(alert, animated: true)
         }
+       
       }
 
     @objc func tapSettingIcon(){
@@ -153,9 +170,9 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
             cell.discriptioncell.isHome = true
             cell.discriptionList = discriptipns
             cell.viewWidth = view.frame.width
-            
+            cell.mapCell.delegateWithMapCell = self
             mapAndDiscriptionCell = cell
-            mapAndDiscriptionCell?.mapCell.delegateWithMapCell = self
+
             
             return cell
             
@@ -268,9 +285,7 @@ class articleCell:UICollectionViewCell{
         super.init(frame: frame)
         setupViews()
     }
-    func setupViews(){
-       
-    }
+    func setupViews(){    }
     func addConstraint(){
         self.addSubview(profileImageView)
         self.addSubview(username)
@@ -395,6 +410,7 @@ extension MapViewController:mapCellDelegate {
     
     
     func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
+        print("遷移mapから")
         let vc = detailViewController()
         vc.discription = discription
         vc.image = selectImage
@@ -412,11 +428,12 @@ extension MapViewController :transitionDelegate{
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    
+    //discriptioncellから遷移
     func toDetailWithDiscriptionpCell(discription: Discription) {
         print("遷移")
         let vc = detailViewController()
         vc.discription = discription
-  
         vc.isMapVC = true
         navigationController?.pushViewController(vc, animated: true)
     }

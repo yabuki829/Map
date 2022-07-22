@@ -142,20 +142,19 @@ class SubscriptionViewController : UIViewController{
                                      left: view.leftAnchor, paddingLeft: 20,
                                      right: view.rightAnchor, paddingRight: 20,
                             height:  0.5)
-//        let label1 = UILabel()
-//        label1.text = "1. 動画投稿が可能に"
-//        stackView.addArrangedSubview(label1)
-//
+        let label1 = UILabel()
+        label1.text = "1. 投稿の制限が15件から無制限に"
+        label1.font = UIFont.systemFont(ofSize: 12)
+        stackView.addArrangedSubview(label1)
+        
         let label2 = UILabel()
-//        label2.textColor = .white
-        label2.text = "1. 友達数の制限が10人から無制限に"
+        label2.text = "2. 友達数の制限が10人から無制限に"
         label2.font = UIFont.systemFont(ofSize: 12)
         stackView.addArrangedSubview(label2)
         
         let label3 = UILabel()
         label3.font = UIFont.systemFont(ofSize: 12)
-        label3.text = "2. 広告が非表示に"
-//        label3.textColor = .white
+        label3.text = "3. 広告が非表示に"
         stackView.addArrangedSubview(label3)
         subscriptionButton.addTarget(self, action: #selector(subscribe(sender:)), for: .touchUpInside)
     }

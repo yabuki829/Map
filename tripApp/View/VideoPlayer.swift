@@ -62,13 +62,12 @@ class VideoPlayer: UIView {
         addSubview(indicator)
         indicator.center(inView: self)
         indicator.center = self.center
-        indicator.color = .white
-        indicator.tintColor = .white
+        indicator.color = .black
+        indicator.tintColor = .black
         indicator.layer.zPosition = 1
-        
-        self.backgroundColor = .black
+        self.backgroundColor = .white
         player?.automaticallyWaitsToMinimizeStalling = false
-        player?.addObserver(self, forKeyPath: "timeControlStatus", options: .new, context: nil)
+        player?.automaticallyWaitsToMinimizeStalling = false
      
         if isStart {
             startButton.isHidden = false
@@ -102,7 +101,7 @@ class VideoPlayer: UIView {
         self.addSubview(startButton)
         startButton.center(inView: self)
         startButton.addTarget(self, action: #selector(closeImage(sender:)), for: .touchDown)
-        player!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
+        player?.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
         if isStart {
             startButton.isHidden = true
 
@@ -117,10 +116,11 @@ class VideoPlayer: UIView {
             let newStatus = AVPlayer.TimeControlStatus(rawValue: newValue)
             if newStatus != oldStatus {
                 DispatchQueue.main.async {[weak self] in
+                    self?.indicator.stopAnimating()
                     if newStatus == .playing || newStatus == .paused {
                         print("A")
                         
-                        self?.indicator.stopAnimating()
+                    
                         self?.slider.isHidden = false
                         self?.videoLengthLabel.isHidden = false
                         self?.currntLengthLabel.isHidden = false
@@ -160,6 +160,7 @@ class VideoPlayer: UIView {
         slider.addTarget(self, action: #selector(handleSliderChange), for: .valueChanged)
     }
     func updateSlider(){
+       
         if let duration = player?.currentItem?.duration {
            
             let seconds = CMTimeGetSeconds(duration)
@@ -219,10 +220,22 @@ class VideoPlayer: UIView {
         }
        
     }
-    func loadVideo(urlString:String,isWithCashe:Bool){
+    func loadVideo(urlString:String,compleation:@escaping (Bool) -> Void){
         indicator.startAnimating()
-        let url = URL(string: urlString)!
-        player = AVPlayer(url: url)
+        CacheManager.shared.getFileWith(stringUrl: urlString) {[weak self] result in
+                switch result {
+                   case .success(let url):
+                        
+                        self?.player = AVPlayer(url: url)
+                       
+                        compleation(true)
+                   case .failure(let error):
+                       // handle errror
+                        print(error)
+                        compleation(false)
+                }
+        }
+       
         
        
     }

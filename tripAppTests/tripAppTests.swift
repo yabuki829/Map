@@ -5,7 +5,10 @@
 //  Created by yabuki shodai on 2022/07/19.
 //
 
+
 import XCTest
+
+@testable import tripApp
 
 class tripAppTests: XCTestCase {
 
@@ -31,12 +34,4 @@ class tripAppTests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
-    func testPostDiscription(){
-        
-    }
-    func testEditDiscription(){}
-    func testDeleteDiscription(){}
-    func testSignin(){}
-    func testSignout(){}
-    
 }

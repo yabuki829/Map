@@ -34,7 +34,7 @@ class detailViewController:UIViewController{
     var isProfile = false
     
     override func viewDidLoad() {
-        
+        tableView.backgroundColor = .systemGray6
 
         view.backgroundColor = .white
         view.addSubview(tableView)
@@ -177,11 +177,19 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                 cell.discImageView.image = image
             }
             else {
-                cell.videoView.loadVideo(urlString: discription!.data.url, isWithCashe: true)
-                cell.videoView.updateSlider()
-                DispatchQueue.main.async {
-                    self.cell.expandButton.isHidden = false
+                cell.videoView.loadVideo(urlString: discription!.data.url) { result in
+                    if result{
+                       
+                        self.cell.videoView.setup()
+                        self.cell.videoView.setupSlider()
+                        self.cell.videoView.setupVideoTap()
+                        self.cell.expandButton.isHidden = false
+                        self.cell.dateLabel.text = self.discription!.created.covertString()
+                        self.cell.discTextLabel.text = self.discription!.text
+                        self.cell.videoView.backgroundColor = .black
+                    }
                 }
+               
             }
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
             cell.setCell(disc: discription!, widthSize: view.frame.width, heightSize: subheight)
@@ -399,8 +407,9 @@ class VideoViewController:UIViewController {
     override func viewDidLoad() {
         print("videoViewController")
         view.backgroundColor = .black
+        videoView.backgroundColor = .black
         videoView.start()
-        videoView.setup()
+//        videoView.setup()
         videoView.setupSlider()
         videoView.setupVideoTap()
         addConstraint()

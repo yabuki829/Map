@@ -10,14 +10,7 @@ import UIKit
 import AVFoundation
 
 class DetailViewCell: UITableViewCell {
-    var discription: Discription?{
-        didSet{
-           
-            discTextLabel.text = discription?.text
-            dateLabel.text = discription?.created.covertString()
-            
-        }
-    }
+    var discription: Discription?
     var profile:Profile?{
         didSet{
             profileImageView.setImage(urlString: profile!.profileImageUrl)
@@ -30,6 +23,7 @@ class DetailViewCell: UITableViewCell {
     let dateLabel     = UILabel()
     var videoView:VideoPlayer = {
         let view = VideoPlayer()
+        
         return view
     }()
     let profileImageView = UIImageView()
@@ -55,6 +49,8 @@ class DetailViewCell: UITableViewCell {
        
     }
     func setCell(disc:Discription,widthSize:CGFloat,heightSize:CGFloat){
+        self.backgroundColor = .systemGray6
+       
         width = widthSize
         subHeight = heightSize
         discription = disc
@@ -65,10 +61,8 @@ class DetailViewCell: UITableViewCell {
         }
         else{
             videoView.start()
-            videoView.setup()
-            videoView.setupVideoTap()
         }
-            expandButton.addTarget(self, action: #selector(expandvideo(sender: )) , for:.touchDown)
+        expandButton.addTarget(self, action: #selector(expandvideo(sender: )) , for:.touchDown)
         usernameButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
      
@@ -137,7 +131,7 @@ class DetailViewCell: UITableViewCell {
         
         
         discTextLabel.font = UIFont.systemFont(ofSize: 20)
-        discTextLabel.backgroundColor = .white
+        discTextLabel.backgroundColor = .systemGray6
         discTextLabel.numberOfLines = 0
         discTextLabel.anchor(top: profileImageView.bottomAnchor, paddingTop: 5.0,
                              left: leftAnchor, paddingLeft: 10.0,

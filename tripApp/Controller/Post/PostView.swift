@@ -225,23 +225,32 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
             let userid = FirebaseManager.shered.getMyUserid()
             HUD.show(.progress)
             
-            StorageManager.shered.uploadMovie(videourl: videoUrl!, thumnailData: thumnailImageForFileUrl(fileUrl: videoUrl!)!){ [self] result in
-                
-                let disc = Discription(id: String().generateID(10),
-                                       userid: userid,
-                                       text:   textView.text,
-                                       location: location,
-                                       data: ProfileImage(url:result[0].url, name: result[0].name),
-                                       thumnail: ProfileImage(url:result[1].url, name: result[1].name),
-                                       created: Date(), type: "video")
-                var data = DataManager.shere.get()
-                data.append(disc)
-                DataManager.shere.save(data: data)
-                FirebaseManager.shered.postDiscription(disc: disc)
-                HUD.hide()
-              
-                self.navigationController?.popViewController(animated: true)
+            let asset = AVAsset(url: videoUrl!)
+            
+            asset.generateThumbnail {[self] image in
+                let thumnailData = image?.convert_data()
+                StorageManager.shered.uploadMovie(videourl: videoUrl!, thumnailData: thumnailData!){ [self] result in
+                    
+                    let disc = Discription(id: String().generateID(10),
+                                           userid: userid,
+                                           text:   textView.text,
+                                           location: location,
+                                           data: ProfileImage(url:result[0].url, name: result[0].name),
+                                           thumnail: ProfileImage(url:result[1].url, name: result[1].name),
+                                           created: Date(), type: "video")
+                    var data = DataManager.shere.get()
+                    data.append(disc)
+                    DataManager.shere.save(data: data)
+                    FirebaseManager.shered.postDiscription(disc: disc){ result in
+                        
+                            HUD.hide()
+                            self.navigationController?.popViewController(animated: true)
+                        
+                    }
+                   
+                }
             }
+    
         }
         else if isVideo == false && textView.text.count != 0 &&
                     isLocation && !isOpen{
@@ -265,10 +274,11 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
                 var data = DataManager.shere.get()
                 data.append(disc)
                 DataManager.shere.save(data: data)
-                FirebaseManager.shered.postDiscription(disc: disc)
-                HUD.hide()
-             
-                self.navigationController?.popViewController(animated: true)
+                FirebaseManager.shered.postDiscription(disc: disc) { result in
+                    HUD.hide()
+                    self.navigationController?.popViewController(animated: true)
+                }
+                
                 
             }
        
@@ -294,21 +304,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
        
         
     }
-    func thumnailImageForFileUrl(fileUrl: URL) -> Data? {
-            let asset = AVAsset(url: fileUrl)
 
-            let imageGenerator = AVAssetImageGenerator(asset: asset)
-
-            do {
-                let thumnailCGImage = try imageGenerator.copyCGImage(at: CMTimeMake(value: 1,timescale: 60), actualTime: nil)
-                print("サムネイルの切り取り成功！")
-                let image = UIImage(cgImage: thumnailCGImage, scale: 0, orientation: .up)
-                return image.jpegData(compressionQuality: 0.85)
-            }catch let err{
-                print("エラー\(err)")
-            }
-            return nil
-    }
     @objc func back(){
         print("前の画面に戻る")
 //        self.presentingViewController?.dismiss(animated: true, completion: nil)
@@ -331,8 +327,7 @@ class PostViewController:UIViewController,UITextViewDelegate,CLLocationManagerDe
         view.addSubview(videoPlayer)
         view.addSubview(closeImageViewButton)
         
-        videoPlayer.setup()
-        videoPlayer.setupVideoTap()
+      
         selectImageView.anchor(left:view.leftAnchor, paddingLeft: 10,
                                right: view.rightAnchor, paddingRight: 10,
                                height: view.frame.width)
@@ -517,6 +512,8 @@ extension PostViewController:CropViewControllerDelegate{
             isVideo = true
             print("videoUrl",videoUrl!)
             videoPlayer.player = AVPlayer(url: videoUrl!)
+            videoPlayer.setup()
+            videoPlayer.setupVideoTap()
             picker.dismiss(animated: false, completion: nil)
            
         }

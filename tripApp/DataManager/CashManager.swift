@@ -40,7 +40,7 @@ class CacheManager {
                 return
         }
          print("キャッシュがない")
-        DispatchQueue.global().async {
+        DispatchQueue.main.async {
             
             if let videoData = NSData(contentsOf: URL(string: stringUrl)!) {
                 videoData.write(to: file, atomically: true)

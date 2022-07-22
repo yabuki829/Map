@@ -186,7 +186,6 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
            
             if isHome {
                 let articleCell = collectionView.cellForItem(at: indexPath) as! articleCell
-                
                 if discriptionList![indexPath.row].type == "image"{
                     print("サブスクリプション 画像")
                     //imageの場合

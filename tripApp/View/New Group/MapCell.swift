@@ -126,28 +126,25 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     }
 
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 20,
+                                        longitude:(view.annotation?.coordinate.longitude)! )
+    
+        let span = MKCoordinateSpan(latitudeDelta: 40, longitudeDelta: 40)
+        let region = MKCoordinateRegion(center: aa, span: span)
+        mapView.setRegion(region, animated: true)
         //viewtitle と discriptionの　titleが同じ
-       
         //postid と　id　が同じ
         for i in 0..<descriptionList!.count{
-            
             if view.annotation?.subtitle == descriptionList![i].text + descriptionList![i].created.covertString() {
-                print("同じ")
-                
-                
                 selectDiary = descriptionList![i]
-                
-                
-                
-//                if mapView.region.span.latitudeDelta > 0.00015 {
-                    let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 10, longitude: (view.annotation?.coordinate.longitude)! )
-                
-//                let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)!, longitude: (view.annotation?.coordinate.longitude)! )
-                let span = MKCoordinateSpan(latitudeDelta: 50, longitudeDelta: 50)
-                        let region = MKCoordinateRegion(center: aa, span: span)
-                        mapView.setRegion(region, animated: true)
-                        
-//                }
+                if selectDiary?.type == "image" {
+                    for j in 0..<imageViewArray.count {
+                        if selectDiary?.id == imageViewArray[j].postId {
+                            selectImage = imageViewArray[j].image
+                        }
+                    }
+                    
+                }
                 
                 break
             }
@@ -193,14 +190,10 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
             }
            
 
-                // 画像
             if descriptionList![i].type == "video" {
                 imageView.setImage(urlString: descriptionList![i].thumnail!.url) { [self] image in
-                 
                     
                     if  image != nil {
-                        
-                        
                         imageViewArray.append(uiimageData(postId: descriptionList![i].id, image: image!))
                         let button = UIButton()
                             button.setTitle("＞＞", for: .normal)

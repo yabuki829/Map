@@ -259,18 +259,24 @@ class FirebaseManager{
                     return
                 }
                 let data = snapshot!.data()
-                if let userid       = data!["userid"],
-                   let username     = data!["username"],
-                   let profileimage = data!["profileImage"],
-                   let bgimage      = data!["backgroundImage"],
-                   let text         = data!["text"]{
-                    print("OK")
+                if let userid       = data?["userid"],
+                   let username     = data?["username"],
+                   let profileimage = data?["profileImage"],
+                   let bgimage      = data?["backgroundImage"],
+                   let text         = data?["text"]{
+                    
                     let profile = Profile(userid: userid as! String,
                                           username: username as! String,
                                           text: text as? String,
                                           backgroundImageUrl: bgimage as! String,
                                           profileImageUrl:profileimage as! String)
                     profileList.append(profile)
+                }
+                else{
+                    print("友達がアカウントを削除しています")
+                        //friendList削除する
+                    FollowManager.shere.unfollow(userid: userid)
+                    self.unfollow(friendid: userid)
                 }
                 
                 DispatchQueue.main.async {
@@ -283,16 +289,37 @@ class FirebaseManager{
     }
     
     
-    func postDiscription(disc:Discription){
+    func postDiscription(disc:Discription,compleation:@escaping (Bool) -> Void ){
         let friendList = FollowManager.shere.getFollow()
-        print("friend",friendList)
         var receiver = [String]()
-        
+        print("投稿します")
         for i in 0..<friendList.count{
             let frienduserid = friendList[i].userid
             if friendList[i].isSend{
                 receiver.append(frienduserid)
-                database.collection("Users").document(frienduserid).collection("FriendDiscription").document(disc.id).setData(
+            }
+            
+        }
+        self.database.collection("Users").document(disc.userid).collection("MyDiscription").document(disc.id).setData(
+                ["id":disc.id,
+                 "userid":disc.userid,
+                 "text":disc.text,
+                 "latitude":disc.location?.latitude as Any,"longitude":disc.location?.longitude as Any,
+                 "created":FieldValue.serverTimestamp(),
+                 "imageurl":disc.data.url,
+                 "imagename":disc.data.name,
+                 "thumnailurl":disc.thumnail?.url,
+                 "thumnailname":disc.thumnail?.name,
+                 "receiverList":receiver,
+                 "type":disc.type
+                 
+                ]
+            )
+        print("見れる人",receiver)
+        DispatchQueue.global().async {
+            for i in 0..<receiver.count {
+                let frienduserid = receiver[i]
+                self.database.collection("Users").document(frienduserid).collection("FriendDiscription").document(disc.id).setData(
                     [   "id":disc.id,
                         "userid":disc.userid,
                         "text":disc.text,
@@ -307,27 +334,10 @@ class FirebaseManager{
                     ]
                 )
             }
-            
+            print("投稿完了")
+          
         }
-        print("見れる人",receiver)
-        DispatchQueue.main.async {
-            self.database.collection("Users").document(disc.userid).collection("MyDiscription").document(disc.id).setData(
-                    ["id":disc.id,
-                     "userid":disc.userid,
-                     "text":disc.text,
-                     "latitude":disc.location?.latitude as Any,"longitude":disc.location?.longitude as Any,
-                     "created":FieldValue.serverTimestamp(),
-                     "imageurl":disc.data.url,
-                     "imagename":disc.data.name,
-                     "thumnailurl":disc.thumnail?.url,
-                     "thumnailname":disc.thumnail?.name,
-                     "receiverList":receiver,
-                     "type":disc.type
-                     
-                    ]
-                )
-        }
-   
+        compleation(true)
         
         
     }
@@ -389,6 +399,7 @@ class FirebaseManager{
                 }
             }
             DispatchQueue.main.async {
+                discriptionList.reverse()
                 compleation(discriptionList)
             }
         }
@@ -539,6 +550,7 @@ class FirebaseManager{
     }
     func deleteDiscription(postID:String){
         //MyDiscriptionを削除する
+        
         let userid = Auth.auth().currentUser!.uid
         database.collection("Users").document(userid).collection("MyDiscription").document(postID).delete()
         //FriendDiscriptionを削除する
@@ -626,8 +638,8 @@ extension FirebaseManager{
         database.collection("Users").document(userid).collection("FriendIdList").addSnapshotListener { (snapshot, error) in
             for document in snapshot!.documents {
                 let data = document.data()
-                if let friendID = data["FriendID"]{
-                    let friend = Friend(userid: userid, isSend: false)
+                if data["FriendID"] != nil{
+                    let friend = Friend(userid: "friend", isSend: false)
                     friendIdList.append(friend)
                 }
                 

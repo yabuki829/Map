@@ -135,24 +135,29 @@ extension FriendListViewController{
     @objc func back(sender : UIButton){
         print("Back")
         //ここでブロックの解除を決定する
-        var users = FollowManager.shere.getBlockedUser()
-        for i in 0..<users.count {
-            if !users[i].isBlock {
-                users.remove(at: i)
-                //フォローし直す
-                if DataManager.shere.getSubScriptionState() {
-                    FollowManager.shere.follow(userid:users[i].userid)
-                }
-                else{
-                    if FollowManager.shere.getFollow().count < 10 {
-                        FollowManager.shere.follow(userid:users[i].userid)
+        if isBlockList {
+            var users = FollowManager.shere.getBlockedUser()
+            let followList = FollowManager.shere.getBlockedUser()
+            for i in 0..<followList.count {
+                if !followList[i].isBlock {
+                    users.remove(at: i)
+                    //フォローし直す
+                    if DataManager.shere.getSubScriptionState() {
+                        FollowManager.shere.follow(userid:followList[i].userid)
                     }
-                    
+                    else{
+                        if FollowManager.shere.getFollow().count < 10 {
+                            FollowManager.shere.follow(userid:followList[i].userid)
+                        }
+                    }
+                  
+                   
                 }
-               
             }
+            print("block",users)
+            FollowManager.shere.saveBlockList(blockList: users)
         }
-        FollowManager.shere.saveBlockList(blockList: users)
+       
         self.navigationController?.popViewController(animated: true)
     }
 }

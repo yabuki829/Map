@@ -72,7 +72,7 @@ class DataManager{
         if let isSubscrive = userDefaults.bool(forKey: "isSubscribe") as? Bool{
             return isSubscrive
         }
-        return isResult
+        return isResult 
     }
     func saveSubScriptionState(isSubscribe:Bool){
         userDefaults.set(isSubscribe, forKey: "isSubscribe")

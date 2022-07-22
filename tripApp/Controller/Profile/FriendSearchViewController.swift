@@ -81,7 +81,10 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     }
     override func viewDidLoad() {
         self.view.backgroundColor = .white
-       
+        if FollowManager.shere.getFollow().count > 10 && !DataManager.shere.getSubScriptionState() {
+            alert()
+            textField.isHidden = true
+        }
         print("友達検索画面")
         addConstraint()
         setNav()
@@ -89,7 +92,24 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         followButton.addTarget(self, action: #selector(Follow(sender:)), for: .touchUpInside)
         followButton.isHidden = true
     }
-    
+    func alert(){
+        let myAlert: UIAlertController = UIAlertController(title: "新しく友達を追加するには", message: "どちらか選択してください", preferredStyle: .alert)
+               
+            let alertA = UIAlertAction(title: "友達を整理する", style: .default) {  action in
+                //友達リストに遷移する
+                let vc = FriendListViewController()
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+            let alertC = UIAlertAction(title: "サブスクリプション", style: .default) {  action in
+                //サブスクリプションに遷移する
+                let vc = SubscriptionViewController()
+                self.navigationController?.pushViewController(vc, animated: true)
+                
+            }
+        myAlert.addAction(alertA)
+        myAlert.addAction(alertC)
+        present(myAlert, animated: true, completion: nil)
+    }
     func addConstraint(){
         
         view.addSubview(textField)
