@@ -8,16 +8,6 @@
 import Foundation
 
 
-struct Profile :Codable,Equatable{
-    var userid: String
-    var username:String
-    var text:String?
-    var backgroundImageUrl:String
-    var profileImageUrl   :String
-}
-
-
-
 
 
 struct ProfileImage :Codable,Equatable{
@@ -29,16 +19,10 @@ struct ProfileImage :Codable,Equatable{
 
 
 
-struct MyProfile:Codable,Equatable{
+struct Profile:Codable,Equatable{
     var userid: String
     var username:String
     var text:String
-    var backgroundImage:imageData
-    var profileImage   :imageData
-}
-
-struct imageData:Codable,Equatable{
-    var imageData:  Data
-    var name    : String
-    var url     : String
+    var backgroundImage:ProfileImage
+    var profileImage   :ProfileImage
 }

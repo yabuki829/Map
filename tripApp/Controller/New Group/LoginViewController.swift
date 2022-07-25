@@ -130,13 +130,12 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
     
     @objc func loginWithEmail(){
         print("Email Login")
-        let nav = EmailLoginViewController()
-        self.present(nav, animated: true, completion: nil)
+       
     }
     @objc func registerWithEmail(){
-        print("regiser")
-        let nav = RegisterWithEmailViewController()
+        let nav = PrivacyPolicyViewController()
         self.present(nav, animated: true, completion: nil)
+        
     }
     @objc func loginWithApple(){
         print("Apple Login")
@@ -181,11 +180,11 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
                         
                         FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
                             
-                            let myprofile:MyProfile = MyProfile(userid: profile.userid,
+                            let myprofile:Profile = Profile(userid: profile.userid,
                                                       username: profile.username,
                                                       text: profile.text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
-                                                      backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),
-                                                      profileImage: imageData(imageData: Data(), name: "", url: profile.profileImageUrl))
+                                                            backgroundImage: ProfileImage( url: profile.backgroundImage.url, name: profile.backgroundImage.name),
+                                                            profileImage: ProfileImage(url: profile.profileImage.url, name: profile.profileImage.name))
                             
                             DataManager.shere.setMyProfile(profile: myprofile)
                             
@@ -217,10 +216,7 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
                 }
             }
         }
-        else{
-            //遷移する
-            move()
-        }
+      
     }
 }
 

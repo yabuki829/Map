@@ -94,14 +94,16 @@ class SelectLocationMapViewController :UIViewController,MKMapViewDelegate {
             self.locationName = text
             let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! PostViewController
             // 値を渡す
-            preVC.location = self.location
-            preVC.isLocation = true
-            preVC.locationButton.setTitle(locationName, for: .normal)
-            preVC.locationButton.setTitleColor(.darkGray, for: .normal)
+//            preVC.location = self.location
+//            preVC.isLocation = true
+//            preVC.locationButton.setTitle(locationName, for: .normal)
+//            preVC.locationButton.setTitleColor(.darkGray, for: .normal)
+//            
+            preVC.postCell.location = self.location
+            preVC.postCell.isLocation = true
+            preVC.postCell.locationButton.setTitle(locationName, for: .normal)
+            preVC.postCell.locationButton.setTitleColor(.darkGray, for: .normal)
             // popする
-            if preVC.selectImageView != nil{
-//                preVC.collectionView.isHidden = true
-            }
             self.navigationController?.popViewController(animated: true)
         }
         // 一つ前のViewControllerを取得する
@@ -160,17 +162,18 @@ extension SelectLocationMapViewController:CLLocationManagerDelegate{
         CLGeocoder().reverseGeocodeLocation(Location) { [self] placemarks, error in
             if let placemark = placemarks?.first {
                 print(placemark)
-                let country = placemark.country
-                let locality = placemark.locality
-                let subLocality = placemark.subLocality
+                let country = placemark.country ?? ""
+                let locality = placemark.locality ?? ""
+                let subLocality = placemark.subLocality ?? ""
                 var text = ""
                 if let Area = placemark.administrativeArea {
                     print(placemark.administrativeArea!)
-                    text = "\(String((country ?? "") + Area + (locality ?? "") + (subLocality ?? "")))"
+//                    text = "\(String((country ?? "") + Area + (locality ?? "") + (subLocality ?? "")))"
+                    text = country + Area + locality + subLocality
                     compleation(text)
                 }
                 else{
-                    text = "\(String((country ?? "") + (locality ?? "") + (subLocality ?? "")))"
+                    text = country + locality + subLocality
                     compleation(text)
                    
                 }

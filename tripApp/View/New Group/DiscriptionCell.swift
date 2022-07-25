@@ -16,32 +16,18 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         didSet{
             
             if isHome {
-                if discriptionList?.count != 0{
                     emptyLabel.isHidden = true
                     collectionView.isHidden = false
                     collectionView.reloadData()
-                }
-                else{
-                    print("投稿はありません")
-                    emptyLabel.text = "投稿がありません"
-                    emptyLabel.isHidden = false
-                    collectionView.isHidden = true
-                    collectionView.reloadData()
-                }
+                
+             
             }
             
             else{
-                if discriptionList!.count == 0{
-                    emptyLabel.text = "投稿がありません"
-                    emptyLabel.isHidden = false
-                    collectionView.isHidden = true
-                    collectionView.reloadData()
-                }
-                else{
-                    emptyLabel.isHidden = true
-                    collectionView.isHidden = false
-                    collectionView.reloadData()
-                }
+                emptyLabel.isHidden = true
+                collectionView.isHidden = false
+                collectionView.reloadData()
+                
             }
             
            
@@ -82,57 +68,35 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         collectionView.register(AdCell.self, forCellWithReuseIdentifier: "AdCell")
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if DataManager.shere.getSubScriptionState() {
-//            if discriptionList!.count > 30{
-//                return 3-
-//            }
+     
+        if isHome{
+            return discriptionList!.count + 1
+        }
+        else{
+            
             return discriptionList!.count
         }
-        else {
-            if isHome{
-//                if discriptionList!.count > 40{
-//                    return 40 + 3
-//                }
-                return discriptionList!.count + 3
-            }
-            else{
-               
-                return discriptionList!.count
-            }
-        }
+        
         
        
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if DataManager.shere.getSubScriptionState() {
+        
             if isHome {
                 //広告を入れる
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "articleCell", for: indexPath) as! articleCell
-                cell.setCell(disc: discriptionList![indexPath.row])
-                self.cell = cell
-                return cell
-            }
-            else{
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DiscriptionImageCell", for: indexPath) as! DiscriptionImageCell
-                cell.setCell(disc: discriptionList![indexPath.row])
-                
-                self.imageCell = cell
-                return cell
-            }
-        }
-        else {
-            if isHome {
-                //広告を入れる
-                if indexPath.row < 3{
+                if indexPath.row < 1 {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AdCell", for: indexPath) as! AdCell
                     return cell
                 }
                 else{
+                    
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "articleCell", for: indexPath) as! articleCell
-                    cell.setCell(disc: discriptionList![indexPath.row - 3])
+                    cell.setCell(disc: discriptionList![indexPath.row - 1])
                     self.cell = cell
                     return cell
+                    
+
                 }
                
                 
@@ -144,7 +108,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
                 self.imageCell = cell
                 return cell
             }
-        }
+        
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
@@ -153,18 +117,9 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         return 0
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        if DataManager.shere.getSubScriptionState() {
+     
             if isHome {
-                return CGSize(width:collectionView.frame.width, height: frame.width)
-              
-            }
-            else{
-                return CGSize(width:collectionView.frame.width / 3, height: frame.width / 3)
-            }
-        }
-        else{
-            if isHome {
-                if indexPath.row < 3{
+                if indexPath.row < 1{
                     //広告　大きさ　320 / 100
                     return CGSize(width:collectionView.frame.width, height: 275)
                 }
@@ -176,76 +131,43 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
             else{
                 return CGSize(width:collectionView.frame.width / 3, height: frame.width / 3)
             }
-        }
+        
         
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if DataManager.shere.getSubScriptionState() {
-            //サブスクリプションユーザー
-           
-            if isHome {
-                let articleCell = collectionView.cellForItem(at: indexPath) as! articleCell
-                if discriptionList![indexPath.row].type == "image"{
-                    print("サブスクリプション 画像")
-                    //imageの場合
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row], selectImage: articleCell.imageView.image!)
-                }else{
-                    print("サブスクリプション 動画")
-                //ビデオの場合
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
-                }
+
+        if isHome {
+            //1か2に変更する
+            
+            if indexPath.row < 1 {
+                //広告
             }
             else{
-                let discriptionCell = collectionView.cellForItem(at: indexPath) as! DiscriptionImageCell
-                if discriptionList![indexPath.row].type == "image"{
-                    print("サブスクリプション 画像 profile")
-                    delegate?.toDetailWithDiscriptionpCell(discription:discriptionList![indexPath.row] , selectImage: discriptionCell.imageView.image!)
-                }
-                else{
-                    print("サブスクリプション 動画　profile")
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
-                }
-              
-            }
-        }
-        else {
-            if isHome {
-                //1か2に変更する
-              
-                if indexPath.row < 3{
-                    //広告
-                }
-                else{
-                    let articleCell = collectionView.cellForItem(at: indexPath) as! articleCell
-                    //imageの場合
-                    if discriptionList![indexPath.row - 3].type == "image"{
-                        delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3], selectImage: articleCell.imageView.image!)
-                    }else{
+                let articleCell = collectionView.cellForItem(at: indexPath) as! articleCell
+                //imageの場合
+                if discriptionList![indexPath.row - 1].type == "image"{
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 1], selectImage: articleCell.imageView.image!)
+                }else{
                     //ビデオの場合
-                        
-                        delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 3])
-                    }
-                   
-                    
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 1])
                 }
+            }
                
                 
+        }
+        else{
+            let discriptionCell = collectionView.cellForItem(at: indexPath) as! DiscriptionImageCell
+            if discriptionList![indexPath.row].type == "image"{
+                print("image",discriptionCell.imageView.image!)
+                delegate?.toDetailWithDiscriptionpCell(discription:  discriptionList![indexPath.row], selectImage: discriptionCell.imageView.image!)
             }
             else{
-                let discriptionCell = collectionView.cellForItem(at: indexPath) as! DiscriptionImageCell
-                if discriptionList![indexPath.row].type == "image"{
-                    print("image",discriptionCell.imageView.image!)
-                    delegate?.toDetailWithDiscriptionpCell(discription:  discriptionList![indexPath.row], selectImage: discriptionCell.imageView.image!)
-                }
-                else{
-                    print("video")
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
-                }
-              
+                print("video")
+                delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
             }
+              
         }
-     
        
         
     }

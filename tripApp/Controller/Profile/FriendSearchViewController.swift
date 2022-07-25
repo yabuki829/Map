@@ -17,11 +17,11 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
             if FollowManager.shere.isME(userid: profile!.userid) == false && FollowManager.shere.isFollow(userid: profile!.userid) == false{
                 followButton.isHidden = false
                 messageLabel.isHidden = true
-                if profile?.profileImageUrl == "person.crop.circle.fill"{
-                    profileImage.image = UIImage(named: "person.crop.circle.fill")
+                if profile?.profileImage.url == "person.crop.circle.fill"{
+                    profileImage.image = UIImage(systemName: "person.crop.circle.fill")
                 }
                 else{
-                    profileImage.setImage(urlString: profile!.profileImageUrl)
+                    profileImage.setImage(urlString: profile!.profileImage.url)
                 }
                 if profile?.username == ""{
                     usernameLabel.text = "No Name"
@@ -81,10 +81,7 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     }
     override func viewDidLoad() {
         self.view.backgroundColor = .white
-        if FollowManager.shere.getFollow().count > 10 && !DataManager.shere.getSubScriptionState() {
-            alert()
-            textField.isHidden = true
-        }
+  
         print("友達検索画面")
         addConstraint()
         setNav()
@@ -93,23 +90,83 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         followButton.isHidden = true
     }
     func alert(){
-        let myAlert: UIAlertController = UIAlertController(title: "新しく友達を追加するには", message: "どちらか選択してください", preferredStyle: .alert)
+        let myAlert: UIAlertController = UIAlertController(title: "", message: "", preferredStyle: .alert)
                
             let alertA = UIAlertAction(title: "友達を整理する", style: .default) {  action in
                 //友達リストに遷移する
                 let vc = FriendListViewController()
                 self.navigationController?.pushViewController(vc, animated: true)
             }
-            let alertC = UIAlertAction(title: "サブスクリプション", style: .default) {  action in
-                //サブスクリプションに遷移する
-                let vc = SubscriptionViewController()
-                self.navigationController?.pushViewController(vc, animated: true)
+            let alertC = UIAlertAction(title: "キャンセル", style: .default) {  action in
+             
                 
             }
         myAlert.addAction(alertA)
         myAlert.addAction(alertC)
         present(myAlert, animated: true, completion: nil)
     }
+
+    func setNav(){
+        self.title = "友達検索"
+        let backButton = UIImage(systemName: "chevron.left")
+        let backItem = UIBarButtonItem(image: backButton, style: .plain, target: self, action: #selector(back(sender:)))
+        backItem.tintColor = .darkGray
+        navigationItem.leftBarButtonItem = backItem
+        
+        let showFriendIdItem = UIBarButtonItem(title: "FriendID", style: .plain, target: self, action: #selector(showFriendId))
+        showFriendIdItem.tintColor = .link
+        navigationItem.rightBarButtonItem = showFriendIdItem
+    }
+    @objc func back(sender : UIButton){
+        print("Back")
+        self.navigationController?.dismiss(animated: true, completion: nil)
+    }
+    @objc internal func Follow(sender: UIButton) {
+        print("Follow")
+        //userdefaultsにuseridを保存する
+        //フレンドの人数を確認 10人いれば　サブスク画面に遷移する
+        
+        if profile?.userid != "" || profile?.userid.isEmpty == false{
+            print("Followします")
+            FollowManager.shere.follow(userid: profile!.userid)
+            FirebaseManager.shered.follow(friendid: profile!.userid)
+            followButton.setTitle("友達です", for: .normal)
+            followButton.isEnabled = false
+            self.navigationController?.dismiss(animated: true, completion: nil)
+        }
+    }
+    @objc func showFriendId(){
+        print("Show Friend ID")
+        present(AlertManager.shared.showFriendID(), animated: false)
+    }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField.text == "" {
+            return false
+        }
+        let userid = textField.text ?? "エラー"
+            FirebaseManager.shered.getProfile(userid: userid ) { (data) in
+                print("取得完了")
+                print(data)
+                if data.userid == "error"{
+                    self.messageLabel.text = "Profileが設定されていない。もしくは,削除されたUserです"
+                    self.messageLabel.textAlignment = .center
+                    self.messageLabel.isHidden = false
+                }
+                else{
+                    self.profile = data
+                }
+                    
+                  
+            }
+            
+        return true
+    }
+    
+   
+   
+}
+
+extension FriendSearchViewController {
     func addConstraint(){
         
         view.addSubview(textField)
@@ -150,97 +207,17 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         messageLabel.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20).isActive = true
         messageLabel.isHidden = true
     }
-    func setNav(){
-        self.title = "友達検索"
-        let backButton = UIImage(systemName: "chevron.left")
-        let backItem = UIBarButtonItem(image: backButton, style: .plain, target: self, action: #selector(back(sender:)))
-        backItem.tintColor = .darkGray
-        navigationItem.leftBarButtonItem = backItem
-        
-        let showFriendIdItem = UIBarButtonItem(title: "FriendID", style: .plain, target: self, action: #selector(showFriendId))
-        showFriendIdItem.tintColor = .link
-        navigationItem.rightBarButtonItem = showFriendIdItem
-    }
-    @objc func back(sender : UIButton){
-        print("Back")
-        self.navigationController?.dismiss(animated: true, completion: nil)
-    }
-    @objc internal func Follow(sender: UIButton) {
-        print("Follow")
-        //userdefaultsにuseridを保存する
-        //フレンドの人数を確認 10人いれば　サブスク画面に遷移する
-        
-        if profile?.userid != "" || profile?.userid.isEmpty == false{
-            print("Followします")
-            FollowManager.shere.follow(userid: profile!.userid)
-            FirebaseManager.shered.follow(friendid: profile!.userid)
-            followButton.setTitle("友達です", for: .normal)
-            followButton.isEnabled = false
-            self.navigationController?.dismiss(animated: true, completion: nil)
-        }
-    }
-    @objc func showFriendId(){
-        print("Show Friend ID")
-        present(AlertManager.shared.showFriendID(), animated: false)
-    }
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField.text == "" {
-            return false
-        }
-        HUD.show(.progress)
-        FirebaseManager.shered.getUserID(userid: textField.text!) { (userid) in
-            print("userid 取得完了")
-            HUD.hide()
-            if userid == "idが正しくありません"{
-              
-                self.messageLabel.textAlignment = .left
-                self.messageLabel.text = "入力したFriendIDが正しくない、もしくは存在しないFriendIDです"
-                self.messageLabel.isHidden = false
-                return
-                
-            }
-            else if userid == FirebaseManager.shered.getMyUserid(){
-                self.messageLabel.text = "ご自身のアカウントです"
-                self.messageLabel.textAlignment = .center
-                self.messageLabel.isHidden = false
-                return
-            }
-            else{
-                FirebaseManager.shered.getProfile(userid: userid) { (data) in
-                    print("取得完了")
-                    print(data)
-                    if data.userid == "error"{
-                        self.messageLabel.text = "Profileが設定されていないUserです"
-                        self.messageLabel.textAlignment = .center
-                        self.messageLabel.isHidden = false
-                    }
-                    else{
-                        self.profile = data
-                    }
-                    
-                  
-                }
-            }
-          
-        }
-        
-        return true
-    }
-    
-   
-   
 }
-
 class AlertManager{
     static let shared = AlertManager()
     func showFriendID() -> UIAlertController{
            
-           let id = UserDefaults.standard.object(forKey: "userid")
-           let alert = UIAlertController(title: "your FriendID" , message:id as? String, preferredStyle: .alert)
+        let id = FirebaseManager.shered.getMyUserid()
+           let alert = UIAlertController(title: "your FriendID" , message:id , preferredStyle: .alert)
 
            let selectAction = UIAlertAction(title: "Copy", style: .default, handler: { _ in
                let pasteboard = UIPasteboard.general
-               pasteboard.string = id as? String
+               pasteboard.string = id 
 
                  let generator = UISelectionFeedbackGenerator()
                  generator.prepare()

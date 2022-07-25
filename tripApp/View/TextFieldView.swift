@@ -28,7 +28,7 @@ class textFieldView:UIView,UITextFieldDelegate{
         button.tintColor = .link
         return button
     }()
-    var messageID = String()
+    var postID = String()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,8 +42,8 @@ class textFieldView:UIView,UITextFieldDelegate{
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    func setupViews(messageid:String){
-        messageID = messageid
+    func setupViews(postid:String){
+        postID = postid
         
         addSubview(textfield)
         addSubview(sendButton)
@@ -57,8 +57,9 @@ class textFieldView:UIView,UITextFieldDelegate{
         }
         
         //postID
-        FirebaseManager.shered.sendComment(text: textfield.text!, messageid: messageID)
+        FirebaseManager.shered.sendComment(text: textfield.text!, messageid: postID)
         textfield.text = ""
+        delegate?.completealert()
     }
     
     func addConsrtaints(){
@@ -76,6 +77,10 @@ class textFieldView:UIView,UITextFieldDelegate{
     func textFieldDidChangeSelection(_ textField: UITextField) {
          print("変更されました")
     }
+    weak var delegate:CommentDelegate? = nil
 }
 
 
+protocol CommentDelegate: AnyObject  {
+    func completealert()
+}

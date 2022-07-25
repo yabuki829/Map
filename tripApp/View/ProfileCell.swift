@@ -132,18 +132,18 @@ class ProfileCell: BaseCell{
     //friendのprofileを表示する
     func setCellB(profile:Profile,followList:[Friend],postList:[Discription]){
         
-        if profile.backgroundImageUrl == "background"  {
+        if profile.backgroundImage.url == "background"  {
             backgroundImage.image = UIImage(named: "background")
         }
         else{
-            backgroundImage.setImage(urlString: profile.backgroundImageUrl)
+            backgroundImage.setImage(urlString: profile.backgroundImage.url)
         }
        
-        if profile.profileImageUrl == "person.crop.circle.fill"{
+        if profile.profileImage.url == "person.crop.circle.fill"{
             profileImage.image = UIImage(systemName: "person.crop.circle.fill")
         }
         else{
-            profileImage.setImage(urlString: profile.profileImageUrl)
+            profileImage.setImage(urlString: profile.profileImage.url)
         }
        
         friendCountLabel.text = String(followList.count)
@@ -155,27 +155,27 @@ class ProfileCell: BaseCell{
         editButton.isHidden = true
     }
     //自分のprofileを表示する
-    func setCellA(profile:MyProfile, followList:[Friend],postList:[Discription]){
+    func setCellA(profile:Profile, followList:[Friend],postList:[Discription]){
         print("-----------------")
         print(profile)
         if profile.backgroundImage.name == "background" ||  profile.backgroundImage.url == "background" {
             backgroundImage.image = UIImage(named: "background")
         }
-        else if profile.backgroundImage.name == "" || profile.backgroundImage.url != ""{
+        else if profile.backgroundImage.name == "" || profile.backgroundImage.url == ""{
             
-            backgroundImage.setImage(urlString:profile.backgroundImage.url)
+            backgroundImage.image = UIImage(named: "background")
         }
         else{
-            backgroundImage.image = UIImage(data: profile.backgroundImage.imageData)
+            backgroundImage.setImage(urlString: profile.backgroundImage.url)
         }
         if profile.profileImage.name == "person.crop.circle.fill" || profile.profileImage.url == "person.crop.circle.fill"{
             profileImage.image = UIImage(systemName: "person.crop.circle.fill")
         }
-        else if profile.profileImage.name == "" || profile.profileImage.url != ""{
-            profileImage.setImage(urlString: profile.profileImage.url)
+        else if profile.profileImage.name == "" || profile.profileImage.url == ""{
+            profileImage.image = UIImage(systemName: "person.crop.circle.fill")
         }
         else{
-            profileImage.image = UIImage(data:profile.profileImage.imageData)
+            profileImage.setImage(urlString:profile.profileImage.url )
         }
         editButton.isHidden = false
         friendCountLabel.text = String(followList.count)

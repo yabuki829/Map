@@ -45,12 +45,7 @@ class MapViewController: UIViewController, reloadDelegate {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-            //10人以上で　かつ　サブスクに登録していない
-        if FollowManager.shere.getFollow().count > 10 && !DataManager.shere.getSubScriptionState() {
-            //友達を減らしてください。
-            alert()
-        }
+    
         view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = .white
 
@@ -59,7 +54,7 @@ class MapViewController: UIViewController, reloadDelegate {
 
         addConstraint()
         postButton.addTarget(self, action: #selector(sendtoPostView(sender:)), for: .touchUpInside)
-
+        getDiscription()
 
         setupNavigationItems()
         settingCollectionView()
@@ -68,8 +63,10 @@ class MapViewController: UIViewController, reloadDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         print("viewWillAppear")
-        getDiscription()
-
+        if isReload {
+            getDiscription()
+            isReload = false
+        }
     }
     
     func alert(){
@@ -79,26 +76,15 @@ class MapViewController: UIViewController, reloadDelegate {
                 //友達リストに遷移する
                 self.toFriendList()
             }
-            let alertC = UIAlertAction(title: "サブスクリプション", style: .default) {  action in
-                //サブスクリプションに遷移する
-                let vc = SubscriptionViewController()
-                self.navigationController?.pushViewController(vc, animated: true)
-                
-            }
+          
         myAlert.addAction(alertA)
-        myAlert.addAction(alertC)
         present(myAlert, animated: true, completion: nil)
     }
     @objc internal func sendtoPostView(sender: UIButton) {
      
-        if DataManager.shere.get().count < 15 || DataManager.shere.getSubScriptionState()  {
             let vc = PostViewController()
             navigationController?.pushViewController(vc, animated: true)
-        }
-        else{
-            let alert = AlertManager.shared.shewMessage(title: "15件までしか投稿できません", message: "投稿を削除してしてください")
-            present(alert, animated: true)
-        }
+       
        
       }
 
@@ -281,11 +267,17 @@ class articleCell:UICollectionViewCell{
         label.textColor = .lightGray
         return label
     }()
+    let playimage:UIImageView = {
+        let imageView = UIImageView()
+        imageView.tintColor = .white
+        imageView.image = UIImage(systemName: "play.fill")
+        return imageView
+    }()
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
     }
-    func setupViews(){    }
+    func setupViews(){}
     func addConstraint(){
         self.addSubview(profileImageView)
         self.addSubview(username)
@@ -322,18 +314,17 @@ class articleCell:UICollectionViewCell{
         getProfile(userid: disc.userid)
         
         if disc.type == "image" {
+            playimage.isHidden = true
             imageView.image = UIImage()
             imageView.setImage(urlString: disc.data.url)
         }
         else{
+            playimage.isHidden = false
             imageView.image = UIImage()
             imageView.setImage(urlString: disc.thumnail!.url)
-            
-            let playimage = UIImageView()
-            playimage.image = UIImage(systemName: "play.fill")
-            playimage.tintColor = .white
             imageView.addSubview(playimage)
             playimage.center(inView: imageView)
+         
         }
        
         addConstraint()
@@ -345,7 +336,15 @@ class articleCell:UICollectionViewCell{
     
     func getProfile(userid:String){
         FirebaseManager.shered.getProfile(userid: userid) { result in
-            self.profileImageView.setImage(urlString: result.profileImageUrl)
+            if result.profileImage.url == "person.crop.circle.fill" || result.profileImage.name == "person.crop.circle.fill"{
+                self.profileImageView.image = UIImage(systemName: "person.crop.circle.fill")
+                self.profileImageView.backgroundColor = .white
+                
+            }
+            else {
+                self.profileImageView.setImage(urlString: result.profileImage.url)
+            }
+           
             self.username.text = result.username
         }
     }

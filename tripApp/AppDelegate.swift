@@ -10,8 +10,6 @@ import FirebaseCore
 import Firebase
 import FirebaseMessaging
 
-import Purchases
-
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate ,MessagingDelegate, UNUserNotificationCenterDelegate{
 
@@ -32,10 +30,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate ,MessagingDelegate, UNUser
         }
         
         print("---------------------------------------------")
-        Purchases.configure(withAPIKey: "appl_XDqedcWoiVhnjjJhDbVcRJoeVPX")
-        SubscribeManager.shared.setup { result in
-            DataManager.shere.saveSubScriptionState(isSubscribe: result)
-        }
+       
+     
         
         return true
     }

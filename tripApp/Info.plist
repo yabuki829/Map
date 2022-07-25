@@ -17,23 +17,21 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-9515239279115600~5564177430</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>投稿とともに位置情報を記録するために使用します</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>投稿と一緒に位置情報を記録するために使用します</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>投稿と一緒に位置情報を記録するために使用します</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>投稿とともに画像を保存します</string>
+	<string>投稿とともに画像を保存するために使用します</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>投稿とともに画像を保存します</string>
+	<string>投稿とともに画像を保存するために使用します</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

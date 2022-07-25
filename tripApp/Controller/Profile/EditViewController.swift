@@ -36,7 +36,7 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     }()
     let textView:UITextView = {
         let textview = UITextView()
-        textview.text = "Learn from the mistakes of others. You can’t live long enough to make them all yourself."
+        textview.text = "profile"
         return textview
     }()
     let textfield:UITextField = {
@@ -50,7 +50,7 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     var backgroundimagedata : Data?
     var isChangedBackgroundImage = false
     
-    var profile:MyProfile? {
+    var profile:Profile?{
         didSet{
             if profile!.backgroundImage.name == "background"  || profile!.backgroundImage.url == "background" {
                 backgraundImage.image = UIImage(named: "background")
@@ -59,18 +59,18 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
                 backgraundImage.setImage(urlString:profile!.backgroundImage.url  )
             }
             else{
-                backgraundImage.image = UIImage(data: profile!.backgroundImage.imageData)
+                backgraundImage.setImage(urlString: (profile?.backgroundImage.url)!)
             }
             
             
             if  profile!.profileImage.name == "person.crop.circle.fill"  || profile!.profileImage.url == "person.crop.circle.fill" {
                 profileImage.image =  UIImage(systemName:"person.crop.circle.fill")
             }
-            else if profile!.profileImage.name == "" || profile!.profileImage.url != ""{
+            else if profile!.profileImage.name == "" || profile!.profileImage.url == ""{
                 profileImage.setImage(urlString: profile!.profileImage.url)
             }
             else{
-                profileImage.image = UIImage(data: profile!.profileImage.imageData)
+                profileImage.setImage(urlString: (profile?.profileImage.url)!)
             }
             textfield.text = profile?.username
             textView.text = profile?.text
@@ -165,6 +165,7 @@ class EditViewController : UIViewController, UIImagePickerControllerDelegate & U
     }
     @objc func back(sender : UIButton){
         print("Back")
+        
         self.navigationController?.popViewController(animated: true)
     }
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
@@ -293,7 +294,11 @@ extension EditViewController{
                     }
                     
                     //profile画像を変更する　ここ
-                    FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: nil, proImagedata: profileimagedata, backgroundimageurl: (profile?.backgroundImage.url)!, profileimageurl: (profile?.profileImage.url)!) { result in
+                  
+                    
+                    FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: nil, proImagedata: profileimagedata, profile: profile!) { result in
+                        
+                    
                         HUD.hide()
                         if result {
                             self.navigationController?.popViewController(animated: true)
@@ -306,9 +311,10 @@ extension EditViewController{
                     if isChangedBackgroundImage  {
                         print("----------バックグラウンドが新しい画像-----------")
                         if profile?.profileImage.name != "person.crop.circle.fill" {
+                            //前のbackgroundを削除する
                             StorageManager.shered.deletebackgroundImage(name: (profile?.backgroundImage.name)!)
                         }
-                        FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: backgroundimagedata, proImagedata: nil, backgroundimageurl:(profile?.backgroundImage.url)!, profileimageurl:  (profile?.profileImage.url)!) { result in
+                        FirebaseManager.shered.editProfileB(text: textView.text!, username: textfield.text!, bgImagedata: backgroundimagedata, proImagedata: nil, profile: profile!) { result in
                                 HUD.hide()
                             if result {
                                 self.navigationController?.popViewController(animated: true)
@@ -330,7 +336,7 @@ extension EditViewController{
                 
                 HUD.hide()
                 if result{
-                    self.navigationController?.dismiss(animated: true, completion: nil)
+                    self.navigationController?.popViewController(animated: true)
                     return
                 }
                 

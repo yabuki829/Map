@@ -19,17 +19,28 @@ class DataManager{
     func get() -> [Discription]{
         var diary = [Discription]()
         if let data:[Discription] = userDefaults.codable(forKey: "discription")  {
+            
             diary = data
+            diary.sort(by: { a, b -> Bool in
+                return a.created > b.created
+            })
+            for i in 0..<diary.count {
+                print(diary[i].created.covertString() ,diary[i].created.secondAgo())
+            }
         }
         return diary
     }
     
+    
+    
     func getDiscriptionSince48Hours() -> [Discription]{
         let disc = get()
-        let date = Calendar.current.date(byAdding: .hour, value: 24, to: Date())!
+        let date = Calendar.current.date(byAdding: .hour, value: -24, to: Date())!
+        print("日より後を取得します",date.toString()) // 2022年07月22日Fri　21時48分45秒
         var modifiedDisc = [Discription]()
+        
         for i in 0..<disc.count{
-            if date >= disc[i].created{
+            if date <= disc[i].created{
                 modifiedDisc.append(disc[i])
             }
         }
@@ -49,32 +60,23 @@ class DataManager{
             }
         }
     }
-    func setMyProfile(profile:MyProfile){
-        userDefaults.setCodable(profile, forKey: "myprofile")
+    func setMyProfile(profile:Profile){
+        userDefaults.setCodable(profile, forKey: "profile")
     }
     
-    func getMyProfile() -> MyProfile {
-        var profile = MyProfile(userid: FirebaseManager.shered.getMyUserid(),
+    func getMyProfile() -> Profile {
+        var profile = Profile(userid: FirebaseManager.shered.getMyUserid(),
                                 username: "No Name",
-                                text: "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
-                                backgroundImage: imageData(imageData: Data(), name: "background", url: "background" ),
-                                profileImage: imageData(imageData: Data(), name: "person.crop.circle.fill", url: "background"))
+                                text: "profile",
+                                backgroundImage: ProfileImage(url: "background", name: "background" ),
+                                profileImage: ProfileImage(url: "background", name: "person.crop.circle.fill"))
         
-        if let data:MyProfile = userDefaults.codable(forKey: "myprofile")  {
+        if let data:Profile = userDefaults.codable(forKey: "profile")  {
             profile = data
         }
         return profile
     }
     
     //サブスクの状態を返す
-    func getSubScriptionState()-> Bool{
-        let isResult = false
-        if let isSubscrive = userDefaults.bool(forKey: "isSubscribe") as? Bool{
-            return isSubscrive
-        }
-        return isResult 
-    }
-    func saveSubScriptionState(isSubscribe:Bool){
-        userDefaults.set(isSubscribe, forKey: "isSubscribe")
-    }
+
 }

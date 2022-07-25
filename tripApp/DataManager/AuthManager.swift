@@ -20,8 +20,7 @@ class AuthManager{
                 compleation(false)
                 return
             }
-            let userid = String().generateID(20)
-            FirebaseManager.shered.setUserID(userid: userid)
+            let userid = self.auth.currentUser?.uid
             UserDefaults.standard.setValue(userid, forKey: "userid")
             compleation(true)
         }
@@ -32,8 +31,7 @@ class AuthManager{
                 print("エラー",error)
                 compleation(false)
             }
-            let userid = String().generateID(20)
-            FirebaseManager.shered.setUserID(userid: userid)
+            let userid = self.auth.currentUser?.uid
             UserDefaults.standard.setValue(userid, forKey: "userid")
             compleation(true)
         }
@@ -46,8 +44,7 @@ class AuthManager{
                 compleation(false)
                 return
             }
-            let userid = String().generateID(20)
-            FirebaseManager.shered.setUserID(userid: userid)
+            let userid = self.auth.currentUser?.uid
             UserDefaults.standard.setValue(userid, forKey: "userid")
             compleation(true)
             
@@ -55,15 +52,13 @@ class AuthManager{
     }
     func signinWithEmail(email:String,password:String,compleation:@escaping (Bool) -> Void){
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
-          guard let strongSelf = self else { return }
             if let error = error{
                 print("エラー",error)
                 compleation(false)
                 return
             }
             
-            let userid = String().generateID(20)
-            FirebaseManager.shered.setUserID(userid: userid)
+            let userid = self?.auth.currentUser?.uid
             UserDefaults.standard.setValue(userid, forKey: "userid")
             compleation(true)
             
@@ -76,7 +71,7 @@ class AuthManager{
         do {
             print("logout")
             try firebaseAuth.signOut()
-                FirebaseManager.shered.deleteUserid()
+             
                 UserDefaults.standard.removeObject(forKey: "userid")
                 compleation(true)
             
@@ -92,9 +87,6 @@ class AuthManager{
         //2.profileの削除
         print("profileの削除")
         Firestore.firestore().collection("Profile").document(user!.uid).delete()
-        //3.friendidを取得して　useridを削除する
-        print("friendidを取得して　useridを削除する")
-        FirebaseManager.shered.deleteUserid()
         //4.friend id List を削除
         print("friend id List を削除")
         FirebaseManager.shered.deleteAllFollow(userid: user!.uid)
@@ -102,6 +94,7 @@ class AuthManager{
         //5.discription　frienddiscription mydiscription の削除
         print("discription　frienddiscription mydiscription の削除")
         FirebaseManager.shered.deleteAllDiscriptions(userID: user!.uid)
+        
         //6.userdefailtsの削除
         print("userdefailtsの削除")
         DataManager.shere.allDelete()
@@ -119,6 +112,9 @@ class AuthManager{
                         compleation(true)
                     }
                 }
+            }
+            else {
+                print("エラー")
             }
         }
         

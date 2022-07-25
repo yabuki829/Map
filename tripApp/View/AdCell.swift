@@ -33,6 +33,7 @@ class AdCell:BaseCell{
         adLabel.textColor = .white
         adLabel.layer.cornerRadius = 20
         adLabel.clipsToBounds = true
+        adLabel.isHidden = true
     }
 
     func addAD(){
@@ -51,6 +52,7 @@ class AdCell:BaseCell{
 extension AdCell :NADViewDelegate{
     func nadViewDidFinishLoad(_ adView: NADView!) {
         print("ロード完了")
+        adLabel.isHidden = false
     }
     func nadViewDidReceiveAd(_ adView: NADView!){
         print("受信をしました")

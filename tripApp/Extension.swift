@@ -192,7 +192,23 @@ extension AVPlayer {
     }
 }
 extension UIImageView{
-    
+    func setimage(asset:AVAsset,compleation:@escaping (Bool) -> Void) {
+        DispatchQueue.main.async {
+            let imageGenerator = AVAssetImageGenerator(asset: asset)
+            imageGenerator.appliesPreferredTrackTransform = true
+            let time = CMTime(seconds: 0.0, preferredTimescale: 600)
+            let times = [NSValue(time: time)]
+            imageGenerator.generateCGImagesAsynchronously(forTimes: times, completionHandler: { _, image, _, _, _ in
+                if let image = image {
+                    self.image = UIImage(cgImage: image, scale: 0, orientation: .up)
+                    compleation(true)
+                }
+                else {
+                    compleation(false)
+                }
+            })
+        }
+    }
     func setImage(urlString:String){
         let url = URL(string: urlString)
         let option = ImageLoadingOptions(
@@ -332,89 +348,3 @@ extension String {
         return result
     }
 }
-
-
-
-enum TransitionType {
-    case presentation
-    case dismissal
-}
-
-class ZoomTransition: NSObject {
-    let transitionDuration: Double = 0.1
-    var transition: TransitionType = .presentation
-}
-
-extension ZoomTransition :UIViewControllerAnimatedTransitioning{
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-           return transitionDuration
-    }
-
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-           switch transition {
-               
-           case .presentation:
-                //画面遷移
-               presentTransition(using: transitionContext)
-           case .dismissal:
-               //前の画面に戻る
-               dismissalTransition(using: transitionContext)
-           }
-    }
-    
-    private func presentTransition(using transitionContext: UIViewControllerContextTransitioning) {
-            // 画面遷移アニメーション
-        
-        let fromVC = transitionContext.viewController(forKey: .from) as! profileViewController
-        let toVC = transitionContext.viewController(forKey: .to) as! detailViewController
-        // トランジションコンテクストからアニメーションを描画するためのコンテナービューを取得
-        let containerView = transitionContext.containerView
-        
-        let cell = fromVC.collectionView.cellForItem(at: (fromVC.mapAndDiscriptionCell?.discriptioncell.collectionView.indexPathsForSelectedItems?.first)! ) as! DiscriptionImageCell
-        let animationView = UIImageView(image: cell.imageView.image)
-        animationView.frame = containerView.convert(cell.imageView.frame, from: cell.imageView.superview)
-        cell.imageView.isHidden = true
-        
-        toVC.view.frame = transitionContext.finalFrame(for: toVC)
-        toVC.view.alpha = 0
-        toVC.view.layoutIfNeeded()
-        toVC.cell.imageView!.isHidden = true
-
-        containerView.addSubview(toVC.view)
-        containerView.addSubview(animationView)
-        
-        
-        UIView.animate(withDuration: transitionDuration(using: transitionContext), delay: 0, options: .curveEaseInOut) {
-            toVC.view.alpha = 0.0
-            animationView.frame = containerView.convert(toVC.cell.imageView!.frame, from: toVC.view)
-        } completion: { result in
-            toVC.cell.imageView!.isHidden = false
-            cell.imageView.isHidden = false
-            animationView.removeFromSuperview()
-            transitionContext.completeTransition(true)
-        }
-
-
-        
-        
-    
-    }
-
-    private func dismissalTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        // 戻る時のアニメーション
-        print("戻る")
-    }
-}
-
-extension ZoomTransition: UIViewControllerTransitioningDelegate{
-    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        transition = .presentation
-        return self
-    }
-
-    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        transition = .dismissal
-        return self
-    }
-}
-

@@ -14,10 +14,10 @@ class profileViewController:UICollectionViewController{
 
     
     var isMyProfile = true
-    var profile = Profile(userid: "error", username: "No Name", backgroundImageUrl:"background" , profileImageUrl: "person.crop.circle.fill")
-    var myprofile = MyProfile(userid: "", username: "", text: "",
-                                backgroundImage: imageData(imageData: Data(), name: "background", url: "background"),
-                                profileImage:  imageData(imageData: Data(), name: "person.crop.circle.fill", url: "person.crop.circle.fill"))
+    var profile = Profile(userid: "error", username: "No Name", text: "PhotoEarth",
+                          backgroundImage: ProfileImage(url: "background", name:"background"),
+                          profileImage: ProfileImage(url: "person.crop.circle.fill", name: "person.crop.circle.fill"))
+   
     var discriptionList = [Discription]()
     var friendList = [Friend]()
     var menuCell:MenuCell?
@@ -27,6 +27,7 @@ class profileViewController:UICollectionViewController{
     override func viewDidLoad() {
         settingCollectionView()
         setNav()
+        
         getDiscription()
         tabBarController?.tabBar.isHidden = false
     }
@@ -38,13 +39,13 @@ class profileViewController:UICollectionViewController{
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        
-        if isMyProfile && isReload {
-            myprofile = DataManager.shere.getMyProfile()
-            discriptionList = DataManager.shere.get().reversed()
+      
+        if isMyProfile {
+            profile = DataManager.shere.getMyProfile()
+            discriptionList = DataManager.shere.get()
             friendList = FollowManager.shere.getFollow()
             collectionView.reloadData()
-            isReload = false
+
         }
     }
     
@@ -66,8 +67,8 @@ class profileViewController:UICollectionViewController{
             //自分の投稿
          
             print("プロフィール取得する")
-            myprofile = DataManager.shere.getMyProfile()
-            discriptionList = DataManager.shere.get().reversed()
+            profile = DataManager.shere.getMyProfile()
+            discriptionList = DataManager.shere.get()
             friendList = FollowManager.shere.getFollow()
             collectionView.reloadData()
         }
@@ -78,8 +79,7 @@ class profileViewController:UICollectionViewController{
             FirebaseManager.shered.getDiscription(userid: profile.userid) { [weak self](discriptions) in
                 FirebaseManager.shered.getFriendIdList(userid: (self?.profile.userid)!) { (followList) in
                     HUD.hide()
-                    print("discriptionLost",discriptions.count)
-                    print("follow",followList)
+                   
                     self?.discriptionList = discriptions
                     self?.friendList = followList
                     self?.collectionView.reloadData()
@@ -96,10 +96,7 @@ class profileViewController:UICollectionViewController{
             searchItem.tintColor = .link
             navigationItem.leftBarButtonItem = searchItem
             
-//            let settinghButton = UIImage(systemName: "gearshape")
-//            let settingItem = UIBarButtonItem(image:settinghButton, style: .plain, target: self, action: #selector(setting(sender:)))
             searchItem.tintColor = .link
-//            navigationItem.right7BarButtonItem = settingItem
         }
         else{
             print("友達のプロフィール")
@@ -162,7 +159,7 @@ extension profileViewController:UICollectionViewDelegateFlowLayout,reloadDelegat
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ProfileCell", for: indexPath) as! ProfileCell
             if isMyProfile{
                 //myprofileに変更する
-                cell.setCellA(profile:myprofile, followList: friendList, postList: discriptionList)
+                cell.setCellA(profile:profile, followList: friendList, postList: discriptionList)
                 cell.isMyprofile = isMyProfile
             }
             else{

@@ -121,11 +121,11 @@ class EmailLoginViewController:UIViewController, UITextFieldDelegate{
                 if result {
                     FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
                         
-                        let myprofile:MyProfile = MyProfile(userid: profile.userid,
+                        let myprofile:Profile = Profile(userid: profile.userid,
                                                   username: profile.username,
-                                                  text: profile.text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
-                                                  backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),
-                                                  profileImage: imageData(imageData: Data(), name: "", url: profile.profileImageUrl))
+                                                        text: profile.text ,
+                                                          backgroundImage: ProfileImage(url: profile.backgroundImage.url, name: profile.profileImage.url ),
+                                                          profileImage: ProfileImage( url: profile.profileImage.url,name:profile.profileImage.name))
                         
                         DataManager.shere.setMyProfile(profile: myprofile)
                         
@@ -285,11 +285,11 @@ class RegisterWithEmailViewController:UIViewController,UITextFieldDelegate{
                     FirebaseManager.shered.getProfile(userid: Auth.auth().currentUser!.uid) { profile in
                         //friend Listを取得する
                         //discriptionを取得する
-                        let myprofile:MyProfile = MyProfile(userid: profile.userid,
+                        let myprofile:Profile = Profile(userid: profile.userid,
                                                   username: profile.username,
-                                                  text: profile.text ?? "",
-                                                  backgroundImage: imageData(imageData: Data(), name: "", url: profile.backgroundImageUrl),
-                                                  profileImage: imageData(imageData: Data(), name: "", url: profile.profileImageUrl))
+                                                  text: profile.text ,
+                                                        backgroundImage: ProfileImage(url: profile.backgroundImage.url, name: profile.backgroundImage.name),
+                                                        profileImage: ProfileImage(url: profile.profileImage.url, name: profile.profileImage.name))
                         
                         DataManager.shere.setMyProfile(profile: myprofile)
                         

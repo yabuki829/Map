@@ -24,14 +24,15 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
         return button
     }()
     let settingdata = [
-        menuItem(name: "お問い合わせ", icon: "phone.circle"),
-        menuItem(name: "レビューを書く", icon: "pencil"),
+     
         menuItem(name: "アカウントについて", icon: "pencil"),
             menuItem(name: "ブロックしたアカウント一覧", icon: "questionmark.circle"),
-            menuItem(name: "サブスクリプションについて", icon: "questionmark.circle"),
+//            menuItem(name: "サブスクリプションについて", icon: "questionmark.circle"),
             menuItem(name: "サインアウト", icon: "rectangle.portrait.and.arrow.right"),
             menuItem(name: "アカウントの削除", icon: "trash"),
-            
+        menuItem(name: "その他", icon: ""),
+            menuItem(name: "お問い合わせ", icon: "phone.circle"),
+//            menuItem(name: "レビューを書く", icon: "pencil"),
         menuItem(name: "開発者のその他アプリ", icon: "pencil"),
             menuItem(name: "TasksTodo", icon: "doc"),
     ]
@@ -77,12 +78,7 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
        
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print(indexPath.row)
-        if indexPath.row == 2{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "section", for: indexPath) as! SectionCell
-            cell.setCell(title:settingdata[indexPath.row].name )
-            return cell
-        }
-        else if indexPath.row == 7{
+        if indexPath.row == 0 || indexPath.row == 4 || indexPath.row == 6{
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "section", for: indexPath) as! SectionCell
             cell.setCell(title:settingdata[indexPath.row].name )
             return cell
@@ -106,35 +102,38 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
   
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         print(indexPath.row,settingdata[indexPath.row].name)
-        if indexPath.row == 0{
+        if indexPath.row == 1{
             //twitterを開く
-            let url = URL(string: "https://mobile.twitter.com/sdi2025")
-            UIApplication.shared.open(url!)
-        }
-        else if indexPath.row == 1{
-            //レビューを書く
-        }
-        else if indexPath.row == 3{
-            //ブロックしたアカウントを表示する
+           
+            
             let vc = FriendListViewController()
             vc.isBlockList = true
             navigationController?.pushViewController(vc, animated: true)
         }
-        else if indexPath.row == 4{
-            let nav = UINavigationController(rootViewController: SubscriptionViewController())
-            self.present(nav, animated: true, completion: nil)
+//        else if indexPath.row == 2{
+//            let nav = UINavigationController(rootViewController: SubscriptionViewController())
+//            self.present(nav, animated: true, completion: nil)
+//        }
+        else if indexPath.row == 2{
             
-           
-        }
-        else if indexPath.row == 5{
             signoutAlert()
-            
+          
         }
-        else if indexPath.row == 6{
+        else if indexPath.row == 3{
             deleteAccountAlert()
+            
            
         }
-        else if indexPath.row == 8{
+      
+        else if indexPath.row == 4{
+            let url = URL(string: "https://mobile.twitter.com/sdi2025")
+            UIApplication.shared.open(url!)
+           
+        }
+//        else if indexPath.row == 5{
+//            //　レビューを書く
+//        }
+        else if indexPath.row == 5{
             openApp("id1592943322")
         }
     }

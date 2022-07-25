@@ -97,14 +97,12 @@ class VideoPlayer: UIView {
     
    
     func setup(){
-      
+        player?.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
         self.addSubview(startButton)
         startButton.center(inView: self)
         startButton.addTarget(self, action: #selector(closeImage(sender:)), for: .touchDown)
-        player?.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
         if isStart {
             startButton.isHidden = true
-
         }
         else {
             startButton.isHidden = false
@@ -145,7 +143,7 @@ class VideoPlayer: UIView {
         self.addSubview(videoLengthLabel)
         self.addSubview(currntLengthLabel)
         self.addSubview(slider)
-        
+      
         videoLengthLabel.anchor(right: safeAreaLayoutGuide.rightAnchor, paddingRight: 8,
                                 bottom: safeAreaLayoutGuide.bottomAnchor, paddingBottom: 8)
         

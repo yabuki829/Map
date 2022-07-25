@@ -249,8 +249,12 @@ class StorageManager{
                 }
             }
             
+            
         }
-        compleation(true)
+//        DispatchQueue.main.async {
+            compleation(true)
+//        }
+       
     }
     func deleteProfileImage(name:String){
         let filename = name

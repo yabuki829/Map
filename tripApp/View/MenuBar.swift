@@ -36,11 +36,12 @@ class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UI
         }
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return menuBarTitleArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! MenuBarCell
+        print(indexPath.row,menuBarTitleArray[indexPath.row])
         cell.setCell(title: menuBarTitleArray[indexPath.row])
        
         if  selectedIndexPath?.row == indexPath.row {

@@ -15,8 +15,7 @@ class commentCell:BaseTableViewCell{
     var commentdata = Comment(id: "", comment: "", userid: "", created: Date())
     var profile:Profile?{
         didSet{
-//            profileimageView.loadImageUsingUrlString(urlString:profile!.profileImageUrl)
-            profileimageView.setImage(urlString:profile!.profileImageUrl )
+            profileimageView.setImage(urlString:profile!.profileImage.url )
             usernameLabel.text = profile?.username
             
         }

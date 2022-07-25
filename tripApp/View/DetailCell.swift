@@ -13,7 +13,13 @@ class DetailViewCell: UITableViewCell {
     var discription: Discription?
     var profile:Profile?{
         didSet{
-            profileImageView.setImage(urlString: profile!.profileImageUrl)
+            if profile!.profileImage.url == "person.crop.circle.fill" || profile!.profileImage.name == "person.crop.circle.fill" {
+                profileImageView.image = UIImage(systemName: "person.crop.circle.fill")
+            }
+            else {
+                profileImageView.setImage(urlString: profile!.profileImage.url)
+            }
+            
             usernameButton.setTitle(profile?.username, for: .normal)
             
         }

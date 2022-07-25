@@ -1,18 +1,19 @@
 import Foundation
 import UIKit
 import AVFoundation
+import SwiftUI
 class detailViewController:UIViewController{
-    let customTransition = DetailtoVideoViewContorllerTransition()
-    var profile = Profile(userid: "error", username: "No name", backgroundImageUrl: "background", profileImageUrl: "person.crop.circle.fill")
+//    let customTransition = DetailtoVideoViewContorllerTransition()
     
-    var myProfile = MyProfile(userid: "", username: "", text: "",
-                              backgroundImage: imageData(imageData: Data(), name: "background", url: "background"),
-                              profileImage:  imageData(imageData: Data(), name: "person.crop.circle.fill", url: "person.crop.circle.fill"))
+    
+    var profile = Profile(userid: "error", username: "No name", text: "",
+                          backgroundImage: ProfileImage( url: "background", name: "background"),
+                          profileImage:  ProfileImage( url: "person.crop.circle.fill", name: "person.crop.circle.fill"))
     
      
     var discription:Discription? {
         didSet{
-            fieldView.setupViews(messageid:discription!.id)
+            fieldView.setupViews(postid:discription!.id)
             getProfile()
             getComment()
 
@@ -32,8 +33,18 @@ class detailViewController:UIViewController{
     var subheight = CGFloat()
     var isMapVC = false
     var isProfile = false
+    var commentCompleteView : NotificationView = {
+        let view = NotificationView()
+        view.backgroundColor = .systemGray5
+        view.layer.borderWidth = 0.1
+        view.layer.borderColor = UIColor.systemGray3.cgColor
+        view.layer.cornerRadius = 10
+        view.clipsToBounds = true
+        return view
+    }()
     
     override func viewDidLoad() {
+        fieldView.delegate = self
         tableView.backgroundColor = .systemGray6
 
         view.backgroundColor = .white
@@ -56,6 +67,9 @@ class detailViewController:UIViewController{
         setNav()
         
     }
+    
+
+    
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait
     }
@@ -111,7 +125,7 @@ class detailViewController:UIViewController{
         //自分の投稿かどうかを判別する
         if discription?.userid == FirebaseManager.shered.getMyUserid(){
             //自分の投稿
-            myProfile = DataManager.shere.getMyProfile()
+            profile = DataManager.shere.getMyProfile()
             
             
             let trashButton = UIImage(systemName: "trash")
@@ -135,8 +149,9 @@ class detailViewController:UIViewController{
             self.commentList.removeAll()
             self.commentList = data
             self.tableView.reloadData()
-            
+          
         }
+    
     }
     func setNav(){
         let backButton = UIImage(systemName: "chevron.left")
@@ -157,11 +172,16 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
     
     
     @objc func back(sender : UIButton){
-        if isMapVC {
-            self.navigationController?.dismiss(animated: true, completion: nil)
-        }
         cell.videoView.stop()
-        self.navigationController?.popViewController(animated: true)
+        if isMapVC {
+            print("mapVC")
+            self.navigationController?.popViewController(animated: true)
+        }
+        else{
+           
+            self.navigationController?.popViewController(animated: true)
+        }
+     
 
     }
    
@@ -175,20 +195,24 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
         if indexPath.row == 0{
             if discription!.type == "image"{
                 cell.discImageView.image = image
+                cell.dateLabel.text = self.discription!.created.covertString()
+                cell.discTextLabel.text = self.discription!.text
             }
             else {
-                cell.videoView.loadVideo(urlString: discription!.data.url) { result in
-                    if result{
-                       
-                        self.cell.videoView.setup()
-                        self.cell.videoView.setupSlider()
-                        self.cell.videoView.setupVideoTap()
-                        self.cell.expandButton.isHidden = false
-                        self.cell.dateLabel.text = self.discription!.created.covertString()
-                        self.cell.discTextLabel.text = self.discription!.text
-                        self.cell.videoView.backgroundColor = .black
+                if cell.videoView.player == nil {
+                    cell.videoView.loadVideo(urlString: discription!.data.url) { result in
+                        if result{
+                            self.cell.videoView.setup()
+                            self.cell.videoView.setupVideoTap()
+                            self.cell.expandButton.isHidden = false
+                            self.cell.dateLabel.text = self.discription!.created.covertString()
+                            self.cell.discTextLabel.text = self.discription!.text
+                            self.cell.videoView.backgroundColor = .black
+                        }
                     }
                 }
+                
+                
                
             }
             cell.selectionStyle = UITableViewCell.SelectionStyle.none
@@ -210,40 +234,77 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath as IndexPath, animated: true)
         fieldView.textfield.endEditing(true)
+        
+        if indexPath.row > 0 && commentList[indexPath.row - 1].userid == FirebaseManager.shered.getMyUserid() {
+            let comment = commentList[indexPath.row - 1]
+            print("コメントをタップしました",commentList[indexPath.row - 1].comment)
+          
+            commentDeleteAlert(commentid: comment.id)
+        }
+        else if indexPath.row > 0 {
+            let comment = commentList[indexPath.row - 1]
+            //コメントを通報する
+            print("通報する")
+            reportAlert(type: "comment", comment: comment)
+          
+        }
     }
     @objc func report(sender : UIButton){
         alert()
     }
-    
-    func reportAlert(){
+   
+    func reportAlert(type:String,comment:Comment?){
         let myAlert: UIAlertController = UIAlertController(title: "Report", message: "通報内容を選択してください", preferredStyle: .alert)
                
             // userid, post id と 報告内容
                let alertA = UIAlertAction(title: "嫌がらせ/差別/誹謗中傷", style: .default) { [self] action in
                    let report = "嫌がらせ・差別・誹謗中傷"
-                   FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   if type == "comment" {
+                       FirebaseManager.shered.reportComment(postID: discription!.id, commentid:comment!.id , commenter:comment!.userid,text:comment!.comment,type: report)
+                   }
+                   else {
+                       FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   }
+                  
                    print(report)
-                   OKAlert(title: "Thanks for Reports.", message: "報告が完了しました")
+                   completeAlert(text: "報告が完了しました")
                }
                let alertC = UIAlertAction(title: "内容が事実と著しく異なる", style: .default) { [self] action in
                    let report = "内容が著しく事実と異なる"
-                   FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
-                   OKAlert(title: "Thanks for Reports.", message: "報告が完了しました")
+                   if type == "comment" {
+                       FirebaseManager.shered.reportComment(postID: discription!.id, commentid:comment!.id , commenter:comment!.userid,text:comment!.comment,type: report)
+                   }
+                   else {
+                       FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   }
+                  
+                   completeAlert(text: "報告が完了しました")
                    print(report)
                }
                let alertD = UIAlertAction(title: "性的表現/わいせつな表現", style: .default) { [self] action in
                   
                    let report = "性的表現"
-                   FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   if type == "comment" {
+                       FirebaseManager.shered.reportComment(postID: discription!.id, commentid:comment!.id , commenter:comment!.userid,text:comment!.comment,type: report)
+                   }
+                   else {
+                       FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   }
+                  
                    print(report)
-                   OKAlert(title: "Thanks for Reports.", message: "報告が完了しました")
+                   completeAlert(text: "報告が完了しました")
                }
             let alertE = UIAlertAction(title: "その他不適切", style: .default) { [self] action in
                    
                     let report = "不適切な投稿"
+                if type == "comment" {
+                    FirebaseManager.shered.reportComment(postID: discription!.id, commentid:comment!.id , commenter:comment!.userid,text:comment!.comment,type: report)
+                }
+                else {
                     FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                }
                     print(report)
-                    OKAlert(title: "Thanks for Reports.", message: "報告が完了しました")
+                    completeAlert(text: "報告が完了しました")
                 }
         
             let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
@@ -271,7 +332,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
         let myAlert: UIAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         let alertA = UIAlertAction(title: "報告する", style: .destructive) { [self] action in
             
-            reportAlert()
+            reportAlert(type: "disc", comment: nil)
         }
         let alertB = UIAlertAction(title: "ブロックする", style: .default) { [self] action in
             blockFriend()
@@ -305,6 +366,8 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
             preVC.isReload = true
         }
         
+        completeAlert(text: "\(profile.username) さんをブロックしました")
+        
         self.navigationController?.popViewController(animated: true)
         //ブロックした人の投稿は見れないようにする
         
@@ -324,15 +387,18 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                     StorageManager.shered.deleteDiscriptionImage(image: self.discription!.data)
                 }else{
                     StorageManager.shered.deleteDiscriptionVideo(video: discription!.data)
+                    cell.videoView.stop()
                 }
                 
                 //前の画面がmapなのかprofileなのかで処理がかわる
            
             if isMapVC {
                 print("MapViewController")
+                //初めてログインした時だとsignupまで戻ってしまう
                 let nav = self.navigationController
                 let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! MapViewController
                 preVC.isReload = true
+                completeAlert(text: "削除が完了しました")
                 self.navigationController?.popViewController(animated: true)
             }
             else {
@@ -340,6 +406,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                 let nav = self.navigationController
                 let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! profileViewController
                 preVC.isReload = true
+                completeAlert(text: "削除が完了しました")
                 self.navigationController?.popViewController(animated: true)
             }
                   
@@ -349,6 +416,21 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
             alert.addAction(cancelAction)
 
             present(alert, animated: true)
+    }
+    func commentDeleteAlert(commentid:String){
+        let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .actionSheet)
+        let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { [self] _ in
+              
+                //前の画面がmapなのかprofileなのかで処理がかわる
+            FirebaseManager.shered.deleteComment(postID: discription!.id, commentID: commentid)
+            completeAlert(text: "返信を削除しました")
+        
+                  
+        })
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
+        alert.addAction(selectAction)
+        alert.addAction(cancelAction)
+        present(alert, animated: true)
     }
 }
 
@@ -383,7 +465,7 @@ extension detailViewController:profileCellDelegate {
         let vc = profileViewController(collectionViewLayout: layout)
         vc.profile = profile
        
-        if profile.userid != myProfile.userid {
+        if profile.userid != FirebaseManager.shered.getMyUserid() {
             print("自分のじゃないよ")
             print(profile)
             vc.isMyProfile = false
@@ -396,6 +478,51 @@ extension detailViewController:profileCellDelegate {
    
 }
 
+extension detailViewController:CommentDelegate {
+    func completealert() {
+//        cell.videoView.stop()
+        getComment()
+        completeAlert(text: "送信しました")
+    }
+    
+    func completeAlert(text:String){
+        if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }){
+            window.addSubview(commentCompleteView)
+           
+            let topInset: CGFloat = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 47
+            print("statusBarHeight",topInset)
+            commentCompleteView.frame = CGRect(x: 10, y: 0, width:view.frame.width - 20 , height:60)
+            commentCompleteView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
+            commentCompleteView.setView(height:50, title: text)
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut) {
+                self.commentCompleteView.frame =  CGRect(x: 10, y:  topInset, width: self.view.frame.width - 20 , height:60)
+            } completion: { result in
+                if result {
+                    //3秒でハンドルを呼ぶ
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        //ここに処理
+                      
+                        self.handleDismiss()
+                    }
+                }
+            }
+        }
+                           
+    }
+                           
+                           
+    @objc func handleDismiss() {
+        UIView.animate(withDuration: 0.5) {
+            self.commentCompleteView.frame = CGRect(x: 10, y: -50, width: self.view.frame.width - 20 , height:60)
+        } completion: { result in
+            if result {
+                self.commentCompleteView.removeFromSuperview()
+            }
+        }
+
+        
+      }
+}
 class VideoViewController:UIViewController {
     let videoView = VideoPlayer()
     let backButon: UIButton = {
@@ -409,7 +536,6 @@ class VideoViewController:UIViewController {
         view.backgroundColor = .black
         videoView.backgroundColor = .black
         videoView.start()
-//        videoView.setup()
         videoView.setupSlider()
         videoView.setupVideoTap()
         addConstraint()
@@ -435,116 +561,7 @@ class VideoViewController:UIViewController {
         //前の画面に戻る
         print("back")
         self.presentingViewController?.dismiss(animated: true, completion: nil)
-//        dismiss(animated: true, completion: nil)
     }
 }
 
-//詳細画面からビデオ画面への遷移
-class DetailtoVideoViewContorllerTransition: NSObject, UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning{
-    class var sharedInstance : DetailtoVideoViewContorllerTransition {
-        struct Static {
-            static let instance : DetailtoVideoViewContorllerTransition = DetailtoVideoViewContorllerTransition()
-        }
-        return Static.instance
-    }
-        
-    fileprivate var isPresent = false
-    
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return 0.7
-    }
-
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        if isPresent {
-            presentTransition(transitionContext: transitionContext)
-        } else {
-            dissmissalTransition(transitionContext: transitionContext)
-        }
-    }
-    func presentTransition(transitionContext: UIViewControllerContextTransitioning) {
-        // 遷移元、遷移先及び、遷移コンテナの取得
-        let firstViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as! detailViewController
-        let secondViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as! VideoViewController
-        let containerView = transitionContext.containerView
-
-        // 遷移元のセルの取得
-        let cell:DetailViewCell = firstViewController.tableView.cellForRow(at: (firstViewController.tableView.indexPathsForSelectedRows?.first)!) as! DetailViewCell
-        if cell.discription?.type == "image"{
-        }
-        else{
-            let videoView = cell.videoView
-            // 遷移元のセルのイメージビューからアニメーション用のビューを作成
-           
-            videoView.frame = containerView.convert(cell.videoView.frame, from: cell.videoView.superview)
-            // 遷移元のセルのイメージビューを非表示にする
-            cell.videoView.isHidden = true
-
-            //遷移後のビューコントローラーを、予め最後の位置まで移動完了させ非表示にする
-            secondViewController.view.frame = transitionContext.finalFrame(for: secondViewController)
-            secondViewController.view.alpha = 0
-            // 遷移後のイメージは、アニメーションが完了するまで非表示にする
-            secondViewController.videoView.isHidden = true
-
-            // 遷移コンテナに、遷移後のビューと、アニメーション用のビューを追加する
-            containerView.addSubview(secondViewController.view)
-            containerView.addSubview(videoView)
-
-            UIView.animate(withDuration: transitionDuration(using: transitionContext), animations: {
-                // 遷移後のビューを徐々に表示する
-                secondViewController.view.alpha = 1.0
-                // アニメーション用のビューを、遷移後のイメージの位置までアニメーションする
-                videoView.frame = containerView.convert(secondViewController.videoView.frame, from: secondViewController.view)
-            }, completion: {
-                finished in
-                // 遷移後のイメージを表示する
-                secondViewController.videoView.isHidden = false
-                // セルのイメージの非表示を元に戻す
-                cell.videoView.isHidden = false
-                // アニメーション用のビューを削除する
-                videoView.removeFromSuperview()
-                transitionContext.completeTransition(true)
-            })
-        }
-
-    }
-    func dissmissalTransition(transitionContext: UIViewControllerContextTransitioning) {
-        // 遷移元、遷移先及び、遷移コンテナの取得
-        let firstViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as! detailViewController
-        let secondViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as! VideoViewController
-        let containerView = transitionContext.containerView
-        
-        // 遷移元のイメージビューからアニメーション用のビューを作成
-        let animationView = secondViewController.videoView.snapshotView(afterScreenUpdates: false)
-        animationView?.frame = containerView.convert(secondViewController.videoView.frame, from: secondViewController.videoView.superview)
-        // 遷移元のイメージを非表示にする
-        secondViewController.videoView.isHidden = true
-
-        // 遷移先のセルを取得
-        let cell:DetailViewCell = firstViewController.tableView.cellForRow(at: (firstViewController.tableView.indexPathsForSelectedRows?.first)!) as! DetailViewCell
-        // 遷移先のセルのイメージを非表示
-        cell.videoView.isHidden = true
-
-        //遷移後のビューコントローラーを、予め最後の位置まで移動完了させ非表示にする
-        firstViewController.view.frame = transitionContext.finalFrame(for: firstViewController)
-
-        // 遷移コンテナに、遷移後のビューと、アニメーション用のビューを追加する
-        containerView.insertSubview(firstViewController.view, belowSubview: secondViewController.view)
-        containerView.addSubview(animationView!)
-
-        UIView.animate(withDuration: transitionDuration(using: transitionContext), animations: {
-            // 遷移元のビューを徐々に非表示にする
-            secondViewController.view.alpha = 0
-            // アニメーションビューは、遷移後のイメージの位置まで、アニメーションする
-            animationView?.frame = containerView.convert(cell.videoView.frame, from: cell.videoView.superview)
-        }, completion: {
-            finished in
-            // アニメーション用のビューを削除する
-            animationView?.removeFromSuperview()
-            // 遷移元のイメージの非表示を元に戻す
-            secondViewController.videoView.isHidden = false
-            // セルのイメージの非表示を元に戻す
-            cell.videoView.isHidden = false
-            transitionContext.completeTransition(true)
-        })
-    }
-}
+//詳
