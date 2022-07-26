@@ -30,6 +30,7 @@ class SelectLocationMapViewController :UIViewController,MKMapViewDelegate {
         imageview.contentMode = .scaleAspectFit
         return imageview
     }()
+    
     override func viewDidLoad() {
         settingMapView()
         locationManager = CLLocationManager()
@@ -94,11 +95,6 @@ class SelectLocationMapViewController :UIViewController,MKMapViewDelegate {
             self.locationName = text
             let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! PostViewController
             // 値を渡す
-//            preVC.location = self.location
-//            preVC.isLocation = true
-//            preVC.locationButton.setTitle(locationName, for: .normal)
-//            preVC.locationButton.setTitleColor(.darkGray, for: .normal)
-//            
             preVC.postCell.location = self.location
             preVC.postCell.isLocation = true
             preVC.postCell.locationButton.setTitle(locationName, for: .normal)

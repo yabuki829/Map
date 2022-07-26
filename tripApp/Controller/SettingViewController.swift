@@ -125,7 +125,7 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
            
         }
       
-        else if indexPath.row == 4{
+        else if indexPath.row == 5{
             let url = URL(string: "https://mobile.twitter.com/sdi2025")
             UIApplication.shared.open(url!)
            
@@ -133,7 +133,7 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
 //        else if indexPath.row == 5{
 //            //　レビューを書く
 //        }
-        else if indexPath.row == 5{
+        else if indexPath.row == 7{
             openApp("id1592943322")
         }
     }

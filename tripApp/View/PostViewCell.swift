@@ -66,7 +66,7 @@ class postViewCell:BaseTableViewCell ,CLLocationManagerDelegate,UITextViewDelega
         contentView.addSubview(locationButton)
         contentView.addSubview(friendListView)
         friendListView.anchor(top: contentView.topAnchor, paddingTop: 0,
-                              left:contentView.leftAnchor, paddingLeft: 0,
+                              left:contentView.leftAnchor, paddingLeft: 10,
                               right: contentView.rightAnchor,paddingRight: 0,
                               bottom: contentView.bottomAnchor,paddingBottom: 0)
         

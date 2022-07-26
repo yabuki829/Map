@@ -37,10 +37,10 @@ class AdCell:BaseCell{
     }
 
     func addAD(){
-        nadView.setNendID(70356, apiKey: "88d88a288fdea5c01d17ea8e494168e834860fd6")
+//        nadView.setNendID(70356, apiKey: "88d88a288fdea5c01d17ea8e494168e834860fd6")
         
         //320 250
-//        nadView.setNendID(1061511, apiKey: "89991d46217936f91cb687ea5dcb2edf74576f11")
+        nadView.setNendID(1061511, apiKey: "89991d46217936f91cb687ea5dcb2edf74576f11")
             
       
         nadView.load()
