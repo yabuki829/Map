@@ -8,7 +8,7 @@
 
 # 次回　ARでどの位置から撮影されたのかを確認できる機能を追加予定
 
-# 7月19日 <最新>
+# 7月19日
 ![hoge](https://user-images.githubusercontent.com/67153136/179705424-3428a119-01d4-4fb6-a023-1dbdd1d508a4.png)
 
 # 5月11日
