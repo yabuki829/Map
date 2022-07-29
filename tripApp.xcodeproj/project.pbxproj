@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1A044AB0285EDB590047500B /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A044AAF285EDB590047500B /* LanguageManager.swift */; };
 		1A044AB2285F0ECA0047500B /* Friend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A044AB1285F0ECA0047500B /* Friend.swift */; };
+		1A476FE62890F039001C1044 /* ARViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A476FE52890F039001C1044 /* ARViewController.swift */; };
 		1A71AFB6287FCAE1005D4883 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A71AFB5287FCAE1005D4883 /* MapView.swift */; };
 		1A71AFB8287FCB52005D4883 /* DiscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A71AFB7287FCB52005D4883 /* DiscriptionView.swift */; };
 		1A8AFA4A2872D9FE00E39774 /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8AFA492872D9FE00E39774 /* VideoPlayer.swift */; };
@@ -30,6 +31,8 @@
 		1AEE166D28864565009F3717 /* tripAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEE166C28864565009F3717 /* tripAppUITests.swift */; };
 		1AEE166F28864565009F3717 /* tripAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEE166E28864565009F3717 /* tripAppUITestsLaunchTests.swift */; };
 		1AEE663028562DE2007AA68B /* MathManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AEE662F28562DE2007AA68B /* MathManager.swift */; };
+		1AF715F32890FBBA005456A6 /* MenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF715F22890FBBA005456A6 /* MenuView.swift */; };
+		1AF715F52890FBD9005456A6 /* ArticleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF715F42890FBD9005456A6 /* ArticleCell.swift */; };
 		647F37D8570047E5D88F8A5D /* Pods_tripAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 287C53C7243613C9F4DD4378 /* Pods_tripAppTests.framework */; };
 		6CC5F1D1C49297D6D7AFE3CE /* Pods_tripApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E16A77EB94D39ECC61DD5E3 /* Pods_tripApp.framework */; };
 		704C69B628351D370078EA40 /* TextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 704C69B528351D370078EA40 /* TextFieldView.swift */; };
@@ -94,6 +97,7 @@
 /* Begin PBXFileReference section */
 		1A044AAF285EDB590047500B /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
 		1A044AB1285F0ECA0047500B /* Friend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friend.swift; sourceTree = "<group>"; };
+		1A476FE52890F039001C1044 /* ARViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARViewController.swift; sourceTree = "<group>"; };
 		1A530264284DCF1900C92BFE /* tripApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = tripApp.entitlements; sourceTree = "<group>"; };
 		1A71AFB5287FCAE1005D4883 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		1A71AFB7287FCB52005D4883 /* DiscriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscriptionView.swift; sourceTree = "<group>"; };
@@ -118,6 +122,8 @@
 		1AEE166C28864565009F3717 /* tripAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tripAppUITests.swift; sourceTree = "<group>"; };
 		1AEE166E28864565009F3717 /* tripAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tripAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		1AEE662F28562DE2007AA68B /* MathManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MathManager.swift; sourceTree = "<group>"; };
+		1AF715F22890FBBA005456A6 /* MenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuView.swift; sourceTree = "<group>"; };
+		1AF715F42890FBD9005456A6 /* ArticleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleCell.swift; sourceTree = "<group>"; };
 		287C53C7243613C9F4DD4378 /* Pods_tripAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_tripAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4309F1A74F988A7950F46AE8 /* Pods-tripAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tripAppTests.debug.xcconfig"; path = "Target Support Files/Pods-tripAppTests/Pods-tripAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		6ADC08D3C4D4E4B832F10D2B /* Pods-tripApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tripApp.debug.xcconfig"; path = "Target Support Files/Pods-tripApp/Pods-tripApp.debug.xcconfig"; sourceTree = "<group>"; };
@@ -351,6 +357,7 @@
 				70A94C1F28388B32004E5123 /* Profile */,
 				706696CD282CC63900E8DDC1 /* SettingViewController.swift */,
 				70A20AC52834C9E70093FCBB /* TabBarController.swift */,
+				1A476FE52890F039001C1044 /* ARViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -390,6 +397,8 @@
 				1ACA3FE2288BFEDF00C43E65 /* NotificationView.swift */,
 				1AB76CF8288E8C0B0064D212 /* FriendListView.swift */,
 				1AB76CFA288EAFFF0064D212 /* PostViewCell.swift */,
+				1AF715F22890FBBA005456A6 /* MenuView.swift */,
+				1AF715F42890FBD9005456A6 /* ArticleCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -693,6 +702,7 @@
 				704EEB67282D4E8C0056E748 /* BaseCell.swift in Sources */,
 				1A8AFA4C287305BC00E39774 /* DetailCell.swift in Sources */,
 				1ACB9EFC2875816000E0BEA5 /* SubscribeManager.swift in Sources */,
+				1AF715F52890FBD9005456A6 /* ArticleCell.swift in Sources */,
 				704C69B928351EF80078EA40 /* Comment.swift in Sources */,
 				1ACA3FE3288BFEDF00C43E65 /* NotificationView.swift in Sources */,
 				70A20AC92834CCE50093FCBB /* ProfileViewController.swift in Sources */,
@@ -707,11 +717,13 @@
 				1A71AFB6287FCAE1005D4883 /* MapView.swift in Sources */,
 				1AB76CF9288E8C0B0064D212 /* FriendListView.swift in Sources */,
 				70AC684A2828F64F00CEC92E /* imageCell.swift in Sources */,
+				1AF715F32890FBBA005456A6 /* MenuView.swift in Sources */,
 				704EEB64282D4E4E0056E748 /* MenuCell.swift in Sources */,
 				707F88B4284BB0E40054521A /* ProfileCell.swift in Sources */,
 				706053E5282AAD940067F63F /* ImageDetailView.swift in Sources */,
 				704C69C228352F620078EA40 /* CommentCell.swift in Sources */,
 				1AEC03B628619D6D005EF02C /* FollowManager.swift in Sources */,
+				1A476FE62890F039001C1044 /* ARViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

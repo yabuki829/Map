@@ -313,6 +313,9 @@ extension UIView{
         translatesAutoresizingMaskIntoConstraints = false
         anchor(top: topAnchor, left: view.leftAnchor, right: view.rightAnchor, bottom: bottomAnchor)
     }
+    func removeConstraint(){
+        removeConstraints(constraints)
+    }
 }
 import AVFoundation
 import AVKit
@@ -347,4 +350,51 @@ extension String {
 
         return result
     }
+}
+
+class BaseViewController:UIViewController {
+    let completeView = NotificationView()
+    func completeAlert(text:String){
+        if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }){
+            completeView.backgroundColor = .systemGray5
+            completeView.layer.borderWidth = 0.1
+            completeView.layer.borderColor = UIColor.systemGray3.cgColor
+            completeView.layer.cornerRadius = 10
+            completeView.clipsToBounds = true
+            window.addSubview(completeView)
+           
+            let topInset: CGFloat = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 47
+            print("statusBarHeight",topInset)
+            print(view.frame.width)
+            completeView.frame = CGRect(x: 10, y: -50, width: view.frame.width - 10, height:60)
+            completeView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
+            completeView.setView(height:50, title: text)
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut) {
+                self.self.completeView.frame =  CGRect(x: 10, y:  topInset, width: self.completeView.frame.width - 10 , height:60)
+            } completion: { result in
+                if result {
+                    //3秒でハンドルを呼ぶ
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        //ここに処理
+                      
+                        self.handleDismiss()
+                    }
+                }
+            }
+        }
+                           
+    }
+    @objc func handleDismiss() {
+        UIView.animate(withDuration: 0.5) {
+       
+            self.completeView.frame = CGRect(x: 10, y: -50, width: self.view.frame.width - 10 , height:60)
+        } completion: { result in
+            if result {
+                self.completeView.removeFromSuperview()
+            }
+        }
+
+        
+      }
 }

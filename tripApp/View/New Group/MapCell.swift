@@ -126,12 +126,16 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     }
 
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 20,
-                                        longitude:(view.annotation?.coordinate.longitude)! )
-    
-        let span = MKCoordinateSpan(latitudeDelta: 40, longitudeDelta: 40)
-        let region = MKCoordinateRegion(center: aa, span: span)
-        mapView.setRegion(region, animated: true)
+        print(mapView.region.span.latitudeDelta,mapView.region.span.longitudeDelta)
+        if mapView.region.span.latitudeDelta > 0.01 && mapView.region.span.longitudeDelta > 0.01{
+            let aa = CLLocationCoordinate2D(latitude: (view.annotation?.coordinate.latitude)! + 0.01,
+                                            longitude:(view.annotation?.coordinate.longitude)! )
+            
+            let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            let region = MKCoordinateRegion(center: aa, span: span)
+            mapView.setRegion(region, animated: true)
+        }
+
         //viewtitle と discriptionの　titleが同じ
         //postid と　id　が同じ
         for i in 0..<descriptionList!.count{

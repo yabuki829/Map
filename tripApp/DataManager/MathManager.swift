@@ -54,6 +54,24 @@ class MathManager{
         return times
     }
     
+    func sort(disc:[Discription],hour:Int) -> [Discription]{
+        let date = Calendar.current.date(byAdding: .hour, value: -hour, to: Date())!
+        print("日より後を取得します",date.toString())
+        var modifiedDisc = [Discription]()
+        var deleteDisc = [Discription]()
+        for i in 0..<disc.count{
+            if date <= disc[i].created{
+                modifiedDisc.append(disc[i])
+            }
+            else {
+                deleteDisc.append(disc[i])
+            }
+        }
+        
+        FirebaseManager.shered.deleteDiscription(postArray: deleteDisc)
+        return modifiedDisc
+    }
+    
 }
 
 struct ascpectRation {

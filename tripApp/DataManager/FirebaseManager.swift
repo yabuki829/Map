@@ -82,8 +82,7 @@ class FirebaseManager{
             }
         }
     }
-    
-  
+
     func editProfileB(text:String,username:String,bgImagedata:Data?,proImagedata:Data?,profile:Profile,compleation:@escaping (Bool) -> Void){
         let userid = Auth.auth().currentUser!.uid
         //bgimagedataが空 profileだけを変更する
@@ -297,7 +296,22 @@ class FirebaseManager{
         }
     }
     
-    
+    func getReceiver(disc:Discription,compleation:@escaping ([String]) -> Void ){
+        database.collection("Users").document(disc.userid).collection("MyDiscription").document(disc.id).getDocument { snapshot, error in
+            let data = snapshot?.data()
+            print("getReceiver")
+            if let receiver = data?["receiverList"] {
+                print("取得")
+                print(receiver)
+                compleation(receiver as! [String])
+            }
+            else {
+                print("失敗")
+                compleation([String]())
+            }
+           
+        }
+    }
     func postDiscription(disc:Discription,compleation:@escaping (Bool) -> Void ){
         let friendList = FollowManager.shere.getFollow()
         var receiver = [String]()
@@ -350,7 +364,22 @@ class FirebaseManager{
         
         
     }
-  
+    func editReceiver(postid:String,receiver:[String]){
+        //投稿を閲覧できる人を変更する
+        let userid = Auth.auth().currentUser!.uid
+        database.collection("Users").document(userid).collection("MyDiscription").document(postid).updateData(
+            ["receiverList":receiver]
+        )
+        
+    }
+    
+    func deleteDiscription(postArray:[Discription]){
+        let userid = Auth.auth().currentUser?.uid
+        print("古い投稿を削除しました")
+        for i in 0..<postArray.count {
+            database.collection("Users").document(userid!).collection("FriendDiscription").document(postArray[i].id).delete()
+        }
+    }
     
     func getDiscription(userid:String,compleation:@escaping ([Discription]) -> Void){
         database.collection("Users").document(userid).collection("MyDiscription").getDocuments { [self] (snapshot, error) in
@@ -414,6 +443,7 @@ class FirebaseManager{
         }
     }
    
+    //公開範囲に自分が入っているかどうか
     func isReceiver(myuserid:String,receiver:[String]) -> Bool{
         for i in 0..<receiver.count{
             if myuserid == receiver[i]{
@@ -468,10 +498,8 @@ class FirebaseManager{
         //一年以内の投稿を取得する
         //全てを取得する
         
-        let modifiedDate = Calendar.current.date(byAdding: .hour, value: -24, to: Date())!
-        let timeStamp = Timestamp(date: modifiedDate)
-        
-        database.collection("Users").document(userid).collection("FriendDiscription").whereField("created", isGreaterThan: timeStamp ).order(by:"created", descending: false).getDocuments{ (snapshot, error) in
+
+        database.collection("Users").document(userid).collection("FriendDiscription").getDocuments{ (snapshot, error) in
             if let error = error {
                 print("エラー",error)
                 return
@@ -523,7 +551,9 @@ class FirebaseManager{
             }
             DispatchQueue.main.async {
                 print("取得完了")
-                //48時間以内の自分の投稿を取得する
+                discriptionList = MathManager.shered.sort(disc:discriptionList, hour: 24)
+                
+                
                 let myDisc = DataManager.shere.getDiscriptionSince48Hours()
                 discriptionList.append(contentsOf: myDisc)
                 

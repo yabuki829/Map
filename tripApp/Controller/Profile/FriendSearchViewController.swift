@@ -140,9 +140,11 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         present(AlertManager.shared.showFriendID(), animated: false)
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        
         if textField.text == "" {
             return false
         }
+        textField.text = textField.text!.trimmingCharacters(in: .whitespaces)
         let userid = textField.text ?? "エラー"
             FirebaseManager.shered.getProfile(userid: userid ) { (data) in
                 print("取得完了")

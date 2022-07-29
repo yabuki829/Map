@@ -133,9 +133,18 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
        
     }
     @objc func registerWithEmail(){
-        let nav = PrivacyPolicyViewController()
-        self.present(nav, animated: true, completion: nil)
-        
+//        let nav = PrivacyPolicyViewController()
+//        self.present(nav, animated: true, completion: nil)
+        print("登録する")
+        AuthManager.shered.startAuth { result in
+            if result {
+                self.move()
+            }
+            else {
+                print("エラー  ")
+            }
+           
+        }
     }
     @objc func loginWithApple(){
         print("Apple Login")

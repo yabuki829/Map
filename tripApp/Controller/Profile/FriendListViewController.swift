@@ -18,13 +18,15 @@ class FriendListViewController:UIViewController{
         let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
         return collecitonview
     }()
+    var disc: Discription?
     var profileList = [Profile]()
+    var receiverList = [Friend]()
     var isBlockList = false
     var isPostView = false
+    var isEditView = false
     override func viewDidLoad() {
         print("フレンド一覧")
         view.backgroundColor = .white
-//        view.addSubview(searchBar)
         view.addSubview(collectionView)
         addConstraint()
         setNav()
@@ -33,8 +35,11 @@ class FriendListViewController:UIViewController{
         if isBlockList {
             title = "Blocked User"
         }
-        if isPostView {
+        if isPostView{
             title = "Friend List"
+        }
+        if isEditView {
+            title = "投稿の公開範囲を変更"
         }
     }
 
@@ -52,6 +57,24 @@ class FriendListViewController:UIViewController{
                 self.profileList = result
                 self.collectionView.reloadData()
             }
+        }
+        if isEditView{
+            //profileとdiscのreciverを取得する
+            let friend = FollowManager.shere.getFollow()
+            
+            FirebaseManager.shered.getReceiver(disc: disc!) { receiver in
+                print("receiver",receiver)
+                self.receiverList = FollowManager.shere.changeReciver(friendList: friend, reciver: receiver)
+                print("receiverList",self.receiverList)
+                FirebaseManager.shered.getFriendProfile(friendList: self.receiverList) { (result) in
+                    print("取得完了")
+                    //インディケーターを止める
+                    self.profileList = result
+                    self.collectionView.reloadData()
+                }
+            }
+          
+           
         }
         else{
             let friendList = FollowManager.shere.getFollow()
@@ -80,10 +103,17 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if isBlockList{
+        if isBlockList || isEditView{
             print("blockUser cell")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListCell", for: indexPath) as! FriendListCell
-            cell.isBlockList = true
+            if isBlockList {
+                cell.isBlockList = true
+            }
+            else {
+                cell.isEditList = true
+                cell.isReceiver = receiverList[indexPath.row].isSend
+            }
+            
             cell.setCell(imageurl: profileList[indexPath.row].profileImage.url,
                          username: profileList[indexPath.row].username,
                          text: profileList[indexPath.row].text,
@@ -110,7 +140,7 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //遷移する
-        if !isBlockList {
+        if !isBlockList || !isEditView {
             let layout = UICollectionViewFlowLayout()
             layout.scrollDirection = .vertical
             layout.estimatedItemSize = .zero
@@ -126,7 +156,6 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
 
 extension FriendListViewController{
     func addConstraint(){
-//        searchBar.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 0, left: view.leftAnchor, paddingLeft: 0, right: view.rightAnchor, paddingRight: 0)
         collectionView.anchor(top:view.safeAreaLayoutGuide.topAnchor,paddingTop: 0,
                               left: view.leftAnchor,paddingLeft: 0,
                               right: view.rightAnchor, paddingRight: 0,
@@ -158,15 +187,18 @@ extension FriendListViewController{
                         }
                     }
                     //フォローし直す
-                 
                         FollowManager.shere.follow(userid:followList[i].userid)
-                
-                  
-                   
                 }
             }
             print("block",users)
             FollowManager.shere.saveBlockList(blockList: users)
+        }
+        
+        if isEditView {
+            let receiver = DataManager.shere.getReceiver()
+            print("公開範囲をこれに変更する",receiver)
+            FirebaseManager.shered.editReceiver(postid: disc!.id, receiver:receiver )
+            DataManager.shere.deleteReceiver()
         }
        
         self.navigationController?.popViewController(animated: true)

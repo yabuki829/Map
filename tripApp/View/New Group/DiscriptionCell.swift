@@ -9,7 +9,13 @@
 
 import Foundation
 import UIKit
-class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
+class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout, ArticleCellDelegate{
+    func showMenu(disc: Discription, profile: Profile) {
+        delegate?.showMenu(disc: disc, profile: profile)
+    }
+    
+   
+    
     
     var isHome = false
     var discriptionList : [Discription]?{
@@ -34,7 +40,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         }
     }
 
-    var cell = articleCell()
+    var articleCell = ArticleCell()
     var imageCell = DiscriptionImageCell()
     var profileArray = [Profile]()
     lazy var collectionView:UICollectionView = {
@@ -64,7 +70,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         addConstaraiont()
         
         collectionView.register(DiscriptionImageCell.self, forCellWithReuseIdentifier: "DiscriptionImageCell")
-        collectionView.register(articleCell.self, forCellWithReuseIdentifier: "articleCell")
+        collectionView.register(ArticleCell.self, forCellWithReuseIdentifier: "articleCell")
         collectionView.register(AdCell.self, forCellWithReuseIdentifier: "AdCell")
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -80,7 +86,10 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         
        
     }
-    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        print("scroll")
+        delegate?.scroll()
+    }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
             if isHome {
@@ -91,9 +100,11 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
                 }
                 else{
                     
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "articleCell", for: indexPath) as! articleCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "articleCell", for: indexPath) as! ArticleCell
                     cell.setCell(disc: discriptionList![indexPath.row - 1])
-                    self.cell = cell
+                    cell.delegate = self
+                    articleCell = cell
+                    
                     return cell
                     
 
@@ -121,7 +132,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
             if isHome {
                 if indexPath.row < 1{
                     //広告　大きさ　320 / 100
-                    return CGSize(width:collectionView.frame.width, height: 275)
+                    return CGSize(width:collectionView.frame.width, height: 300)
                 }
                 else{
                     return CGSize(width:collectionView.frame.width, height: frame.width)
@@ -136,7 +147,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-
+        
         if isHome {
             //1か2に変更する
             
@@ -144,7 +155,8 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
                 //広告
             }
             else{
-                let articleCell = collectionView.cellForItem(at: indexPath) as! articleCell
+                let articleCell = collectionView.cellForItem(at: indexPath) as! ArticleCell
+                articleCell.backgroundColor = .systemGray6
                 //imageの場合
                 if discriptionList![indexPath.row - 1].type == "image"{
                     delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 1], selectImage: articleCell.imageView.image!)
@@ -196,6 +208,7 @@ protocol transitionDelegate: AnyObject  {
     func toFriendList()
     func scroll()
     func toEditPageWithProfileCell()
+    func showMenu(disc:Discription,profile:Profile)
 }
 
 

@@ -20,7 +20,7 @@ class DetailViewCell: UITableViewCell {
                 profileImageView.setImage(urlString: profile!.profileImage.url)
             }
             
-            usernameButton.setTitle(profile?.username, for: .normal)
+            usernameLabel.text = profile!.username
             
         }
     }
@@ -33,17 +33,21 @@ class DetailViewCell: UITableViewCell {
         return view
     }()
     let profileImageView = UIImageView()
-    let usernameButton:UIButton = {
-        let button = UIButton()
-        button.setTitleColor(.link, for: .normal)
-        button.setTitleColor(.darkGray, for: .highlighted)
-        return button
+    let usernameLabel:UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        return label
     }()
     let expandButton:UIButton = {
         let button = UIButton()
         button.setBackgroundImage(UIImage(systemName: "viewfinder"), for: .normal)
         button.tintColor = .white
         button.isHidden = true
+        return button
+    }()
+    let menuButton:UIButton = {
+        let button = UIButton()
+            button.setImage(UIImage(systemName: "ellipsis" ), for: .normal)
         return button
     }()
     
@@ -69,7 +73,7 @@ class DetailViewCell: UITableViewCell {
             videoView.start()
         }
         expandButton.addTarget(self, action: #selector(expandvideo(sender: )) , for:.touchDown)
-        usernameButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
+        usernameLabel.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
         profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapUserIconOrUsername)))
      
     }
@@ -83,9 +87,9 @@ class DetailViewCell: UITableViewCell {
         }
     }
     func addView(){
-        
+        contentView.addSubview(menuButton)
         contentView.addSubview(profileImageView)
-        contentView.addSubview(usernameButton)
+        contentView.addSubview(usernameLabel)
         contentView.addSubview(discTextLabel)
         contentView.addSubview(dateLabel)
         if discription?.type == "image" {
@@ -127,12 +131,15 @@ class DetailViewCell: UITableViewCell {
                                 width: width / 7,
                                 height:  width / 7)
         profileImageView.isUserInteractionEnabled = true
-        usernameButton.anchor(top: contentView.topAnchor, paddingTop: 10,
+        usernameLabel.anchor(top: contentView.topAnchor, paddingTop: 10,
                              left: profileImageView.rightAnchor, paddingLeft: 10,
                               right: contentView.rightAnchor, paddingRight: 10.0,
                              height: width / 7)
-        usernameButton.contentHorizontalAlignment = .left
-        
+      
+        menuButton.anchor(top: contentView.topAnchor, paddingTop: 10,
+                          left: usernameLabel.rightAnchor, paddingLeft: 10,
+                          right: contentView.rightAnchor, paddingRight: 10,
+                          width: 20, height: 20)
     
         
         
@@ -148,7 +155,11 @@ class DetailViewCell: UITableViewCell {
         dateLabel.font = UIFont.systemFont(ofSize: 10)
         dateLabel.tintColor = .systemGray5
         dateLabel.textAlignment = .right
-        
+        menuButton.addTarget(self, action: #selector(showMenbar(sender:)), for: .touchDown)
+    }
+    @objc internal func showMenbar(sender: UIButton) {
+        print("show Menu bar")
+        delegate?.showMenu(disc: discription!,profile:profile!)
     }
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
@@ -175,4 +186,5 @@ protocol profileCellDelegate: class  {
     func toDetail(image:UIImage)
     func toProfilePage()
     func expandVideo(player:AVPlayer)
+    func showMenu(disc: Discription ,profile:Profile)
 }

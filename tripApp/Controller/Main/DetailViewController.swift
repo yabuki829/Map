@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 import AVFoundation
 import SwiftUI
-class detailViewController:UIViewController{
+class detailViewController:BaseViewController{
 //    let customTransition = DetailtoVideoViewContorllerTransition()
     
     
@@ -33,15 +33,7 @@ class detailViewController:UIViewController{
     var subheight = CGFloat()
     var isMapVC = false
     var isProfile = false
-    var commentCompleteView : NotificationView = {
-        let view = NotificationView()
-        view.backgroundColor = .systemGray5
-        view.layer.borderWidth = 0.1
-        view.layer.borderColor = UIColor.systemGray3.cgColor
-        view.layer.cornerRadius = 10
-        view.clipsToBounds = true
-        return view
-    }()
+
     
     override func viewDidLoad() {
         fieldView.delegate = self
@@ -126,12 +118,6 @@ class detailViewController:UIViewController{
         if discription?.userid == FirebaseManager.shered.getMyUserid(){
             //自分の投稿
             profile = DataManager.shere.getMyProfile()
-            
-            
-            let trashButton = UIImage(systemName: "trash")
-            let deleteItem = UIBarButtonItem(image:trashButton, style: .plain, target: self, action: #selector(delete(sender:)))
-            deleteItem.tintColor = .darkGray
-            navigationItem.rightBarButtonItem = deleteItem
         }
         else{
             FirebaseManager.shered.getProfile(userid: discription!.userid) { (result) in
@@ -435,6 +421,57 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
 }
 
 extension detailViewController:profileCellDelegate {
+    func showMenu(disc: Discription, profile: Profile) {
+        if disc.userid != FirebaseManager.shered.getMyUserid() {
+            let myAlert: UIAlertController = UIAlertController(title:"" , message: "", preferredStyle: .actionSheet)
+            myAlert.view.backgroundColor = .systemGray6
+            let alertA = UIAlertAction(title: "\(profile.username)さんを通報する", style: .default) {  action in
+                print("通報する")
+                
+            }
+            let alertB = UIAlertAction(title: "\(profile.username)さんをブロックする", style: .default) {  action in
+                
+            }
+
+            let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in print("キャンセル")}
+              
+            myAlert.addAction(alertA)
+            myAlert.addAction(alertB)
+            myAlert.addAction(cancelAlert)
+            
+            present(myAlert, animated: true, completion: nil)
+        }
+        else {
+            //自分の投稿
+            let myAlert: UIAlertController = UIAlertController(title:"" , message: "", preferredStyle: .actionSheet)
+            myAlert.view.backgroundColor = .systemGray6
+            let alertA = UIAlertAction(title: "公開範囲を変更する", style: .default) {  action in
+                print("公開範囲変更")
+                //もし24時間以内ならfrienddiscを変更する
+                let vc = FriendListViewController()
+                vc.isEditView = true
+                vc.disc = disc
+                self.navigationController?.pushViewController(vc, animated: true)
+                
+                
+            }
+            let alertB = UIAlertAction(title: "投稿を削除する", style: .default) {  action in
+                print("投稿を削除する")
+            }
+
+            let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
+                   print("キャンセル")
+            }
+              
+            myAlert.addAction(alertA)
+            myAlert.addAction(alertB)
+            myAlert.addAction(cancelAlert)
+            
+            present(myAlert, animated: true, completion: nil)
+        }
+        
+    }
+    
     func expandVideo(player: AVPlayer) {
         print("videoView")
         let vc = VideoViewController()
@@ -485,43 +522,6 @@ extension detailViewController:CommentDelegate {
         completeAlert(text: "送信しました")
     }
     
-    func completeAlert(text:String){
-        if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }){
-            window.addSubview(commentCompleteView)
-           
-            let topInset: CGFloat = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 47
-            print("statusBarHeight",topInset)
-            commentCompleteView.frame = CGRect(x: 10, y: 0, width:view.frame.width - 20 , height:60)
-            commentCompleteView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleDismiss)))
-            commentCompleteView.setView(height:50, title: text)
-            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut) {
-                self.commentCompleteView.frame =  CGRect(x: 10, y:  topInset, width: self.view.frame.width - 20 , height:60)
-            } completion: { result in
-                if result {
-                    //3秒でハンドルを呼ぶ
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        //ここに処理
-                      
-                        self.handleDismiss()
-                    }
-                }
-            }
-        }
-                           
-    }
-                           
-                           
-    @objc func handleDismiss() {
-        UIView.animate(withDuration: 0.5) {
-            self.commentCompleteView.frame = CGRect(x: 10, y: -50, width: self.view.frame.width - 20 , height:60)
-        } completion: { result in
-            if result {
-                self.commentCompleteView.removeFromSuperview()
-            }
-        }
-
-        
-      }
 }
 class VideoViewController:UIViewController {
     let videoView = VideoPlayer()

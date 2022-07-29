@@ -77,6 +77,34 @@ class DataManager{
         return profile
     }
     
-    //サブスクの状態を返す
-
+    
+    //一時的に保管する
+    func getReceiver() -> [String]{
+        var receiver = [String]()
+        if let data:[String] = userDefaults.codable(forKey: "receiver"){
+            receiver = data
+        }
+        return receiver
+    }
+    private func saveReceiver(receiver:[String]){
+        userDefaults.setCodable(receiver, forKey: "receiver")
+    }
+    func addReceiver(userid:String){
+        var receiver = getReceiver()
+        receiver.append(userid)
+        saveReceiver(receiver: receiver)
+    }
+    func deleteReciver(userid:String){
+        var receiver = getReceiver()
+        for i in 0..<receiver.count{
+            if userid == receiver[i] {
+                receiver.remove(at: i)
+                saveReceiver(receiver: receiver)
+                break
+            }
+        }
+    }
+    func deleteReceiver(){
+        userDefaults.removeObject(forKey: "receiver")
+    }
 }

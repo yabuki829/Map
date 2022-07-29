@@ -37,10 +37,12 @@ class FriendListCell:BaseCell{
     }()
     var userID = String()
     var isDelete = false
+    
     var isBlockList = false
+    var isEditList = false
     var isBlock = true
+    var isReceiver = false
     override func setupViews() {
-      
         settingUserImageView()
     }
     func setCell(imageurl:String,username:String,text:String,userid:String){
@@ -54,6 +56,23 @@ class FriendListCell:BaseCell{
         if isBlockList {
             print("解除する")
             deleteButton.setTitle("解除する", for: .normal)
+        }
+        if isEditList {
+            if isReceiver {
+                DataManager.shere.addReceiver(userid: userid)
+                deleteButton.setTitle("公開する", for: .normal)
+                deleteButton.setTitleColor(.white, for: .normal)
+                deleteButton.setTitleColor(.lightGray, for: .highlighted)
+                deleteButton.backgroundColor = .link
+            }
+            else {
+                deleteButton.setTitle("公開しない", for: .normal)
+                deleteButton.setTitleColor(.white, for: .normal)
+                deleteButton.setTitleColor(.lightGray, for: .highlighted)
+                deleteButton.backgroundColor = .lightGray
+                
+            }
+            
         }
   
         usernameLabel.text = username
@@ -71,7 +90,7 @@ class FriendListCell:BaseCell{
         usernameLabel.anchor(top:self.safeAreaLayoutGuide.topAnchor,paddingTop: 5,
                              left: userImageView.rightAnchor,paddingLeft: 10,
                              right: self.deleteButton.leftAnchor,paddingRight: 10)
-        if isBlockList {
+        if isBlockList || isEditList{
             print("A")
             usernameLabel.anchor(bottom:self.safeAreaLayoutGuide.bottomAnchor ,paddingBottom: 5)
             deleteButton.anchor( right:self.rightAnchor,paddingRight: 10,
@@ -103,21 +122,45 @@ class FriendListCell:BaseCell{
     @objc func unBlock(sender: UIButton){
         print("unBlock")
        
-        isBlock = !isBlock
-        if isBlock {
-            FollowManager.shere.block(userid: userID)
-            deleteButton.setTitle("解除する", for: .normal)
-            deleteButton.setTitleColor(.white, for: .normal)
-            deleteButton.setTitleColor(.lightGray, for: .highlighted)
-            deleteButton.backgroundColor = .link
+        
+        
+        if isBlockList {
+            isBlock = !isBlock
+            if isBlock {
+                FollowManager.shere.block(userid: userID)
+                deleteButton.setTitle("解除する", for: .normal)
+                deleteButton.setTitleColor(.white, for: .normal)
+                deleteButton.setTitleColor(.lightGray, for: .highlighted)
+                deleteButton.backgroundColor = .link
+            }
+            else{
+                FollowManager.shere.unBlock(userid: userID)
+                deleteButton.setTitle("ブロックする", for: .normal)
+                deleteButton.setTitleColor(.white, for: .normal)
+                deleteButton.setTitleColor(.lightGray, for: .highlighted)
+                deleteButton.backgroundColor = .lightGray
+            }
         }
-        else{
-            FollowManager.shere.unBlock(userid: userID)
-            deleteButton.setTitle("ブロックする", for: .normal)
-            deleteButton.setTitleColor(.white, for: .normal)
-            deleteButton.setTitleColor(.lightGray, for: .highlighted)
-            deleteButton.backgroundColor = .lightGray
+        else {
+            isReceiver = !isReceiver
+            if isReceiver {
+              print("公開する")
+                DataManager.shere.addReceiver(userid: userID)
+                deleteButton.setTitle("公開する", for: .normal)
+                deleteButton.setTitleColor(.white, for: .normal)
+                deleteButton.setTitleColor(.lightGray, for: .highlighted)
+                deleteButton.backgroundColor = .link
+            }
+            else {
+                print("公開しない")
+                DataManager.shere.deleteReciver(userid: userID)
+                deleteButton.setTitle("公開しない", for: .normal)
+                deleteButton.setTitleColor(.white, for: .normal)
+                deleteButton.setTitleColor(.lightGray, for: .highlighted)
+                deleteButton.backgroundColor = .link
+            }
         }
+      
     }
     @objc  func delete(sender: UIButton){
         isDelete = !isDelete
@@ -155,7 +198,7 @@ class FriendListWithPostCell :BaseCell{
     }()
     let isSendButton : UIButton = {
         let button = UIButton()
-        button.setTitle("送信しない", for: .normal)
+        button.setTitle("公開しない", for: .normal)
         button.backgroundColor = .lightGray
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 10
@@ -168,6 +211,7 @@ class FriendListWithPostCell :BaseCell{
     var index = Int()
     var isSend = false
     var friend = Friend(userid: "")
+    
     override func setupViews() {
         contentView.addSubview(userImageView)
         contentView.addSubview(usernameLabel)
@@ -181,7 +225,7 @@ class FriendListWithPostCell :BaseCell{
     
         
         if friend.isSend {
-            isSendButton.setTitle("送信する", for: .normal)
+            isSendButton.setTitle("公開する", for: .normal)
             isSendButton.backgroundColor = .darkGray
             isSendButton.setTitleColor(.white, for: .normal)
             
@@ -217,18 +261,19 @@ class FriendListWithPostCell :BaseCell{
     }
     @objc func showFriendListView(sender: UIButton){
         print("tapppppppp")
+        
         friend.isSend = !friend.isSend
         FollowManager.shere.changeisSend(friend: friend)
         
         if friend.isSend {
-            isSendButton.setTitle("送信する", for: .normal)
+            isSendButton.setTitle("公開する", for: .normal)
             isSendButton.backgroundColor = .darkGray
             isSendButton.setTitleColor(.white, for: .normal)
             
         }
         else{
            
-            isSendButton.setTitle("送信しない", for: .normal)
+            isSendButton.setTitle("公開しない", for: .normal)
             isSendButton.backgroundColor = .lightGray
             isSendButton.setTitleColor(.white, for: .normal)
         }

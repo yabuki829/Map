@@ -229,6 +229,9 @@ extension profileViewController {
     
 }
 extension profileViewController:transitionDelegate {
+    func showMenu(disc: Discription, profile: Profile) {}
+    
+    
     func toEditPageWithProfileCell() {
         let vc = EditViewController()
         vc.modalPresentationStyle = .fullScreen

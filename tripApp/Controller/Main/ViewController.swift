@@ -4,9 +4,10 @@ import MapKit
 import CoreLocation
 import Photos
 import PKHUD
+import SwiftUI
 
 
-class MapViewController: UIViewController, reloadDelegate {
+class MapViewController: BaseViewController, reloadDelegate{
  
 
     
@@ -26,6 +27,15 @@ class MapViewController: UIViewController, reloadDelegate {
         cv.backgroundColor = .systemGray6
         return cv
     }()
+    let menuBar :DetailMenuBar = {
+        let menu = DetailMenuBar()
+        let menuArray = [Menu(title: "通報する", image:"flag" ),Menu(title: "ブロックする", image:"circle.slash"),Menu(title: "ARで場所を見る", image:"camera" )]
+        menu.layer.cornerRadius = 10
+        menu.clipsToBounds = true
+        menu.setData(array: menuArray)
+        menu.tag = 1
+        return menu
+    }()
     var menuCell:MenuCell?
     var mapCell:MapCell?
     var mapAndDiscriptionCell:MapAndDiscriptionCell?
@@ -35,7 +45,7 @@ class MapViewController: UIViewController, reloadDelegate {
     var selectDiary:Discription?
     var selectImage = UIImage()
     var isReload = false
-
+    var isShow = false
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         print("縦画面")
         return .portrait
@@ -58,8 +68,10 @@ class MapViewController: UIViewController, reloadDelegate {
 
         setupNavigationItems()
         settingCollectionView()
+      
         
     }
+  
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         print("viewWillAppear")
@@ -96,6 +108,7 @@ class MapViewController: UIViewController, reloadDelegate {
         vc.modalPresentationStyle = .fullScreen
         navigationController?.pushViewController(vc, animated: true)
      }
+  
     @objc func refresh(){
         print("Refreshh")
         getDiscription()
@@ -153,10 +166,11 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MapAndDiscriptionCell", for: indexPath) as! MapAndDiscriptionCell
             cell.discriptioncell.delegate = self
             cell.mapCell.delegateWithMapCell = self
+            
             cell.discriptioncell.isHome = true
             cell.discriptionList = discriptipns
             cell.viewWidth = view.frame.width
-            cell.mapCell.delegateWithMapCell = self
+           
             mapAndDiscriptionCell = cell
 
             
@@ -189,7 +203,12 @@ extension MapViewController: UICollectionViewDelegate,UICollectionViewDataSource
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
-
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("tapppp")
+    }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("tapppp")
+    }
 }
 
 
@@ -204,14 +223,14 @@ extension MapViewController {
         collectionView.anchor(top: view.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
                               left: view.leftAnchor, paddingLeft: 0,
                               right: view.rightAnchor, paddingRight: 0,
-                              bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0
-                          )
+                              bottom: view.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0 )
     }
 
 
     func settingCollectionView(){
         collectionView.delegate = self
         collectionView.dataSource = self
+       
         collectionView.register(MenuCell.self, forCellWithReuseIdentifier: "MenuCell")
         collectionView.register(MapCell.self, forCellWithReuseIdentifier: "MapCell")
         collectionView.register(MapAndDiscriptionCell.self, forCellWithReuseIdentifier: "MapAndDiscriptionCell")
@@ -233,168 +252,10 @@ extension MapViewController {
         navigationItem.rightBarButtonItems = [accountItem]
         navigationController?.navigationBar.tintColor = .darkGray
     }
+    
 }
 
 
-
-class articleCell:UICollectionViewCell{
-    var discription: Discription?
-    //profile画像　username
-    let profileImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .black
-        imageView.contentMode = .scaleToFill
-        return imageView
-    }()
-    
-    let imageView:UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .black
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-    
-    let videoView = VideoPlayer()
-    let username:UILabel = {
-        let label = UILabel()
-        return label
-    }()
-    let dateLabel:UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 12)
-        label.textColor = .lightGray
-        return label
-    }()
-    let playimage:UIImageView = {
-        let imageView = UIImageView()
-        imageView.tintColor = .white
-        imageView.image = UIImage(systemName: "play.fill")
-        return imageView
-    }()
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupViews()
-    }
-    func setupViews(){}
-    func addConstraint(){
-        self.addSubview(profileImageView)
-        self.addSubview(username)
-        self.addSubview(dateLabel)
-        
-        
-        self.addSubview(imageView)
-        imageView.anchor(top: username.bottomAnchor, paddingTop: 10,
-                             left: profileImageView.rightAnchor, paddingLeft: 0,
-                             right: self.rightAnchor, paddingRight: 10,
-                             bottom: self.bottomAnchor, paddingBottom: 0,
-                             width: self.frame.width - 70, height: self.frame.width - 70)
-      
-      
-        
-        profileImageView.anchor(top: self.topAnchor, paddingTop: 10,
-                                left: self.leftAnchor, paddingLeft: 10,
-                                width: 50, height: 50)
-        profileImageView.layer.cornerRadius = 25
-        profileImageView.clipsToBounds = true
-        
-        username.anchor(top: self.topAnchor, paddingTop: 10,
-                        left: profileImageView.rightAnchor, paddingLeft: 5)
-                        
-        dateLabel.anchor(top: self.topAnchor, paddingTop: 10,
-                        left: username.rightAnchor, paddingLeft: 5,
-                        right: self.rightAnchor, paddingRight: 5)
-        
-       
-        
-    }
-    func setCell(disc:Discription){
-        discription = disc
-        getProfile(userid: disc.userid)
-        
-        if disc.type == "image" {
-            playimage.isHidden = true
-            imageView.image = UIImage()
-            imageView.setImage(urlString: disc.data.url)
-        }
-        else{
-            playimage.isHidden = false
-            imageView.image = UIImage()
-            imageView.setImage(urlString: disc.thumnail!.url)
-            imageView.addSubview(playimage)
-            playimage.center(inView: imageView)
-         
-        }
-       
-        addConstraint()
-       
-    }
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func getProfile(userid:String){
-        FirebaseManager.shered.getProfile(userid: userid) { result in
-            if result.profileImage.url == "person.crop.circle.fill" || result.profileImage.name == "person.crop.circle.fill"{
-                self.profileImageView.image = UIImage(systemName: "person.crop.circle.fill")
-                self.profileImageView.backgroundColor = .white
-                
-            }
-            else {
-                self.profileImageView.setImage(urlString: result.profileImage.url)
-            }
-           
-            self.username.text = result.username
-        }
-    }
-}
-
-
-
-
-class MenuView:UIView{
-    let mapSateliteButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("衛生写真", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 12)
-        return button
-    }()
-    let mapNomalButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("デフォルト", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 12)
-        return button
-    }()
-    
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupViews()
-    }
-    
-  
-    func setupViews(){
-        addSubview(mapSateliteButton)
-        addSubview(mapNomalButton)
-        backgroundColor = UIColor(white: 0, alpha: 0.3)
-        mapNomalButton.anchor(top: topAnchor, paddingTop: 10,
-                              left: leftAnchor, paddingLeft: 20,
-                              right: rightAnchor, paddingRight: 20)
-        mapSateliteButton.anchor(top: mapNomalButton.bottomAnchor, paddingTop: 10,
-                              left: leftAnchor, paddingLeft: 20,
-                              right: rightAnchor, paddingRight:20,
-                              bottom: bottomAnchor,paddingBottom: 10)
-        
-      
-    
-    }
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
 
 
 extension MapViewController:mapCellDelegate {
@@ -420,7 +281,59 @@ extension MapViewController:mapCellDelegate {
     
 }
 extension MapViewController :transitionDelegate{
-    func scroll() {}
+    func showMenu(disc: Discription, profile: Profile) {
+        if disc.userid != FirebaseManager.shered.getMyUserid() {
+            let myAlert: UIAlertController = UIAlertController(title:"" , message: "", preferredStyle: .actionSheet)
+            myAlert.view.backgroundColor = .systemGray6
+            let alertA = UIAlertAction(title: "\(profile.username)さんを通報する", style: .default) {  action in
+                print("通報する")
+                
+            }
+            let alertB = UIAlertAction(title: "\(profile.username)さんをブロックする", style: .default) {  action in
+                
+            }
+
+            let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in print("キャンセル")}
+              
+            myAlert.addAction(alertA)
+            myAlert.addAction(alertB)
+            myAlert.addAction(cancelAlert)
+            
+            present(myAlert, animated: true, completion: nil)
+        }
+        else {
+            //自分の投稿
+            let myAlert: UIAlertController = UIAlertController(title:"" , message: "", preferredStyle: .actionSheet)
+            myAlert.view.backgroundColor = .systemGray6
+            let alertA = UIAlertAction(title: "公開範囲を変更する", style: .default) {  action in
+                print("公開範囲変更")
+                //もし24時間以内ならfrienddiscを変更する
+                let vc = FriendListViewController()
+                vc.isEditView = true
+                vc.disc = disc
+                self.navigationController?.pushViewController(vc, animated: true)
+                
+                
+            }
+            let alertB = UIAlertAction(title: "投稿を削除する", style: .default) {  action in
+                print("投稿を削除する")
+            }
+
+            let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
+                   print("キャンセル")
+            }
+              
+            myAlert.addAction(alertA)
+            myAlert.addAction(alertB)
+            myAlert.addAction(cancelAlert)
+            
+            present(myAlert, animated: true, completion: nil)
+        }
+    }
+    
+  
+    
+    func scroll(){}
     func toEditPageWithProfileCell(){}
     func toFriendList() {
         let vc = FriendListViewController()
@@ -448,5 +361,6 @@ extension MapViewController :transitionDelegate{
     }
     
 }
+
 
 

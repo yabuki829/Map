@@ -41,6 +41,25 @@ class FollowManager {
         }
         return follower
     }
+    
+    func changeReciver(friendList:[Friend],reciver:[String]) -> [Friend]{
+        var list = friendList
+        for i in 0..<list.count {
+            var isFind = false
+            for j in 0..<reciver.count {
+                if list[i].userid == reciver[j]{
+                    list[i].isSend =  true
+                    isFind = true
+                    break
+                }
+            }
+            if !isFind {
+                list[i].isSend = false
+            }
+           
+        }
+        return list
+    }
     func isFollow(userid:String) -> Bool{
         let follower = getFollow()
         for i in 0..<follower.count{
@@ -112,6 +131,7 @@ class FollowManager {
     func saveBlockList(blockList:[BlockUser]){
         userDefaults.setCodable(blockList, forKey: "block")
     }
+    
 }
 
 struct BlockUser: Codable,Equatable{

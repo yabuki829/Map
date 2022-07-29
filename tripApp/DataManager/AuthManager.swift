@@ -14,8 +14,8 @@ class AuthManager{
     private let auth = Auth.auth()
     
     func startAuth(compleation:@escaping (Bool) -> Void){
+        print("スタート")
         auth.signInAnonymously() { authResult, error in
-            print("Auth",self.auth)
             guard (authResult?.user) != nil else {
                 compleation(false)
                 return

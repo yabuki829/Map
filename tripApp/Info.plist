@@ -24,6 +24,8 @@
 	<string>ca-app-pub-9515239279115600~5564177430</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>投稿がどの辺りでとられたのかをカメラで確認できます</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>投稿と一緒に位置情報を記録するために使用します</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
