@@ -81,17 +81,6 @@ class MapViewController: BaseViewController, reloadDelegate{
         }
     }
     
-    func alert(){
-        let myAlert: UIAlertController = UIAlertController(title: "友たちが10人を超えています", message: "どちらか選択してください", preferredStyle: .alert)
-               
-            let alertA = UIAlertAction(title: "友達を整理する", style: .default) {  action in
-                //友達リストに遷移する
-                self.toFriendList()
-            }
-          
-        myAlert.addAction(alertA)
-        present(myAlert, animated: true, completion: nil)
-    }
     @objc internal func sendtoPostView(sender: UIButton) {
      
             let vc = PostViewController()
@@ -287,10 +276,10 @@ extension MapViewController :transitionDelegate{
             myAlert.view.backgroundColor = .systemGray6
             let alertA = UIAlertAction(title: "\(profile.username)さんを通報する", style: .default) {  action in
                 print("通報する")
-                
+                self.reportAlert(disc: disc)
             }
             let alertB = UIAlertAction(title: "\(profile.username)さんをブロックする", style: .default) {  action in
-                
+                self.blockFriend(userid: disc.userid)
             }
 
             let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in print("キャンセル")}
@@ -317,6 +306,8 @@ extension MapViewController :transitionDelegate{
             }
             let alertB = UIAlertAction(title: "投稿を削除する", style: .default) {  action in
                 print("投稿を削除する")
+                self.deleteAlert(disc: disc)
+                
             }
 
             let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
@@ -330,8 +321,77 @@ extension MapViewController :transitionDelegate{
             present(myAlert, animated: true, completion: nil)
         }
     }
+    func deleteAlert(disc:Discription){
+        let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .actionSheet)
+        let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { _ in
+            DataManager.shere.delete(id: disc.id)
+            FirebaseManager.shered.deleteDiscription(postID: disc.id)
+        
+                if disc.type == "image"{
+                    StorageManager.shered.deleteDiscriptionImage(image:disc.data)
+                }else{
+                    StorageManager.shered.deleteDiscriptionVideo(video: disc.data)
+                    //todo ビデオをとめる
+                }
+                self.getDiscription()
+            })
+            let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
+            alert.addAction(selectAction)
+            alert.addAction(cancelAction)
+
+            present(alert, animated: true)
+    }
     
-  
+    func reportAlert(disc:Discription){
+        let myAlert: UIAlertController = UIAlertController(title: "Report", message: "通報内容を選択してください", preferredStyle: .alert)
+               
+            // userid, post id と 報告内容
+               let alertA = UIAlertAction(title: "嫌がらせ/差別/誹謗中傷", style: .default) { [self] action in
+                   let report = "嫌がらせ・差別・誹謗中傷"
+                 
+                       FirebaseManager.shered.report(disc: disc, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                   
+                  
+                   print(report)
+                   completeAlert(text: "報告が完了しました")
+               }
+               let alertC = UIAlertAction(title: "内容が事実と著しく異なる", style: .default) { [self] action in
+                   let report = "内容が著しく事実と異なる"
+                   FirebaseManager.shered.report(disc: disc, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                  
+                   completeAlert(text: "報告が完了しました")
+                   print(report)
+               }
+               let alertD = UIAlertAction(title: "性的表現/わいせつな表現", style: .default) { [self] action in
+                  
+                   let report = "性的表現"
+                   FirebaseManager.shered.report(disc: disc, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                  
+                   print(report)
+                   completeAlert(text: "報告が完了しました")
+               }
+            let alertE = UIAlertAction(title: "その他不適切", style: .default) { [self] action in
+                   
+                    let report = "不適切な投稿"
+                FirebaseManager.shered.report(disc: disc, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                    print(report)
+                    completeAlert(text: "報告が完了しました")
+                }
+        
+            let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
+                   print("キャンセル")
+               }
+               // OKのActionを追加する.
+               myAlert.addAction(alertA)
+               myAlert.addAction(alertC)
+               myAlert.addAction(alertD)
+               myAlert.addAction(alertE)
+               myAlert.addAction(cancelAlert)
+               
+
+               // UIAlertを発動する.
+               present(myAlert, animated: true, completion: nil)
+    }
     
     func scroll(){}
     func toEditPageWithProfileCell(){}
@@ -360,6 +420,18 @@ extension MapViewController :transitionDelegate{
         navigationController?.pushViewController(vc, animated: true)
     }
     
+    func blockFriend(userid:String){
+        //ブロックする
+        FollowManager.shere.block(userid: userid)
+        //フォローを解除する
+        FollowManager.shere.unfollow(userid: userid)
+//        FirebaseManager.shered.unfollow(friendid: discription!.userid)
+        //前の画面に戻る
+        collectionView.reloadData()
+        //ブロックした人の投稿は見れないようにする
+        
+        
+    }
 }
 
 

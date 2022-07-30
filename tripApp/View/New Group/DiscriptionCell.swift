@@ -132,7 +132,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
             if isHome {
                 if indexPath.row < 1{
                     //広告　大きさ　320 / 100
-                    return CGSize(width:collectionView.frame.width, height: 300)
+                    return CGSize(width:collectionView.frame.width, height: frame.width)
                 }
                 else{
                     return CGSize(width:collectionView.frame.width, height: frame.width)

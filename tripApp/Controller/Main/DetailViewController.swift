@@ -37,7 +37,7 @@ class detailViewController:BaseViewController{
     
     override func viewDidLoad() {
         fieldView.delegate = self
-        tableView.backgroundColor = .systemGray6
+        tableView.backgroundColor = .white
 
         view.backgroundColor = .white
         view.addSubview(tableView)
@@ -427,10 +427,11 @@ extension detailViewController:profileCellDelegate {
             myAlert.view.backgroundColor = .systemGray6
             let alertA = UIAlertAction(title: "\(profile.username)さんを通報する", style: .default) {  action in
                 print("通報する")
+                self.alert()
                 
             }
             let alertB = UIAlertAction(title: "\(profile.username)さんをブロックする", style: .default) {  action in
-                
+                self.blockFriend()
             }
 
             let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in print("キャンセル")}
@@ -457,6 +458,8 @@ extension detailViewController:profileCellDelegate {
             }
             let alertB = UIAlertAction(title: "投稿を削除する", style: .default) {  action in
                 print("投稿を削除する")
+                self.deleteAlert()
+        
             }
 
             let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in

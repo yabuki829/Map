@@ -12,7 +12,6 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     
     var profile: Profile?{
         didSet{
-            
             //自分のprofileじゃない　かつ　フォローしていない
             if FollowManager.shere.isME(userid: profile!.userid) == false && FollowManager.shere.isFollow(userid: profile!.userid) == false{
                 followButton.isHidden = false
@@ -39,6 +38,16 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
             
         }
     }
+    
+    let explainTextView:UITextView = {
+        let label = UITextView()
+        label.text =
+        "< 注意 > \n 友達同士にならないと投稿は表示されません。友達にFriendIDを教えてもらいましょう"
+        label.backgroundColor = .clear
+        label.isEditable = false
+        return label
+    }()
+    
     let profileImage:UIImageView = {
         let imageview = UIImageView()
         imageview.backgroundColor = .white
@@ -73,6 +82,7 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         
         return label
     }()
+    let adView = AdBannerView()
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait
      }
@@ -176,7 +186,8 @@ extension FriendSearchViewController {
         view.addSubview(usernameLabel)
         view.addSubview(followButton)
         view.addSubview(messageLabel)
-        
+        view.addSubview(explainTextView)
+        view.addSubview(adView)
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20).isActive = true
         textField.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20).isActive = true
@@ -208,6 +219,13 @@ extension FriendSearchViewController {
         messageLabel.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 20).isActive = true
         messageLabel.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20).isActive = true
         messageLabel.isHidden = true
+        
+        explainTextView.anchor(top: messageLabel.bottomAnchor, paddingTop: 10,
+                               left: view.safeAreaLayoutGuide.leftAnchor, paddingLeft: 10,
+                               right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 10,
+                               height: 100)
+        adView.anchor(bottom:view.safeAreaLayoutGuide.bottomAnchor,paddingBottom: 30,width: 300, height: 250)
+        adView.centerX(inView: view)
     }
 }
 class AlertManager{
@@ -219,7 +237,7 @@ class AlertManager{
 
            let selectAction = UIAlertAction(title: "Copy", style: .default, handler: { _ in
                let pasteboard = UIPasteboard.general
-               pasteboard.string = id 
+               pasteboard.string = id
 
                  let generator = UISelectionFeedbackGenerator()
                  generator.prepare()
@@ -241,5 +259,68 @@ class AlertManager{
 
         alert.addAction(selectAction)
         return alert
+    }
+}
+
+
+//
+//  AdView.swift
+//  tripApp
+//
+//  Created by 薮木翔大 on 2022/07/30.
+//
+//
+//import Foundation
+//import UIKit
+import NendAd
+
+
+class AdBannerView:baseView ,NADViewDelegate{
+    let nadView = NADView()
+    override func setupViews() {
+        nadView.delegate = self
+        self.addSubview(nadView)
+        nadView.anchor(top: self.topAnchor, paddingTop: 0,
+                      left: self.leftAnchor, paddingLeft: 0,
+                      right: self.rightAnchor, paddingRight: 0,
+                      bottom: self.bottomAnchor, paddingBottom: 0)
+        settingAD()
+    }
+    func settingAD(){
+        nadView.setNendID(70356, apiKey: "88d88a288fdea5c01d17ea8e494168e834860fd6")
+//        nadView.setNendID(1063088, apiKey: "e79df9fa09f57f798884caa0b172f834398d8a9a")
+        nadView.load()
+    }
+    func nadViewDidFinishLoad(_ adView: NADView!) {
+        print("ロード完了")
+    }
+    func nadViewDidReceiveAd(_ adView: NADView!){
+        print("受信をしました")
+    }
+    func nadViewDidFail(toReceiveAd adView: NADView!) {
+           
+           // エラーごとに処理を分岐する場合
+        let error: NSError = adView.error as NSError
+        print(error)
+        switch (error.code) {
+        case NADViewErrorCode.NADVIEW_AD_SIZE_TOO_LARGE.rawValue:
+            print("広告サイズがディスプレイサイズよりも大きい")
+            break
+        case NADViewErrorCode.NADVIEW_INVALID_RESPONSE_TYPE.rawValue:
+            print(" 不明な広告ビュータイプ")
+            break
+        case NADViewErrorCode.NADVIEW_FAILED_AD_REQUEST.rawValue:
+            print("広告取得失敗")
+            break
+        case NADViewErrorCode.NADVIEW_FAILED_AD_DOWNLOAD.rawValue:
+            print(" 広告画像の取得失敗")
+            break
+        case NADViewErrorCode.NADVIEW_AD_SIZE_DIFFERENCES.rawValue:
+            print(" リクエストしたサイズと取得したサイズが異なる")
+            break
+        default:
+            print("その他")
+            break
+        }
     }
 }
