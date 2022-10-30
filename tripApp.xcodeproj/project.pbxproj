@@ -12,6 +12,7 @@
 		1A476FE62890F039001C1044 /* ARViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A476FE52890F039001C1044 /* ARViewController.swift */; };
 		1A71AFB6287FCAE1005D4883 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A71AFB5287FCAE1005D4883 /* MapView.swift */; };
 		1A71AFB8287FCB52005D4883 /* DiscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A71AFB7287FCB52005D4883 /* DiscriptionView.swift */; };
+		1A739E12289647E0002D080A /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A739E11289647E0002D080A /* CameraViewController.swift */; };
 		1A8AFA4A2872D9FE00E39774 /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8AFA492872D9FE00E39774 /* VideoPlayer.swift */; };
 		1A8AFA4C287305BC00E39774 /* DetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8AFA4B287305BC00E39774 /* DetailCell.swift */; };
 		1AB76CF9288E8C0B0064D212 /* FriendListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB76CF8288E8C0B0064D212 /* FriendListView.swift */; };
@@ -101,6 +102,7 @@
 		1A530264284DCF1900C92BFE /* tripApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = tripApp.entitlements; sourceTree = "<group>"; };
 		1A71AFB5287FCAE1005D4883 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		1A71AFB7287FCB52005D4883 /* DiscriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscriptionView.swift; sourceTree = "<group>"; };
+		1A739E11289647E0002D080A /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		1A8AFA492872D9FE00E39774 /* VideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
 		1A8AFA4B287305BC00E39774 /* DetailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailCell.swift; sourceTree = "<group>"; };
 		1AB76CF8288E8C0B0064D212 /* FriendListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendListView.swift; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				709433052827AE9B00A9AC3B /* ViewController.swift */,
 				706053E0282A92870067F63F /* DetailViewController.swift */,
 				706053E4282AAD940067F63F /* ImageDetailView.swift */,
+				1A739E11289647E0002D080A /* CameraViewController.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -710,6 +713,7 @@
 				1AC15EDE287D9BDA001F1FEA /* CashManager.swift in Sources */,
 				709433022827AE9B00A9AC3B /* AppDelegate.swift in Sources */,
 				1A044AB0285EDB590047500B /* LanguageManager.swift in Sources */,
+				1A739E12289647E0002D080A /* CameraViewController.swift in Sources */,
 				70A20AA82834C51E0093FCBB /* AuthManager.swift in Sources */,
 				709433042827AE9B00A9AC3B /* SceneDelegate.swift in Sources */,
 				70D614FA28281C11007E66A1 /* PostView.swift in Sources */,
@@ -958,18 +962,19 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6ADC08D3C4D4E4B832F10D2B /* Pods-tripApp.debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon4;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = tripApp/tripAppDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.07;
+				CURRENT_PROJECT_VERSION = 2.2;
 				DEVELOPMENT_TEAM = YA5HXFT63V;
 				INFOPLIST_FILE = tripApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.07;
+				MARKETING_VERSION = 2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sho.tripApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -981,18 +986,19 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FF8FE3FB58F6493F953B91A0 /* Pods-tripApp.release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon4;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = tripApp/tripApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.07;
+				CURRENT_PROJECT_VERSION = 2.2;
 				DEVELOPMENT_TEAM = YA5HXFT63V;
 				INFOPLIST_FILE = tripApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.07;
+				MARKETING_VERSION = 2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sho.tripApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

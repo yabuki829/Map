@@ -128,7 +128,7 @@ extension SelectLocationMapViewController:CLLocationManagerDelegate{
         locationManager = CLLocationManager()
         guard let locationManager = locationManager else { return }
         locationManager.requestWhenInUseAuthorization()
-        
+        // 'authorizationStatus()' was deprecated in iOS 14.0
         let status = CLLocationManager.authorizationStatus()
         if status == .authorizedWhenInUse {
             locationManager.delegate = self
@@ -155,7 +155,7 @@ extension SelectLocationMapViewController:CLLocationManagerDelegate{
     }
     func getLocationName(location:Location,compleation:@escaping (String) -> Void) {
         let Location = CLLocation(latitude: location.latitude, longitude:location.longitude)
-        CLGeocoder().reverseGeocodeLocation(Location) { [self] placemarks, error in
+        CLGeocoder().reverseGeocodeLocation(Location) {  placemarks, error in
             if let placemark = placemarks?.first {
                 print(placemark)
                 let country = placemark.country ?? ""

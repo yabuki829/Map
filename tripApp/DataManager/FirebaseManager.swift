@@ -30,7 +30,7 @@ class FirebaseManager{
     
     func getComment(messageid:String,compleation:@escaping ([Comment]) -> Void){
         
-        database.collection("Comments").document(messageid).collection("Comment").order(by:"created", descending: false).getDocuments{ (snapshot, error) in
+        database.collection("Comments").document(messageid).collection("Comment").order(by:"created", descending: false).addSnapshotListener{ (snapshot, error) in
             var array = [Comment]()
             for document in snapshot!.documents {
                 let data = document.data()
@@ -296,7 +296,7 @@ class FirebaseManager{
         }
     }
     
-    func getReceiver(disc:Discription,compleation:@escaping ([String]) -> Void ){
+    func getReceiver(disc:Article,compleation:@escaping ([String]) -> Void ){
         database.collection("Users").document(disc.userid).collection("MyDiscription").document(disc.id).getDocument { snapshot, error in
             let data = snapshot?.data()
             print("getReceiver")
@@ -312,7 +312,7 @@ class FirebaseManager{
            
         }
     }
-    func postDiscription(disc:Discription,compleation:@escaping (Bool) -> Void ){
+    func postDiscription(disc:Article,compleation:@escaping (Bool) -> Void ){
         let friendList = FollowManager.shere.getFollow()
         var receiver = [String]()
         print("投稿します")
@@ -331,8 +331,8 @@ class FirebaseManager{
                  "created":FieldValue.serverTimestamp(),
                  "imageurl":disc.data.url,
                  "imagename":disc.data.name,
-                 "thumnailurl":disc.thumnail?.url,
-                 "thumnailname":disc.thumnail?.name,
+                 "thumnailurl":disc.thumnail?.url ?? "",
+                 "thumnailname":disc.thumnail?.name ?? "",
                  "receiverList":receiver,
                  "type":disc.type
                  
@@ -350,8 +350,8 @@ class FirebaseManager{
                         "created":FieldValue.serverTimestamp(),
                         "imageurl":disc.data.url,
                         "imagename":disc.data.name,
-                        "thumnailurl":disc.thumnail?.url,
-                        "thumnailname":disc.thumnail?.name,
+                        "thumnailurl":disc.thumnail?.url ?? "",
+                        "thumnailname":disc.thumnail?.name ?? "",
                         "type":disc.type
                         
                     ]
@@ -373,7 +373,7 @@ class FirebaseManager{
         
     }
     
-    func deleteDiscription(postArray:[Discription]){
+    func deleteDiscription(postArray:[Article]){
         let userid = Auth.auth().currentUser?.uid
         print("古い投稿を削除しました")
         for i in 0..<postArray.count {
@@ -381,9 +381,9 @@ class FirebaseManager{
         }
     }
     
-    func getDiscription(userid:String,compleation:@escaping ([Discription]) -> Void){
+    func getDiscription(userid:String,compleation:@escaping ([Article]) -> Void){
         database.collection("Users").document(userid).collection("MyDiscription").getDocuments { [self] (snapshot, error) in
-            var discriptionList = [Discription]()
+            var articleList = [Article]()
             for document in snapshot!.documents {
                 let data = document.data()
                 if let id = data["id"],
@@ -405,12 +405,12 @@ class FirebaseManager{
                         let thumnail = ProfileImage(url: thumnailurl as! String, name: thumnailname as! String)
                         if  myUserID == userid as! String || isReceiver(myuserid: myUserID, receiver: receiverList as! [String]){
                             let date = created.dateValue()
-                            let disc = Discription(id: id as! String,
+                            let article = Article(id: id as! String,
                                                    userid: userid as! String,
                                                    text: text as! String,
                                                    location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
                                                    data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: thumnail, created: date, type: type as! String)
-                            discriptionList.append(disc)
+                            articleList.append(article)
                             
                         }
                     }
@@ -418,12 +418,12 @@ class FirebaseManager{
                        
                         if  myUserID == userid as! String || isReceiver(myuserid: myUserID, receiver: receiverList as! [String]){
                             let date = created.dateValue()
-                            let disc = Discription(id: id as! String,
+                            let article = Article(id: id as! String,
                                                    userid: userid as! String,
                                                    text: text as! String,
                                                    location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
                                                    data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: nil, created: date, type: type as! String)
-                            discriptionList.append(disc)
+                            articleList.append(article)
                             
                         }
                     }
@@ -438,7 +438,7 @@ class FirebaseManager{
             }
             DispatchQueue.main.async {
 
-                compleation(discriptionList)
+                compleation(articleList)
             }
         }
     }
@@ -453,8 +453,8 @@ class FirebaseManager{
         return false
     }
     
-    func getAd(compleation:@escaping ([Discription]) -> Void){
-        var discriptionList = [Discription]()
+    func getAd(compleation:@escaping ([Article]) -> Void){
+        var articleList = [Article]()
         database.collection("Ad").getDocuments { snapshot, error in
             for document in snapshot!.documents {
                 let data = document.data()
@@ -468,13 +468,13 @@ class FirebaseManager{
                    let imagename = data["imagename"],
                    let type = data["type"]{
                     let date = created.dateValue()
-                    let disc = Discription(id: id as! String,
+                    let disc = Article(id: id as! String,
                                            userid: userid as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
                                            data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: nil, created: date, type: type as! String)
                 
-                        discriptionList.append(disc)
+                        articleList.append(disc)
                     
                    
                 }
@@ -483,15 +483,15 @@ class FirebaseManager{
             DispatchQueue.main.async {
                 print("取得完了")
                 //48
-                compleation(discriptionList)
+                compleation(articleList)
             }
         }
         
     }
-    func getFriendDiscription(compleation:@escaping ([Discription]) -> Void){
+    func getFriendDiscription(compleation:@escaping ([Article]) -> Void){
         print("友達の投稿を取得します")
         let userid = getMyUserid()
-        var discriptionList = [Discription]()
+        var articleList = [Article]()
         // 一日以内の投稿を取得する
         // 一週間以内の投稿を取得する
         // 一ヶ月以内の投稿を取得する
@@ -499,7 +499,7 @@ class FirebaseManager{
         //全てを取得する
         
 
-        database.collection("Users").document(userid).collection("FriendDiscription").getDocuments{ (snapshot, error) in
+        database.collection("Users").document(userid).collection("FriendDiscription").addSnapshotListener{ (snapshot, error) in
             if let error = error {
                 print("エラー",error)
                 return
@@ -517,30 +517,32 @@ class FirebaseManager{
                    let imagename = data["imagename"],
                    let type = data["type"]{
                     
+                    //ビデオを取得する場合
                     if type as! String == "video"{
                         let thumnailurl = data["thumnailurl"]
                         let thumnailname = data["thumnailname"]
                         let thumnail = ProfileImage(url: thumnailurl as! String, name: thumnailname as! String)
                         let date = created.dateValue()
-                        let disc = Discription(id: id as! String,
+                        let article = Article(id: id as! String,
                                                userid: userid as! String,
                                                text: text as! String,
                                                location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
                                                data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: thumnail, created: date, type: type as! String)
                         if FollowManager.shere.isFollow(userid: userid as! String) && !FollowManager.shere.isBlock(userid: userid as! String){
-                            discriptionList.append(disc)
+                            articleList.append(article)
                         }
                     }
+                    //ビデオ以外
                     else {
                         let date = created.dateValue()
-                        let disc = Discription(id: id as! String,
+                        let article = Article(id: id as! String,
                                                userid: userid as! String,
                                                text: text as! String,
                                                location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
                                                data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: nil, created: date, type: type as! String)
-                        if FollowManager.shere.isFollow(userid: userid as! String) && !FollowManager.shere.isBlock(userid: userid as! String){
+                        if FollowManager.shere.isFollow(userid: userid as! String){
                             
-                            discriptionList.append(disc)
+                            articleList.append(article)
                         }
                     }
                     
@@ -551,23 +553,23 @@ class FirebaseManager{
             }
             DispatchQueue.main.async {
                 print("取得完了")
-                discriptionList = MathManager.shered.sort(disc:discriptionList, hour: 24)
+                articleList = MathManager.shered.sort(disc:articleList, hour: 168)
                 
                 
                 let myDisc = DataManager.shere.getDiscriptionSince48Hours()
-                discriptionList.append(contentsOf: myDisc)
+                articleList.append(contentsOf: myDisc)
                 
-                discriptionList.sort(by: { a, b -> Bool in
+                articleList.sort(by: { a, b -> Bool in
                     print("ソート中")
                     return a.created > b.created
                 })
-                for i in 0..<discriptionList.count {
+                for i in 0..<articleList.count {
                     print("--------------------------------------------")
-                    print("title",discriptionList[i].text)
-                    print("date",discriptionList[i].created.covertString(),discriptionList[i].created.secondAgo())
+                    print("title",articleList[i].text)
+                    print("date",articleList[i].created.covertString(),articleList[i].created.secondAgo())
                 }
                 print("完了")
-                compleation(discriptionList)
+                compleation(articleList)
             }
         }
         
@@ -637,16 +639,16 @@ class FirebaseManager{
     }
     private func deleteComment(postID:String){
         database.collection("Comments").document(postID).collection("Comment").getDocuments { (snapshot, error) in
-                    if let error = error{
-                        print("エラー",error)
-                        return
-                    }
+            if let error = error{
+                print("エラー",error)
+                return
+            }
                  
-                    for document in snapshot!.documents{
-                        document.reference.delete()
-                    }
+            for document in snapshot!.documents{
+                document.reference.delete()
+            }
                     
-             }
+        }
     }
     func reportComment(postID:String,commentid:String,commenter:String,text:String,type:String){
         let userid = Auth.auth().currentUser?.uid
@@ -668,10 +670,10 @@ class FirebaseManager{
         database.collection("Users").document(friendID).collection("FriendDiscription").document(postID).delete()
     }
   
-    func report(disc:Discription,userid:String,category:String){
+    func report(article:Article,userid:String,category:String){
         
-        self.database.collection("Report").document("discription").collection(disc.id).document(userid).setData(
-            ["postid":disc.id,"userid":disc.userid,"reporter":userid,"type":category]
+        self.database.collection("Report").document("discription").collection(article.id).document(userid).setData(
+            ["postid":article.id,"userid":article.userid,"reporter":userid,"type":category]
         )
     }
 }
@@ -717,8 +719,8 @@ extension FirebaseManager{
 
 
 extension FirebaseManager {
-    func getAdvertising(location:Location,compleation:@escaping ([Discription]) -> Void){
-        var adDiscriptionList = [Discription]()
+    func getAdvertising(location:Location,compleation:@escaping ([Article]) -> Void){
+        var adArticleList = [Article]()
         database.collection("Ad").getDocuments{ (snapshot, error) in
             /*
                  id
@@ -747,25 +749,23 @@ extension FirebaseManager {
                    let imageurl = data["imageurl"],
                    let imagename = data["imagename"]{
                     let date = created.dateValue()
-                    let disc = Discription(id: id as! String,
+                    let disc = Article(id: id as! String,
                                            userid: userid as! String,
                                            text: text as! String,
                                            location: Location(latitude: latitude as! Double, longitude: longitude as! Double),
                                            data: ProfileImage(url: imageurl as! String, name: imagename as! String), thumnail: nil, created: date, type: "image")
-                    adDiscriptionList.append(disc)
+                    adArticleList.append(disc)
                 }
                 
             }
             DispatchQueue.main.async {
-                compleation(adDiscriptionList)
+                compleation(adArticleList)
             }
             
         }
         
     }
-}
-
-
+}   
 
 
 

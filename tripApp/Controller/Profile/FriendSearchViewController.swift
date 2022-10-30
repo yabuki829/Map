@@ -31,7 +31,13 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
             }
             else{
                 messageLabel.isHidden = false
-                messageLabel.text = "ご自身のアカウントもしくは友達のアカウントです"
+                if LanguageManager.shered.getlocation() == "ja" {
+                    messageLabel.text = "ご自身のアカウントもしくは友達のアカウントです"
+                }
+                else {
+                    messageLabel.text = "Your account or a friend's account"
+                }
+              
             }
          
            
@@ -41,8 +47,15 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     
     let explainTextView:UITextView = {
         let label = UITextView()
-        label.text =
-        "< 注意 > \n 友達同士にならないと投稿は表示されません。友達にFriendIDを教えてもらいましょう"
+        if LanguageManager.shered.getlocation() == "ja" {
+            
+                label.text = "< 注意 > \n 友達同士にならないと投稿は表示されません。友達にFriendIDを教えてもらいましょう"
+            
+        }
+        else {
+            label.text =
+            "<Caution> \n Posts will not be displayed unless they are friends. Ask a friend to give you their FriendID"
+        }
         label.backgroundColor = .clear
         label.isEditable = false
         return label
@@ -62,14 +75,26 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     let textField: UITextField = {
         let textfield = UITextField()
         textfield.borderStyle = .bezel
-        textfield.placeholder = "FriendIDを入力してください"
+        if LanguageManager.shered.getlocation() == "ja" {
+            textfield.placeholder = "FriendIDを入力してください"
+        }
+        else {
+            textfield.placeholder = "Please enter your FriendID"
+
+        }
+       
         textfield.autocorrectionType = .no
         return textfield
     }()
     
     let followButton:UIButton = {
         let button = UIButton()
-        button.setTitle("友達になる", for: .normal)
+        if LanguageManager.shered.getlocation() == "ja" {
+            button.setTitle("友達になる", for: .normal)
+        }
+        else {
+            button.setTitle("to become friends", for: .normal)
+        }
         button.setTitleColor(.white, for: .normal)
         button.setTitleColor(.darkGray, for: .highlighted)
         button.backgroundColor = .link
@@ -77,7 +102,12 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
     }()
     let messageLabel:UILabel = {
         let label = UILabel()
-        label.text = "存在しないFriendIDです"
+        if LanguageManager.shered.getlocation() == "ja" {
+            label.text = "存在しないFriendIDです"
+        }
+        else {
+            label.text = "this FriendID does not exist"
+        }
         label.numberOfLines = 0
         
         return label
@@ -99,25 +129,10 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
         followButton.addTarget(self, action: #selector(Follow(sender:)), for: .touchUpInside)
         followButton.isHidden = true
     }
-    func alert(){
-        let myAlert: UIAlertController = UIAlertController(title: "", message: "", preferredStyle: .alert)
-               
-            let alertA = UIAlertAction(title: "友達を整理する", style: .default) {  action in
-                //友達リストに遷移する
-                let vc = FriendListViewController()
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
-            let alertC = UIAlertAction(title: "キャンセル", style: .default) {  action in
-             
-                
-            }
-        myAlert.addAction(alertA)
-        myAlert.addAction(alertC)
-        present(myAlert, animated: true, completion: nil)
-    }
+
 
     func setNav(){
-        self.title = "友達検索"
+        self.title = "Friend"
         let backButton = UIImage(systemName: "chevron.left")
         let backItem = UIBarButtonItem(image: backButton, style: .plain, target: self, action: #selector(back(sender:)))
         backItem.tintColor = .darkGray
@@ -140,7 +155,13 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
             print("Followします")
             FollowManager.shere.follow(userid: profile!.userid)
             FirebaseManager.shered.follow(friendid: profile!.userid)
-            followButton.setTitle("友達です", for: .normal)
+            if LanguageManager.shered.getlocation() == "ja" {
+                followButton.setTitle("友達です", for: .normal)//already friends
+            }
+            else {
+                followButton.setTitle("already friends", for: .normal)
+            }
+          
             followButton.isEnabled = false
             self.navigationController?.dismiss(animated: true, completion: nil)
         }
@@ -160,7 +181,12 @@ class FriendSearchViewController:UIViewController, UITextFieldDelegate{
                 print("取得完了")
                 print(data)
                 if data.userid == "error"{
-                    self.messageLabel.text = "Profileが設定されていない。もしくは,削除されたUserです"
+                    if LanguageManager.shered.getlocation() == "ja" {
+                        self.messageLabel.text = "Profileが設定されていない。もしくは,削除されたUserです"
+                    }
+                    else {
+                        self.messageLabel.text = "Profile is not set. Or a User that has been deleted"
+                    }
                     self.messageLabel.textAlignment = .center
                     self.messageLabel.isHidden = false
                 }
@@ -220,9 +246,10 @@ extension FriendSearchViewController {
         messageLabel.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20).isActive = true
         messageLabel.isHidden = true
         
-        explainTextView.anchor(top: messageLabel.bottomAnchor, paddingTop: 10,
+        explainTextView.anchor(
                                left: view.safeAreaLayoutGuide.leftAnchor, paddingLeft: 10,
                                right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 10,
+                               bottom: adView.topAnchor ,paddingBottom: 20,
                                height: 100)
         adView.anchor(bottom:view.safeAreaLayoutGuide.bottomAnchor,paddingBottom: 30,width: 300, height: 250)
         adView.centerX(inView: view)
@@ -263,15 +290,7 @@ class AlertManager{
 }
 
 
-//
-//  AdView.swift
-//  tripApp
-//
-//  Created by 薮木翔大 on 2022/07/30.
-//
-//
-//import Foundation
-//import UIKit
+
 import NendAd
 
 
@@ -287,8 +306,8 @@ class AdBannerView:baseView ,NADViewDelegate{
         settingAD()
     }
     func settingAD(){
-        nadView.setNendID(70356, apiKey: "88d88a288fdea5c01d17ea8e494168e834860fd6")
-//        nadView.setNendID(1063088, apiKey: "e79df9fa09f57f798884caa0b172f834398d8a9a")
+//        nadView.setNendID(70356, apiKey: "88d88a288fdea5c01d17ea8e494168e834860fd6")
+        nadView.setNendID(1063088, apiKey: "e79df9fa09f57f798884caa0b172f834398d8a9a")
         nadView.load()
     }
     func nadViewDidFinishLoad(_ adView: NADView!) {

@@ -27,14 +27,14 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
         button.tintColor = .lightGray
         return button
     }()
-    var menuView:MenuView = {
-        let mv = MenuView()
+    var menuView:MapStyleView = {
+        let mv = MapStyleView()
         mv.isHidden = true
        
         return mv
     }()
     
-    var descriptionList : [Discription]?{
+    var descriptionList : [Article]?{
         didSet {
             if selectVideo.player == nil {
                 setData()
@@ -53,7 +53,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
     
     
     var mapView =  MKMapView()
-    var selectDiary:Discription?
+    var selectDiary:Article?
     var isOpen = false
     var viewWidth = CGFloat()
     var locationManager: CLLocationManager!
@@ -231,8 +231,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                             
                         }
                         else{
-                            print("画像エラー", descriptionList![i].data.url,descriptionList![i].data.name,image)
-                        
+                            print("エラー")
                         }
                 
                     }
@@ -270,7 +269,7 @@ class MapCell: BaseCell,MKMapViewDelegate,CLLocationManagerDelegate{
                             
                         }
                         else{
-                            print("画像エラー", descriptionList![i].data.url,descriptionList![i].data.name,image)
+                            print("画像エラー")
                         
                         }
                 
@@ -336,7 +335,7 @@ extension MapCell {
         locationManager = CLLocationManager()
         guard let locationManager = locationManager else { return }
         locationManager.requestWhenInUseAuthorization()
-        
+        //'authorizationStatus()' was deprecated in iOS 14.0
         let status = CLLocationManager.authorizationStatus()
         if status == .authorizedWhenInUse {
             locationManager.delegate = self
@@ -360,9 +359,9 @@ extension MapCell {
         
     }
 }
-protocol mapCellDelegate: class  {
-    func toDetailWithMapCell(discription:Discription)
-    func toDetailWithMapCell(discription:Discription,selectImage:UIImage)
+protocol mapCellDelegate: AnyObject  {
+    func toDetailWithMapCell(discription:Article)
+    func toDetailWithMapCell(discription:Article,selectImage:UIImage)
 }
 
 

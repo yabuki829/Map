@@ -26,10 +26,7 @@ class FriendListCell:BaseCell{
     }()
     let deleteButton: UIButton = {
         let button = UIButton()
-        button.setTitle("削除する", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.setTitleColor(.lightGray, for: .highlighted)
-        button.backgroundColor = .lightGray
+        button.setTitle("Following", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 12)
         button.layer.cornerRadius = 10
         button.clipsToBounds = true
@@ -42,6 +39,7 @@ class FriendListCell:BaseCell{
     var isEditList = false
     var isBlock = true
     var isReceiver = false
+    var isFriendList = false
     override func setupViews() {
         settingUserImageView()
     }
@@ -53,27 +51,68 @@ class FriendListCell:BaseCell{
         else{
             userImageView.setImage(urlString: imageurl)
         }
+        
         if isBlockList {
             print("解除する")
-            deleteButton.setTitle("解除する", for: .normal)
+            if LanguageManager.shered.getlocation() == "ja"{
+                deleteButton.setTitle("解除する", for: .normal)
+            }
+            else {
+                deleteButton.setTitle("unblock", for: .normal)
+            }
+            deleteButton.setTitleColor(.white, for: .normal)
+            deleteButton.setTitleColor(.lightGray, for: .highlighted)
+            deleteButton.backgroundColor = .lightGray
+            
         }
-        if isEditList {
+        
+        else if isFriendList {
+            print("呼ばれてます")
+            if LanguageManager.shered.getlocation() == "ja"{
+                deleteButton.setTitle("フォロー中", for: .normal)
+            }
+            else {
+                deleteButton.setTitle("Following", for: .normal)
+            }
+            deleteButton.setTitleColor(.white, for: .normal)
+            deleteButton.setTitleColor(.lightGray, for: .highlighted)
+            deleteButton.backgroundColor = .link
+        }
+        else if isEditList  {
             if isReceiver {
+                print("isReceiver")
                 DataManager.shere.addReceiver(userid: userid)
-                deleteButton.setTitle("公開する", for: .normal)
+                if LanguageManager.shered.getlocation() == "ja"{
+                    deleteButton.setTitle("公開", for: .normal)
+                }
+                else {
+                    deleteButton.setTitle("Public", for: .normal)
+                        
+                }
                 deleteButton.setTitleColor(.white, for: .normal)
                 deleteButton.setTitleColor(.lightGray, for: .highlighted)
                 deleteButton.backgroundColor = .link
             }
             else {
-                deleteButton.setTitle("公開しない", for: .normal)
+                if LanguageManager.shered.getlocation() == "ja"{
+                    deleteButton.setTitle("非公開", for: .normal)
+                }
+                else {
+                    deleteButton.setTitle("Private", for: .normal)
+                }
+            
                 deleteButton.setTitleColor(.white, for: .normal)
                 deleteButton.setTitleColor(.lightGray, for: .highlighted)
                 deleteButton.backgroundColor = .lightGray
                 
             }
-            
         }
+        else {
+           print("エラー")
+        }
+        
+            
+        
   
         usernameLabel.text = username
         textLabel.text = text
@@ -128,14 +167,14 @@ class FriendListCell:BaseCell{
             isBlock = !isBlock
             if isBlock {
                 FollowManager.shere.block(userid: userID)
-                deleteButton.setTitle("解除する", for: .normal)
+                deleteButton.setTitle("unblock", for: .normal)
                 deleteButton.setTitleColor(.white, for: .normal)
                 deleteButton.setTitleColor(.lightGray, for: .highlighted)
                 deleteButton.backgroundColor = .link
             }
             else{
                 FollowManager.shere.unBlock(userid: userID)
-                deleteButton.setTitle("ブロックする", for: .normal)
+                deleteButton.setTitle("block", for: .normal)
                 deleteButton.setTitleColor(.white, for: .normal)
                 deleteButton.setTitleColor(.lightGray, for: .highlighted)
                 deleteButton.backgroundColor = .lightGray
@@ -146,15 +185,27 @@ class FriendListCell:BaseCell{
             if isReceiver {
               print("公開する")
                 DataManager.shere.addReceiver(userid: userID)
-                deleteButton.setTitle("公開する", for: .normal)
+                if LanguageManager.shered.getlocation() == "ja"{
+                    deleteButton.setTitle("公開", for: .normal)
+                }
+                else {
+                    deleteButton.setTitle("Public", for: .normal)
+                }
+               
                 deleteButton.setTitleColor(.white, for: .normal)
                 deleteButton.setTitleColor(.lightGray, for: .highlighted)
                 deleteButton.backgroundColor = .link
             }
             else {
                 print("公開しない")
+                if LanguageManager.shered.getlocation() == "ja"{
+                    deleteButton.setTitle("非公開", for: .normal)
+                }
+                else {
+                    deleteButton.setTitle("Private", for: .normal)
+                }
                 DataManager.shere.deleteReciver(userid: userID)
-                deleteButton.setTitle("公開しない", for: .normal)
+                
                 deleteButton.setTitleColor(.white, for: .normal)
                 deleteButton.setTitleColor(.lightGray, for: .highlighted)
                 deleteButton.backgroundColor = .link
@@ -166,21 +217,36 @@ class FriendListCell:BaseCell{
         isDelete = !isDelete
         if isDelete {
             //削除
-            FollowManager.shere.unfollow(userid: userID)
-            FirebaseManager.shered.unfollow(friendid: userID)
-            deleteButton.setTitle("追加する", for: .normal)
-            deleteButton.setTitleColor(.white, for: .normal)
-            deleteButton.setTitleColor(.lightGray, for: .highlighted)
-            deleteButton.backgroundColor = .link
-        }
-        else{
-            //もう一度追加する
+           
             FollowManager.shere.follow(userid: userID)
             FirebaseManager.shered.follow(friendid: userID)
-            deleteButton.setTitle("削除する", for: .normal)
+            if LanguageManager.shered.getlocation() == "ja"{
+                deleteButton.setTitle("フォローする", for: .normal)
+            }
+            else {
+                deleteButton.setTitle("Follow", for: .normal)
+            }
+           
             deleteButton.setTitleColor(.white, for: .normal)
             deleteButton.setTitleColor(.lightGray, for: .highlighted)
             deleteButton.backgroundColor = .lightGray
+        }
+        else{
+            //もう一度追加する
+            FollowManager.shere.unfollow(userid: userID)
+            FirebaseManager.shered.unfollow(friendid: userID)
+            if LanguageManager.shered.getlocation() == "ja"{
+                deleteButton.setTitle("フォロー中", for: .normal)
+            }
+            else {
+              
+                deleteButton.setTitle("Following", for: .normal)
+            }
+            
+            deleteButton.setTitleColor(.white, for: .normal)
+            deleteButton.setTitleColor(.lightGray, for: .highlighted)
+            deleteButton.backgroundColor = .link
+           
         }
     }
 }
@@ -198,7 +264,13 @@ class FriendListWithPostCell :BaseCell{
     }()
     let isSendButton : UIButton = {
         let button = UIButton()
-        button.setTitle("公開しない", for: .normal)
+        if LanguageManager.shered.getlocation() == "ja"{
+            button.setTitle("公開しない", for: .normal)
+        }
+        else {
+            button.setTitle("Private", for: .normal)
+        }
+        
         button.backgroundColor = .lightGray
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 10
@@ -225,8 +297,14 @@ class FriendListWithPostCell :BaseCell{
     
         
         if friend.isSend {
-            isSendButton.setTitle("公開する", for: .normal)
-            isSendButton.backgroundColor = .darkGray
+            if LanguageManager.shered.getlocation() == "ja"{
+                isSendButton.setTitle("公開する", for: .normal)
+            }
+            else {
+                isSendButton.setTitle("Public", for: .normal)
+            }
+          
+            isSendButton.backgroundColor = .link
             isSendButton.setTitleColor(.white, for: .normal)
             
         }
@@ -266,14 +344,27 @@ class FriendListWithPostCell :BaseCell{
         FollowManager.shere.changeisSend(friend: friend)
         
         if friend.isSend {
-            isSendButton.setTitle("公開する", for: .normal)
-            isSendButton.backgroundColor = .darkGray
+            if LanguageManager.shered.getlocation() == "ja"{
+                isSendButton.setTitle("公開する", for: .normal)
+            }
+            else {
+                isSendButton.setTitle("Public", for: .normal)
+            }
+          
+           
+            isSendButton.backgroundColor = .link
             isSendButton.setTitleColor(.white, for: .normal)
             
         }
         else{
+            if LanguageManager.shered.getlocation() == "ja"{
+                isSendButton.setTitle("公開しない", for: .normal)
+            }
+            else {
+                isSendButton.setTitle("Private", for: .normal)
+            }
+          
            
-            isSendButton.setTitle("公開しない", for: .normal)
             isSendButton.backgroundColor = .lightGray
             isSendButton.setTitleColor(.white, for: .normal)
         }

@@ -101,29 +101,71 @@ extension Date{
         let components = Calendar.current.dateComponents([.year,.month,.day,.hour, .minute, .second], from: self, to: Date())
         
         if let year = components.year, year > 0 {
-            return "\(year)年前"
+            if LanguageManager.shered.getlocation() == "ja" {
+                return "\(year)年前"
+            }
+            else{
+                return "\(year)y"
+            }
+           
         }
         if let month = components.month, month > 0 {
-            return "\(month)ヶ月前"
+            if LanguageManager.shered.getlocation() == "ja" {
+                return "\(month)ヶ月前"
+            }
+            else{
+                return "\(month)m"
+            }
+           
         }
        
         if let day = components.day, day > 0 {
-            return "\(day)日前"
+            if LanguageManager.shered.getlocation() == "ja" {
+                return "\(day)日前"
+            }
+            else{
+                return "\(day)d"
+            }
+           
         }
         if let hour = components.hour,hour > 0 {
+            if LanguageManager.shered.getlocation() == "ja" {
+                return "\(hour)時間前"
+            }
+            else{
+                return "\(hour)h"
+            }
           
-            return "\(hour)時間前"
+            
            
         }
         if let minute = components.minute, minute > 0 {
-            return "\(minute)分前"
+            if LanguageManager.shered.getlocation() == "ja" {
+                return "\(minute)分前"
+            }
+            else{
+                return "\(minute)m"
+            }
+           
            
         }
         if let second = components.second, second > 0 {
-            return "\(second)秒前"
+            if LanguageManager.shered.getlocation() == "ja" {
+                return "\(second)秒前"
+            }
+            else{
+                return "\(second)s"
+            }
+           
            
         }
-            return "たった今"
+            if LanguageManager.shered.getlocation() == "ja" {
+                return "たった今"
+            }
+            else{
+                return "now"
+            }
+            
     }
 
 }

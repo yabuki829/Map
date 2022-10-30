@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseCore
 import Firebase
-//import FirebaseMessaging
+import GoogleMobileAds
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate ,MessagingDelegate, UNUserNotificationCenterDelegate{
@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate ,MessagingDelegate, UNUser
         //firebse
         
         FirebaseApp.configure()
-        
+        GADMobileAds.sharedInstance().start(completionHandler: nil)
         //navigationbarの設定
         if #available(iOS 15.0, *) {
             let navigationBarAppearance = UINavigationBarAppearance()

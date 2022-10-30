@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 import AVFoundation
-import SwiftUI
+
 class detailViewController:BaseViewController{
 //    let customTransition = DetailtoVideoViewContorllerTransition()
     
@@ -11,7 +11,7 @@ class detailViewController:BaseViewController{
                           profileImage:  ProfileImage( url: "person.crop.circle.fill", name: "person.crop.circle.fill"))
     
      
-    var discription:Discription? {
+    var discription:Article? {
         didSet{
             fieldView.setupViews(postid:discription!.id)
             getProfile()
@@ -240,6 +240,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
     }
    
     func reportAlert(type:String,comment:Comment?){
+        
         let myAlert: UIAlertController = UIAlertController(title: "Report", message: "通報内容を選択してください", preferredStyle: .alert)
                
             // userid, post id と 報告内容
@@ -249,7 +250,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                        FirebaseManager.shered.reportComment(postID: discription!.id, commentid:comment!.id , commenter:comment!.userid,text:comment!.comment,type: report)
                    }
                    else {
-                       FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                       FirebaseManager.shered.report(article: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
                    }
                   
                    print(report)
@@ -261,7 +262,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                        FirebaseManager.shered.reportComment(postID: discription!.id, commentid:comment!.id , commenter:comment!.userid,text:comment!.comment,type: report)
                    }
                    else {
-                       FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                       FirebaseManager.shered.report(article: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
                    }
                   
                    completeAlert(text: "報告が完了しました")
@@ -274,7 +275,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                        FirebaseManager.shered.reportComment(postID: discription!.id, commentid:comment!.id , commenter:comment!.userid,text:comment!.comment,type: report)
                    }
                    else {
-                       FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                       FirebaseManager.shered.report(article: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
                    }
                   
                    print(report)
@@ -287,7 +288,7 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
                     FirebaseManager.shered.reportComment(postID: discription!.id, commentid:comment!.id , commenter:comment!.userid,text:comment!.comment,type: report)
                 }
                 else {
-                    FirebaseManager.shered.report(disc: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
+                    FirebaseManager.shered.report(article: discription!, userid:FirebaseManager.shered.getMyUserid(), category: report)
                 }
                     print(report)
                     completeAlert(text: "報告が完了しました")
@@ -351,8 +352,13 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
             let preVC = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! MapViewController
             preVC.isReload = true
         }
+        if LanguageManager.shered.getlocation() == "ja"{
+            completeAlert(text: "\(profile.username) さんをブロックしました")
+        }
+        else {
+            
+        }
         
-        completeAlert(text: "\(profile.username) さんをブロックしました")
         
         self.navigationController?.popViewController(animated: true)
         //ブロックした人の投稿は見れないようにする
@@ -364,113 +370,243 @@ extension detailViewController:UITableViewDelegate,UITableViewDataSource{
        deleteAlert()
     }
     func deleteAlert(){
-        let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .actionSheet)
-        let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { [self] _ in
-                DataManager.shere.delete(id: self.discription!.id)
-                FirebaseManager.shered.deleteDiscription(postID: self.discription!.id)
-        
-                if discription!.type == "image"{
-                    StorageManager.shered.deleteDiscriptionImage(image: self.discription!.data)
-                }else{
-                    StorageManager.shered.deleteDiscriptionVideo(video: discription!.data)
-                    cell.videoView.stop()
+        if LanguageManager.shered.getlocation() == "ja"{
+            let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .actionSheet)
+            let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { [self] _ in
+                    DataManager.shere.delete(id: self.discription!.id)
+                    FirebaseManager.shered.deleteDiscription(postID: self.discription!.id)
+            
+                    if discription!.type == "image"{
+                        StorageManager.shered.deleteDiscriptionImage(image: self.discription!.data)
+                    }else{
+                        StorageManager.shered.deleteDiscriptionVideo(video: discription!.data)
+                        cell.videoView.stop()
+                    }
+                    
+                    //前の画面がmapなのかprofileなのかで処理がかわる
+               
+                if isMapVC {
+                    print("MapViewController")
+                    //初めてログインした時だとsignupまで戻ってしまう
+                    let nav = self.navigationController
+                    let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! MapViewController
+                    preVC.isReload = true
+                    if LanguageManager.shered.getlocation() == "ja"{
+                        completeAlert(text: "削除が完了しました")
+                    }
+                    else {
+                        completeAlert(text: "Post has been successfully deleted.")
+                    }
+                    self.navigationController?.popViewController(animated: true)
                 }
-                
-                //前の画面がmapなのかprofileなのかで処理がかわる
-           
-            if isMapVC {
-                print("MapViewController")
-                //初めてログインした時だとsignupまで戻ってしまう
-                let nav = self.navigationController
-                let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! MapViewController
-                preVC.isReload = true
-                completeAlert(text: "削除が完了しました")
-                self.navigationController?.popViewController(animated: true)
-            }
-            else {
-                print("profileViewController")
-                let nav = self.navigationController
-                let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! profileViewController
-                preVC.isReload = true
-                completeAlert(text: "削除が完了しました")
-                self.navigationController?.popViewController(animated: true)
-            }
+                else {
+                    print("profileViewController")
+                    let nav = self.navigationController
+                    let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! profileViewController
+                    preVC.isReload = true
+                    if LanguageManager.shered.getlocation() == "ja"{
+                        completeAlert(text: "削除が完了しました")
+                    }
+                    else {
+                        completeAlert(text: "Post has been successfully deleted.")
+                    }
+                    self.navigationController?.popViewController(animated: true)
+                }
+                      
+                })
+                let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
+                alert.addAction(selectAction)
+                alert.addAction(cancelAction)
+
+                present(alert, animated: true)
+        }
+        else{
+            let alert = UIAlertController(title: "", message: "Are you sure you want to delete this Post?", preferredStyle: .actionSheet)
+            let selectAction = UIAlertAction(title: "Delete", style: .default, handler: { [self] _ in
+                    DataManager.shere.delete(id: self.discription!.id)
+                    FirebaseManager.shered.deleteDiscription(postID: self.discription!.id)
+            
+                    if discription!.type == "image"{
+                        StorageManager.shered.deleteDiscriptionImage(image: self.discription!.data)
+                    }else{
+                        StorageManager.shered.deleteDiscriptionVideo(video: discription!.data)
+                        cell.videoView.stop()
+                    }
+                    
+                    //前の画面がmapなのかprofileなのかで処理がかわる
+               
+                if isMapVC {
+                    print("MapViewController")
+                    //初めてログインした時だとsignupまで戻ってしまう
+                    let nav = self.navigationController
+                    let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! MapViewController
+                    preVC.isReload = true
+                   
+                    completeAlert(text: "Post has been successfully deleted.")
+                    
+                    self.navigationController?.popViewController(animated: true)
+                }
+                else {
+                    print("profileViewController")
+                    let nav = self.navigationController
+                    let preVC = nav?.viewControllers[(nav?.viewControllers.count)! - 2] as! profileViewController
+                    preVC.isReload = true
+                 
+                    completeAlert(text: "Post has been successfully deleted.")
+                    
+                    self.navigationController?.popViewController(animated: true)
+                }
+                      
+                })
+                let cancelAction = UIAlertAction(title: "Cancell", style: .cancel, handler: nil)
+                alert.addAction(selectAction)
+                alert.addAction(cancelAction)
+
+                present(alert, animated: true)
+        }
+       
+    }
+    func commentDeleteAlert(commentid:String){
+        if LanguageManager.shered.getlocation() == "ja"{
+            let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .actionSheet)
+            let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { [self] _ in
                   
+                    //前の画面がmapなのかprofileなのかで処理がかわる
+                FirebaseManager.shered.deleteComment(postID: discription!.id, commentID: commentid)
+                if LanguageManager.shered.getlocation() == "ja"{
+                    completeAlert(text: "削除が完了しました")
+                }
+                else {
+                    completeAlert(text: "Post has been successfully deleted.")
+                }
+            
+                      
             })
             let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
             alert.addAction(selectAction)
             alert.addAction(cancelAction)
-
             present(alert, animated: true)
-    }
-    func commentDeleteAlert(commentid:String){
-        let alert = UIAlertController(title: "報告", message: "削除してもよろしいですか？", preferredStyle: .actionSheet)
-        let selectAction = UIAlertAction(title: "削除する", style: .default, handler: { [self] _ in
-              
-                //前の画面がmapなのかprofileなのかで処理がかわる
-            FirebaseManager.shered.deleteComment(postID: discription!.id, commentID: commentid)
-            completeAlert(text: "返信を削除しました")
-        
+        }
+        else {
+            let alert = UIAlertController(title: "", message: "Are you sure you want to delete this Post?", preferredStyle: .actionSheet)
+            let selectAction = UIAlertAction(title: "Delete", style: .default, handler: { [self] _ in
                   
-        })
-        let cancelAction = UIAlertAction(title: "キャンセル", style: .cancel, handler: nil)
-        alert.addAction(selectAction)
-        alert.addAction(cancelAction)
-        present(alert, animated: true)
+                    //前の画面がmapなのかprofileなのかで処理がかわる
+                FirebaseManager.shered.deleteComment(postID: discription!.id, commentID: commentid)
+               
+                completeAlert(text: "Post has been successfully deleted.")
+                
+            
+                      
+            })
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            alert.addAction(selectAction)
+            alert.addAction(cancelAction)
+            present(alert, animated: true)
+        }
+        
     }
 }
 
 extension detailViewController:profileCellDelegate {
-    func showMenu(disc: Discription, profile: Profile) {
+    func showMenu(disc: Article, profile: Profile) {
         if disc.userid != FirebaseManager.shered.getMyUserid() {
             let myAlert: UIAlertController = UIAlertController(title:"" , message: "", preferredStyle: .actionSheet)
             myAlert.view.backgroundColor = .systemGray6
-            let alertA = UIAlertAction(title: "\(profile.username)さんを通報する", style: .default) {  action in
-                print("通報する")
-                self.alert()
-                
-            }
-            let alertB = UIAlertAction(title: "\(profile.username)さんをブロックする", style: .default) {  action in
-                self.blockFriend()
-            }
+            if LanguageManager.shered.getlocation() == "ja" {
+                let alertA = UIAlertAction(title: "\(profile.username)さんを通報する", style: .default) {  action in
+                    print("通報する")
+                    self.alert()
+                    
+                }
+                let alertB = UIAlertAction(title: "\(profile.username)さんをブロックする", style: .default) {  action in
+                    self.blockFriend()
+                }
 
-            let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in print("キャンセル")}
-              
-            myAlert.addAction(alertA)
-            myAlert.addAction(alertB)
-            myAlert.addAction(cancelAlert)
-            
-            present(myAlert, animated: true, completion: nil)
+                let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in print("キャンセル")}
+                  
+                myAlert.addAction(alertA)
+                myAlert.addAction(alertB)
+                myAlert.addAction(cancelAlert)
+                
+                present(myAlert, animated: true, completion: nil)
+            }
+            else {
+                let alertA = UIAlertAction(title: "Report \(profile.username)", style: .default) {  action in
+                    print("通報する")
+                    self.alert()
+                }
+                let alertB = UIAlertAction(title: "Block \(profile.username)", style: .default) {  action in
+                    self.blockFriend()
+                }
+
+                let cancelAlert = UIAlertAction(title: "Cancel", style: .cancel) { action in print("キャンセル")}
+                  
+                myAlert.addAction(alertA)
+                myAlert.addAction(alertB)
+                myAlert.addAction(cancelAlert)
+                
+                present(myAlert, animated: true, completion: nil)
+            }
+           
         }
         else {
             //自分の投稿
             let myAlert: UIAlertController = UIAlertController(title:"" , message: "", preferredStyle: .actionSheet)
             myAlert.view.backgroundColor = .systemGray6
-            let alertA = UIAlertAction(title: "公開範囲を変更する", style: .default) {  action in
-                print("公開範囲変更")
-                //もし24時間以内ならfrienddiscを変更する
-                let vc = FriendListViewController()
-                vc.isEditView = true
-                vc.disc = disc
-                self.navigationController?.pushViewController(vc, animated: true)
+            if LanguageManager.shered.getlocation() == "ja" {
+                let alertA = UIAlertAction(title: "公開範囲を変更する", style: .default) {  action in
+                    print("公開範囲変更")
+                    //もし24時間以内ならfrienddiscを変更する
+                    let vc = FriendListViewController()
+                    vc.isEditView = true
+                    vc.disc = disc
+                    self.navigationController?.pushViewController(vc, animated: true)
+                    
+                    
+                }
+                let alertB = UIAlertAction(title: "投稿を削除する", style: .default) {  action in
+                    print("投稿を削除する")
+                    self.deleteAlert()
+                    
+                }
+                let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
+                       print("キャンセル")
+                }
                 
+                  myAlert.addAction(alertA)
+                  myAlert.addAction(alertB)
+                  myAlert.addAction(cancelAlert)
+                  
+                  present(myAlert, animated: true, completion: nil)
+            }
+            else {
+                let alertA = UIAlertAction(title: "Edit privacy", style: .default) {  action in
+                    print("公開範囲変更")
+                    //もし24時間以内ならfrienddiscを変更する
+                    let vc = FriendListViewController()
+                    vc.isEditView = true
+                    vc.disc = disc
+                    self.navigationController?.pushViewController(vc, animated: true)
+                    
+                    
+                }
+                let alertB = UIAlertAction(title: "Delete Post", style: .default) {  action in
+                    print("投稿を削除する")
+                    self.deleteAlert()
+                    
+                }
+                let cancelAlert = UIAlertAction(title: "Cancel", style: .cancel) { action in
+                       print("キャンセル")
+                }
                 
-            }
-            let alertB = UIAlertAction(title: "投稿を削除する", style: .default) {  action in
-                print("投稿を削除する")
-                self.deleteAlert()
-        
-            }
-
-            let cancelAlert = UIAlertAction(title: "キャンセル", style: .cancel) { action in
-                   print("キャンセル")
-            }
+              myAlert.addAction(alertA)
+              myAlert.addAction(alertB)
+              myAlert.addAction(cancelAlert)
               
-            myAlert.addAction(alertA)
-            myAlert.addAction(alertB)
-            myAlert.addAction(cancelAlert)
-            
-            present(myAlert, animated: true, completion: nil)
+              present(myAlert, animated: true, completion: nil)
+
+            }
         }
         
     }
@@ -522,7 +658,12 @@ extension detailViewController:CommentDelegate {
     func completealert() {
 //        cell.videoView.stop()
         getComment()
-        completeAlert(text: "送信しました")
+        if LanguageManager.shered.getlocation() == "ja" {
+            completeAlert(text: "送信しました")
+        }
+        else {
+            completeAlert(text: "Your message has been sent.")
+        }
     }
     
 }

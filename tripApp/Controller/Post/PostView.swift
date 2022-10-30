@@ -13,7 +13,6 @@ import Photos
 import CropViewController
 import PKHUD
 import AVFoundation
-import SwiftUI
 
 class PostMenuBar :baseView {
 
@@ -25,7 +24,13 @@ class PostMenuBar :baseView {
     }()
     let sendButton:UIButton = {
         let button = UIButton()
-        button.setTitle("投稿", for: .normal)
+        if LanguageManager.shered.getlocation() == "ja"{
+            button.setTitle("投稿", for: .normal)
+        }
+        else {
+            button.setTitle("Post", for: .normal)
+        }
+      
         button.setTitleColor(.link, for: .normal)
         button.setTitleColor(.lightGray, for: .highlighted)
         button.contentHorizontalAlignment = .center
@@ -33,7 +38,7 @@ class PostMenuBar :baseView {
     }()
     let wordCountLabel:UILabel = {
         let label = UILabel()
-        label.text = "0 / 80"
+        label.text = "0 / 120"
         label.textColor = .darkGray
         label.textAlignment = .right
         return label
@@ -59,16 +64,23 @@ class PostMenuBar :baseView {
 
 
 
-class PostViewController:UITableViewController {
+class PostViewController:UIViewController ,UITableViewDelegate,UITableViewDataSource{
    
     
     var postCell = postViewCell()
     var imageCell = ImageCellwithPost()
     let menuBar = PostMenuBar()
+    let tableView = UITableView()
+    var isCamera = false
+    var isVideo = false
+    var videoURL = URL(string: "")
+    var image = UIImage()
     override func viewDidLoad() {
+        self.navigationController?.navigationBar.barTintColor = .link
         settingCollectionView()
         addConstraint()
         settingButtonAction()
+        imageCell = tableView.dequeueReusableCell(withIdentifier: "imageCell") as! ImageCellwithPost
     }
     override func viewWillAppear(_ animated: Bool) {
         NotificationCenter.default.addObserver(
@@ -90,7 +102,7 @@ class PostViewController:UITableViewController {
         
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         if indexPath.row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! postViewCell
@@ -101,17 +113,33 @@ class PostViewController:UITableViewController {
             return cell
         }
         else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "imageCell", for: indexPath) as! ImageCellwithPost
-            imageCell = cell
-            cell.selectionStyle = UITableViewCell.SelectionStyle.none
-            return cell
+            
+            imageCell.selectionStyle = .none
+            if isCamera {
+                if isVideo {
+                    imageCell.videoView.isHidden = false
+                    
+                            
+                    imageCell.videoView.player = AVPlayer(url: videoURL!)
+                    imageCell.videoView.setup()
+                    imageCell.videoView.setupVideoTap()
+                    imageCell.videourl = videoURL
+                    imageCell.isVideo = true
+                  
+                }
+                else{
+                    imageCell.imageview.image = image
+                    imageCell.isVideo = false
+                }
+            }
+            return imageCell
         }
         
     }
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2
     }
-    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 //        tableView.estimatedRowHeight = 50
         if indexPath.row == 0 {
             return UITableView.automaticDimension
@@ -127,17 +155,25 @@ class PostViewController:UITableViewController {
      
         UIView.animate(withDuration: 0.5, animations: { [self] () -> Void in
             let tabbarHeight = 83.0
+           
             menuBar.anchor(bottom: view.safeAreaLayoutGuide.bottomAnchor,paddingBottom: keyboardFrame.size.height - tabbarHeight )
             menuBar.layoutIfNeeded()
         })
         
     }
     func addConstraint(){
+        view.addSubview(tableView)
         view.addSubview(menuBar)
-        menuBar.anchor(left: view.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
+        menuBar.anchor(top:tableView.bottomAnchor,paddingTop: 0,
+                       left: view.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
                        right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
                        bottom: view.safeAreaLayoutGuide.bottomAnchor,paddingBottom: 0,
                        height:40)
+        tableView.anchor(top:view.topAnchor,paddingTop: 0,
+                         left: view.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
+                         right: view.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
+                         bottom: menuBar.topAnchor,paddingBottom: 0)
+        
         
     }
     
@@ -149,6 +185,7 @@ class PostViewController:UITableViewController {
                       
                   } else if status == .denied {
                       // フォトライブラリへのアクセスが許可されていないため、アラートを表示する
+                      
                       let alert = UIAlertController(title: "タイトル", message: "メッセージ", preferredStyle: .alert)
                       let settingsAction = UIAlertAction(title: "設定", style: .default, handler: { (_) -> Void in
                           guard let settingsURL = URL(string: UIApplication.openSettingsURLString ) else {
@@ -171,6 +208,9 @@ class PostViewController:UITableViewController {
     func settingCollectionView(){
         tableView.register(postViewCell.self, forCellReuseIdentifier: "cell")
         tableView.register(ImageCellwithPost.self, forCellReuseIdentifier: "imageCell")
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.separatorStyle = .none
         
     }
     func settingButtonAction(){
@@ -188,16 +228,36 @@ class PostViewController:UITableViewController {
         print("post")
         if imageCell.isVideo == nil || postCell.textView.text.count == 0 || postCell.isLocation == false {
             if imageCell.isVideo == nil {
-                let a = "画像や動画が選択されていません"
-                alert(message: a)
+                if LanguageManager.shered.getlocation() == "ja"{
+                    let a = "画像や動画が選択されていません"
+                
+                    alert(message: a)
+                }
+                else {
+                    let a = "No image or video selected"
+                    alert(message: a)
+                }
             }
             if postCell.textView.text.count == 0 {
-                let a = "本文が入力されていません"
-                alert(message: a)
+                if LanguageManager.shered.getlocation() == "ja"{
+                    let a = "本文が入力されていません"
+                
+                    alert(message: a)
+                }
+                else {
+                    let a = "No body entered"
+                    alert(message: a)
+                }
             }
             if postCell.isLocation == false {
-                let a = "位置情報が追加されていません"
-                alert(message: a)
+                if LanguageManager.shered.getlocation() == "ja"{
+                    let a = "位置情報が追加されていません"
+                    alert(message: a)
+                }
+                else{
+                    let a = "No location added"
+                    alert(message: a)
+                }
             }
         }
         else {
@@ -211,7 +271,7 @@ class PostViewController:UITableViewController {
                     let thumnailData = image?.convert_data()
                     StorageManager.shered.uploadMovie(videourl: url, thumnailData: thumnailData!){ [self] result in
 
-                        let disc = Discription(id: String().generateID(10),
+                        let disc = Article(id: String().generateID(10),
                                                userid: userid,
                                                text:   postCell.textView.text,
                                                location: postCell.location,
@@ -241,7 +301,7 @@ class PostViewController:UITableViewController {
 
                 StorageManager.shered.uploadImage(imageData: image!.convert_data()) { [self] (result) in
 
-                    let disc = Discription(id: String().generateID(10),
+                    let disc = Article(id: String().generateID(10),
                                            userid: userid,
                                            text:   postCell.textView.text,
                                            location: postCell.location,
@@ -268,7 +328,7 @@ class PostViewController:UITableViewController {
     }
     }
     func alert(message: String){
-        let alert = UIAlertController(title: "報告", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: "", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(alert, animated: true, completion: nil)
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
@@ -286,11 +346,11 @@ extension PostViewController:postCellDelegate{
     }
     
     func textfieldDidChange(count: Int, reload: Bool) {
-        menuBar.wordCountLabel.text = "\(count) / 80"
+        menuBar.wordCountLabel.text = "\(count) / 120"
         
         if reload {
-            tableView?.beginUpdates()
-            tableView?.endUpdates()
+            tableView.beginUpdates()
+            tableView.endUpdates()
         }
        
     }
@@ -314,8 +374,9 @@ extension PostViewController:UIImagePickerControllerDelegate & UINavigationContr
     
 
     @objc func addImage(sender:UIButton){
+        print("tapimage")
         let picker = UIImagePickerController()
-        picker.sourceType = .savedPhotosAlbum
+        picker.sourceType = .photoLibrary
         picker.mediaTypes = ["public.image", "public.movie"]
         picker.delegate = self
         picker.videoQuality = .typeMedium
@@ -326,9 +387,7 @@ extension PostViewController:UIImagePickerControllerDelegate & UINavigationContr
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         print("Cancel")
-        picker.dismiss(animated: true) { [self] in
-           
-        }
+        picker.dismiss(animated: true) 
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
@@ -379,11 +438,12 @@ class ImageCellwithPost: BaseTableViewCell {
                   
                     imageview.isHidden = true
                     videoView.isHidden = false
-                 
+                    videoView.backgroundColor = .black
                 }
                 else{
                     videoView.isHidden = true
                     imageview.isHidden = false
+                    imageview.backgroundColor = .black
                 }
             }
         }

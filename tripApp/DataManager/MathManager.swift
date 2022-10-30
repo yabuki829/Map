@@ -54,11 +54,11 @@ class MathManager{
         return times
     }
     
-    func sort(disc:[Discription],hour:Int) -> [Discription]{
+    func sort(disc:[Article],hour:Int) -> [Article]{
         let date = Calendar.current.date(byAdding: .hour, value: -hour, to: Date())!
         print("日より後を取得します",date.toString())
-        var modifiedDisc = [Discription]()
-        var deleteDisc = [Discription]()
+        var modifiedDisc = [Article]()
+        var deleteDisc = [Article]()
         for i in 0..<disc.count{
             if date <= disc[i].created{
                 modifiedDisc.append(disc[i])
@@ -67,7 +67,7 @@ class MathManager{
                 deleteDisc.append(disc[i])
             }
         }
-        
+        //一週間以上前のやつは削除する
         FirebaseManager.shered.deleteDiscription(postArray: deleteDisc)
         return modifiedDisc
     }

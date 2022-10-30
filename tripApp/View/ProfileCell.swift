@@ -130,7 +130,7 @@ class ProfileCell: BaseCell{
     }
     
     //friendのprofileを表示する
-    func setCellB(profile:Profile,followList:[Friend],postList:[Discription]){
+    func setCellB(profile:Profile,followList:[Friend],postList:[Article]){
         
         if profile.backgroundImage.url == "background"  {
             backgroundImage.image = UIImage(named: "background")
@@ -155,7 +155,7 @@ class ProfileCell: BaseCell{
         editButton.isHidden = true
     }
     //自分のprofileを表示する
-    func setCellA(profile:Profile, followList:[Friend],postList:[Discription]){
+    func setCellA(profile:Profile, followList:[Friend],postList:[Article]){
         print("-----------------")
         print(profile)
         if profile.backgroundImage.name == "background" ||  profile.backgroundImage.url == "background" {

@@ -108,6 +108,12 @@ final class GroupLayer: BaseAnimationLayer {
       // because combining multiple paths into a single `CGPath` (instead of rendering them in separate layers)
       // allows `CAShapeLayerFillRule.evenOdd` to be applied if the paths overlap. We just can't do this
       // in all cases, due to limitations of Core Animation.
+      //
+      // As a fall back when this is not possible, we render each shape in its own `CAShapeLayer`,
+      // which causes the `fillRule` to be applied incorrectly in cases where the paths overlap.
+      // We can't really detect when this happens, so this is a case where `RenderingEngineMode.automatic`
+      // can behave incorrectly. In the future we could fix this by precomputing the full combined CGPath for each
+      // individual frame in the animation (like we do for some trim animations as of #1612).
       if
         shapeRenderGroup.pathItems.count > 1,
         let combinedShapeKeyframes = Keyframes.combinedIfPossible(
@@ -150,7 +156,15 @@ extension CALayer {
   ///  - Each `Group` item becomes its own `GroupLayer` sublayer.
   ///  - Other `ShapeItem` are applied to all sublayers
   fileprivate func setupGroups(from items: [ShapeItem], parentGroup: Group?, context: LayerContext) throws {
-    let (groupItems, otherItems) = items.grouped(by: { $0 is Group })
+    var (groupItems, otherItems) = items.grouped(by: { $0 is Group })
+
+    // If this shape doesn't have any groups but just has top-level shape items,
+    // we can create a placeholder group with those items. (Otherwise the shape items
+    // would be silently ignored, since we expect all shape layers to have a top-level group).
+    if groupItems.isEmpty, parentGroup == nil {
+      groupItems = [Group(items: otherItems, name: "Group")]
+      otherItems = []
+    }
 
     // Groups are listed from front to back,
     // but `CALayer.sublayers` are listed from back to front.

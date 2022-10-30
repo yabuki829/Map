@@ -12,7 +12,8 @@ class DiscriptionImageCell:UICollectionViewCell{
         
         return imageView
     }()
-    var discription:Discription?
+    let playimage = UIImageView()
+    var discription:Article?
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
@@ -21,7 +22,7 @@ class DiscriptionImageCell:UICollectionViewCell{
 
        
     }
-    func setCell(disc:Discription){
+    func setCell(disc:Article){
         discription = disc
         addImageViewConstraint()
     
@@ -33,10 +34,11 @@ class DiscriptionImageCell:UICollectionViewCell{
                          right: self.safeAreaLayoutGuide.rightAnchor, paddingRight: 0,
                          bottom: self.safeAreaLayoutGuide.bottomAnchor, paddingBottom: 0)
         if discription!.type == "image"{
+            playimage.isHidden = true
             imageView.setImage(urlString: discription!.data.url)
         }
         else {
-            let playimage = UIImageView()
+            playimage.isHidden = false
             playimage.image = UIImage(systemName: "play.fill")
             playimage.tintColor = .white
           

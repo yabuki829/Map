@@ -16,32 +16,8 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="circle.slash" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="JB1-cz-mH4">
-                                <rect key="frame" x="94" y="370" width="240" height="128"/>
-                                <color key="tintColor" systemColor="systemBlueColor"/>
-                            </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Home" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DwI-s2-iiU">
-                                <rect key="frame" x="84" y="241" width="134" height="75"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="75" id="tOQ-Zg-YMf"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" name="TimesNewRomanPSMT" family="Times New Roman" pointSize="27"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="JB1-cz-mH4" secondAttribute="trailing" constant="80" id="912-bc-qRi"/>
-                            <constraint firstItem="DwI-s2-iiU" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="197" id="C65-rm-8gu"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="DwI-s2-iiU" secondAttribute="trailing" constant="196" id="HOx-MF-O6S"/>
-                            <constraint firstItem="DwI-s2-iiU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="84" id="NYO-le-rlt"/>
-                            <constraint firstItem="JB1-cz-mH4" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="94" id="O3e-lw-CJ9"/>
-                            <constraint firstItem="JB1-cz-mH4" firstAttribute="top" secondItem="DwI-s2-iiU" secondAttribute="bottom" constant="53.5" id="n8R-C5-HtW"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="JB1-cz-mH4" secondAttribute="bottom" constant="363.5" id="ysg-hs-tnS"/>
-                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -85,16 +61,12 @@
                     </connections>
                 </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="1676.8115942028987" y="-235.04464285714283"/>
+            <point key="canvasLocation" x="935" y="-346"/>
         </scene>
     </scenes>
     <resources>
-        <image name="circle.slash" catalog="system" width="128" height="121"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="systemBlueColor">
-            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

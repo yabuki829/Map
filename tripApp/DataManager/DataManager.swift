@@ -16,9 +16,9 @@ class DataManager{
         userDefaults.removeObject(forKey: "userid")
     }
     
-    func get() -> [Discription]{
-        var diary = [Discription]()
-        if let data:[Discription] = userDefaults.codable(forKey: "discription")  {
+    func get() -> [Article]{
+        var diary = [Article]()
+        if let data:[Article] = userDefaults.codable(forKey: "discription")  {
             
             diary = data
             diary.sort(by: { a, b -> Bool in
@@ -33,11 +33,11 @@ class DataManager{
     
     
     
-    func getDiscriptionSince48Hours() -> [Discription]{
+    func getDiscriptionSince48Hours() -> [Article]{
         let disc = get()
-        let date = Calendar.current.date(byAdding: .hour, value: -24, to: Date())!
+        let date = Calendar.current.date(byAdding: .hour, value: -168, to: Date())!
         print("日より後を取得します",date.toString()) // 2022年07月22日Fri　21時48分45秒
-        var modifiedDisc = [Discription]()
+        var modifiedDisc = [Article]()
         
         for i in 0..<disc.count{
             if date <= disc[i].created{
@@ -46,7 +46,7 @@ class DataManager{
         }
         return modifiedDisc
     }
-    func save(data:[Discription]){
+    func save(data:[Article]){
         userDefaults.setCodable(data, forKey: "discription")
     }
     

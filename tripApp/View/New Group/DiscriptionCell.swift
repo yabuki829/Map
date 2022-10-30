@@ -10,31 +10,42 @@
 import Foundation
 import UIKit
 class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout, ArticleCellDelegate{
-    func showMenu(disc: Discription, profile: Profile) {
+    func showMenu(disc: Article, profile: Profile) {
         delegate?.showMenu(disc: disc, profile: profile)
     }
     
-   
-    
-    
     var isHome = false
-    var discriptionList : [Discription]?{
+    var discriptionList : [Article]?{
         didSet{
-            
-            if isHome {
+            if discriptionList?.isEmpty == true {
+                emptyLabel.isHidden = false
+                collectionView.isHidden = true
+                
+                if LanguageManager.shered.getlocation() == "ja" {
+                    emptyLabel.text = "まだ投稿がありません"
+                }
+                else {
+                    emptyLabel.text = "No posts yet."
+                }
+                
+                
+            }
+            else {
+                if isHome {
+                   
                     emptyLabel.isHidden = true
                     collectionView.isHidden = false
                     collectionView.reloadData()
+                }
                 
-             
+                else{
+                    emptyLabel.isHidden = true
+                    collectionView.isHidden = false
+                    collectionView.reloadData()
+                    
+                }
             }
             
-            else{
-                emptyLabel.isHidden = true
-                collectionView.isHidden = false
-                collectionView.reloadData()
-                
-            }
             
            
         }
@@ -60,6 +71,7 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         label.textAlignment = .center
         label.textColor = .darkGray
         label.isHidden = true
+        
         return label
     }()
     override func setupViews() {
@@ -72,11 +84,22 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
         collectionView.register(DiscriptionImageCell.self, forCellWithReuseIdentifier: "DiscriptionImageCell")
         collectionView.register(ArticleCell.self, forCellWithReuseIdentifier: "articleCell")
         collectionView.register(AdCell.self, forCellWithReuseIdentifier: "AdCell")
+//        collectionView.register(NativeAdCell.self, forCellWithReuseIdentifier: "NativeAdCell")
+        
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
      
         if isHome{
-            return discriptionList!.count + 1
+            if LanguageManager.shered.getlocation() == "ja" {
+                let a = Double(discriptionList!.count / 9 + 1)
+                let i = ceil(a)
+                return discriptionList!.count + Int(i)
+            }
+            else {
+               
+                return discriptionList!.count
+            }
+           
         }
         else{
             
@@ -87,28 +110,43 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
        
     }
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print("scroll")
+
         delegate?.scroll()
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
+            print(indexPath.row)
             if isHome {
-                //広告を入れる
-                if indexPath.row < 1 {
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AdCell", for: indexPath) as! AdCell
-                    return cell
+                
+                if LanguageManager.shered.getlocation() == "ja" {
+                    //広告を入れる　日本語であれば
+                    if indexPath.row ==  0 {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AdCell", for: indexPath) as! AdCell
+                        return cell
+                    }
+                    else if indexPath.row % 9 == 0 {
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AdCell", for: indexPath) as! AdCell
+                        return cell
+                    }
+                    else {
+                        let a = Double(discriptionList!.count / 9 + 1)
+                        let i = Int(ceil(a))
+                       
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "articleCell", for: indexPath) as! ArticleCell
+                        cell.setCell(disc: discriptionList![indexPath.row - i])
+                        cell.delegate = self
+                        articleCell = cell
+                        return cell
+                    }
                 }
-                else{
-                    
+                else {
                     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "articleCell", for: indexPath) as! ArticleCell
-                    cell.setCell(disc: discriptionList![indexPath.row - 1])
+                    cell.setCell(disc: discriptionList![indexPath.row])
                     cell.delegate = self
                     articleCell = cell
-                    
                     return cell
-                    
-
                 }
+               
+                
                
                 
             }
@@ -130,13 +168,9 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
      
             if isHome {
-                if indexPath.row < 1{
-                    //広告　大きさ　320 / 100
-                    return CGSize(width:collectionView.frame.width, height: frame.width)
-                }
-                else{
-                    return CGSize(width:collectionView.frame.width, height: frame.width)
-                }
+               
+                return CGSize(width:collectionView.frame.width, height: frame.width)
+                
               
             }
             else{
@@ -149,23 +183,31 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         if isHome {
-            //1か2に変更する
-            
-            if indexPath.row < 1 {
-                //広告
-            }
-            else{
-                let articleCell = collectionView.cellForItem(at: indexPath) as! ArticleCell
-                articleCell.backgroundColor = .systemGray6
-                //imageの場合
-                if discriptionList![indexPath.row - 1].type == "image"{
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 1], selectImage: articleCell.imageView.image!)
-                }else{
-                    //ビデオの場合
-                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - 1])
+            if LanguageManager.shered.getlocation() == "ja" {
+                // 日本語であれば
+                if indexPath.row !=  0 || indexPath.row % 9 != 0 {
+                    let i = indexPath.row / 9 + 1
+                    let articleCell = collectionView.cellForItem(at: indexPath) as! ArticleCell
+                    articleCell.backgroundColor = .white
+                    //imageの場合
+                    if discriptionList![indexPath.row - i].type == "image"{
+                        delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - i], selectImage: articleCell.imageView.image!)
+                    }else{
+                        //ビデオの場合
+                        delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row - i])
+                    }
                 }
             }
-               
+            else {
+                let articleCell = collectionView.cellForItem(at: indexPath) as! ArticleCell
+                articleCell.backgroundColor = .white
+                if discriptionList![indexPath.row].type == "image"{
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row], selectImage: articleCell.imageView.image!)
+                }else{
+                    delegate?.toDetailWithDiscriptionpCell(discription: discriptionList![indexPath.row])
+                }
+            }
+            
                 
         }
         else{
@@ -203,12 +245,13 @@ class discriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDeleg
 import AVFoundation
 
 protocol transitionDelegate: AnyObject  {
-    func toDetailWithDiscriptionpCell(discription:Discription,selectImage:UIImage)
-    func toDetailWithDiscriptionpCell(discription:Discription)
+    
+    func toDetailWithDiscriptionpCell(discription:Article,selectImage:UIImage)
+    func toDetailWithDiscriptionpCell(discription:Article)
     func toFriendList()
     func scroll()
     func toEditPageWithProfileCell()
-    func showMenu(disc:Discription,profile:Profile)
+    func showMenu(disc:Article,profile:Profile)
 }
 
 

@@ -75,6 +75,78 @@ class MenuCell :BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UI
     weak var delegate:reloadDelegate? = nil
 }
 
+
+class MenuView :baseView ,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
+    var selectedIndexPath: IndexPath?
+    var menuBarTitleArray = ["squareshape.split.3x3","map"]
+   
+    private let underlineView: UIView = {
+         let view = UIView()
+         return view
+     }()
+    lazy var collectionView:UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        
+        let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
+        collecitonview.dataSource = self
+        collecitonview.delegate = self
+        collecitonview.isScrollEnabled = false
+        return collecitonview
+    }()
+    override func setupViews() {
+        self.addSubview(collectionView)
+        addCollectionViewConstaraiont()
+        backgroundColor = .red
+        self.backgroundColor = .white
+        collectionView.register(MenuBarCell.self, forCellWithReuseIdentifier: "Cell")
+        
+        
+        let indexPath:IndexPath = NSIndexPath(row: 0, section: 0) as IndexPath
+        self.selectedIndexPath = indexPath
+        
+        DispatchQueue.main.async {
+            self.collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .left)
+        }
+    }
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return menuBarTitleArray.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! MenuBarCell
+        print(indexPath.row,menuBarTitleArray[indexPath.row])
+        cell.setCell(title: menuBarTitleArray[indexPath.row])
+       
+        if  selectedIndexPath?.row == indexPath.row {
+                cell.isSelected = true
+        }
+        
+        return cell
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 0
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width:collectionView.frame.width  / 2, height: frame.height )
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        selectedIndexPath = indexPath
+        delegate?.reload()
+    }
+ 
+    func addCollectionViewConstaraiont(){
+        collectionView.anchor(top: topAnchor, paddingTop: 0.0,
+                              left: leftAnchor, paddingLeft: 0.0,
+                              right: rightAnchor, paddingRight:0.0,
+                              bottom: bottomAnchor, paddingBottom: 0.0)
+    }
+    weak var delegate:reloadDelegate? = nil
+}
 class MenuBarCell:BaseCell{
     override var isSelected: Bool{
           didSet{
@@ -104,7 +176,7 @@ class MenuBarCell:BaseCell{
 
         
 }
-protocol reloadDelegate: class  {
+protocol reloadDelegate: AnyObject  {
     func reload()
 }
 

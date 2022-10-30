@@ -12,7 +12,7 @@ import UIKit
 
 class ArticleCell:UICollectionViewCell{
     weak var delegate:ArticleCellDelegate? = nil
-    var discription: Discription?
+    var discription: Article?
     //profile画像　username
     var profile:Profile?
     let profileImageView: UIImageView = {
@@ -98,7 +98,7 @@ class ArticleCell:UICollectionViewCell{
     
             
     }
-    func setCell(disc:Discription){
+    func setCell(disc:Article){
         discription = disc
         getProfile(userid: disc.userid)
         
@@ -152,7 +152,6 @@ class DetailMenuBar:baseView ,UITableViewDelegate,UITableViewDataSource{
     let tableview  = UITableView()
     var menuTitleArray  = [Menu]()
     override func setupViews() {
-        self.backgroundColor = .systemGray6
         addSubview(tableview)
         tableview.anchor(top: self.safeAreaLayoutGuide.topAnchor, paddingTop: 0,
                          left: self.safeAreaLayoutGuide.leftAnchor, paddingLeft: 0,
@@ -185,7 +184,7 @@ class DetailMenuBar:baseView ,UITableViewDelegate,UITableViewDataSource{
 }
 
 protocol ArticleCellDelegate :AnyObject{
-    func showMenu(disc:Discription,profile:Profile)
+    func showMenu(disc:Article,profile:Profile)
 }
 
 struct Menu {

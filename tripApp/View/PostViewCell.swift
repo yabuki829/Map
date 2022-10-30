@@ -27,7 +27,13 @@ class postViewCell:BaseTableViewCell ,CLLocationManagerDelegate,UITextViewDelega
     let locationButton:UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("位置情報を追加", for: .normal)
+        if LanguageManager.shered.getlocation() == "ja"{
+            button.setTitle("位置情報を追加", for: .normal)
+        }
+        else {
+            button.setTitle("add Location", for: .normal)
+        }
+        
         button.setTitleColor(.lightGray, for: .normal)
         button.setTitleColor(.darkGray, for: .highlighted)
         button.backgroundColor = .white
@@ -37,7 +43,13 @@ class postViewCell:BaseTableViewCell ,CLLocationManagerDelegate,UITextViewDelega
     }()
     let openFriendListButton:UIButton = {
         let button = UIButton()
-        button.setTitle("公開範囲 ▼", for: .normal)
+        if LanguageManager.shered.getlocation() == "ja"{
+            button.setTitle("公開範囲 ▼", for: .normal)
+        }
+        else {
+            button.setTitle("Friends ▼", for: .normal)
+        }
+       
         button.setTitleColor(.lightGray, for: .normal)
         button.setTitleColor(.darkGray, for: .highlighted)
         button.contentHorizontalAlignment = .center
@@ -71,7 +83,7 @@ class postViewCell:BaseTableViewCell ,CLLocationManagerDelegate,UITextViewDelega
                               bottom: contentView.bottomAnchor,paddingBottom: 0)
         
         locationButton.anchor(top: contentView.topAnchor, paddingTop: 10,
-                              left:contentView.leftAnchor, paddingLeft: 0,
+                              left:contentView.leftAnchor, paddingLeft:15,
                               right:openFriendListButton.leftAnchor,paddingRight: 0,
                               width: 120, height: 20)
 
@@ -104,8 +116,15 @@ class postViewCell:BaseTableViewCell ,CLLocationManagerDelegate,UITextViewDelega
     }
     
     func settingTextViewPlaceHolder(){
+        
         placeholderLabel = UILabel()
-        placeholderLabel.text = "出来事を記録しましょう"
+        if LanguageManager.shered.getlocation() == "ja"{
+            placeholderLabel.text = "出来事を記録しましょう"
+        }
+        else{
+            placeholderLabel.text = "What's new?"
+        }
+        
         placeholderLabel.sizeToFit()
         textView.addSubview(placeholderLabel)
         placeholderLabel.frame.origin = CGPoint(x: 15, y: 20)

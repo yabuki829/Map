@@ -8,7 +8,7 @@
 import Foundation
 
 import Foundation
-struct Discription:Codable,Equatable {
+struct Article:Codable,Equatable {
     let id       : String
     let userid   : String
     let text     : String

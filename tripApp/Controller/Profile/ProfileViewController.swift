@@ -18,7 +18,7 @@ class profileViewController:UICollectionViewController{
                           backgroundImage: ProfileImage(url: "background", name:"background"),
                           profileImage: ProfileImage(url: "person.crop.circle.fill", name: "person.crop.circle.fill"))
    
-    var discriptionList = [Discription]()
+    var discriptionList = [Article]()
     var friendList = [Friend]()
     var menuCell:MenuCell?
     var mapAndDiscriptionCell:MapAndDiscriptionCell?
@@ -229,7 +229,7 @@ extension profileViewController {
     
 }
 extension profileViewController:transitionDelegate {
-    func showMenu(disc: Discription, profile: Profile) {}
+    func showMenu(disc: Article, profile: Profile) {}
     
     
     func toEditPageWithProfileCell() {
@@ -241,7 +241,7 @@ extension profileViewController:transitionDelegate {
     
   
     //discriptionからの遷移
-    func toDetailWithDiscriptionpCell(discription: Discription) {
+    func toDetailWithDiscriptionpCell(discription: Article) {
         let vc = detailViewController()
         vc.discription = discription
         
@@ -249,7 +249,7 @@ extension profileViewController:transitionDelegate {
         navigationController?.pushViewController(vc, animated: true)
     }
     
-    func toDetailWithDiscriptionpCell(discription: Discription,selectImage:UIImage) {
+    func toDetailWithDiscriptionpCell(discription: Article,selectImage:UIImage) {
         let vc = detailViewController()
         vc.image = selectImage
         vc.discription = discription
@@ -263,7 +263,7 @@ extension profileViewController:transitionDelegate {
     }
 }
 extension profileViewController:mapCellDelegate{
-    func toDetailWithMapCell(discription: Discription) {
+    func toDetailWithMapCell(discription: Article) {
         let vc = detailViewController()
         vc.discription = discription
         vc.isMapVC = false
@@ -273,7 +273,7 @@ extension profileViewController:mapCellDelegate{
     
     
     //Mapから遷移
-    func toDetailWithMapCell(discription: Discription, selectImage: UIImage) {
+    func toDetailWithMapCell(discription: Article, selectImage: UIImage) {
         let vc = detailViewController()
         vc.discription = discription
         vc.image = selectImage

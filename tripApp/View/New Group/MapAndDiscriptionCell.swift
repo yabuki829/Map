@@ -15,7 +15,7 @@ import AVFoundation
 //                   -> DiscriptionCell -> DiscriptionCell
 
 class MapAndDiscriptionCell:BaseCell,UICollectionViewDataSource, UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
-    var discriptionList : [Discription]?{
+    var discriptionList : [Article]?{
         didSet{
             collectionView.reloadData()
         }

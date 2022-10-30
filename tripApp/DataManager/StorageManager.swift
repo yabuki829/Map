@@ -184,6 +184,7 @@ class StorageManager{
         let userid = FirebaseManager.shered.getMyUserid()
         let filename = video.name
         let videoRef = Storage.storage().reference().child("/users/\(userid)/video/\(filename).mov")
+        let imageRef = Storage.storage().reference().child("/users/\(userid)/video/\(filename).jpg")
         print("動画を削除します")
         videoRef.delete { (error) in
             if let error = error {
@@ -192,6 +193,15 @@ class StorageManager{
             }
             print("動画削除完了")
         }
+        imageRef.delete { (error) in
+            if let error = error {
+                print("エラー",error)
+                return
+            }
+            print("サムネイル削除完了")
+        }
+        
+        
     }
     func deleteAll(userid:String,compleation:@escaping (Bool) -> Void){
         let imageRef = Storage.storage().reference().child("/users").child(userid)

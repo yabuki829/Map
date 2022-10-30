@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 
 class DetailViewCell: UITableViewCell {
-    var discription: Discription?
+    var discription: Article?
     var profile:Profile?{
         didSet{
             if profile!.profileImage.url == "person.crop.circle.fill" || profile!.profileImage.name == "person.crop.circle.fill" {
@@ -58,8 +58,8 @@ class DetailViewCell: UITableViewCell {
         super.awakeFromNib()
        
     }
-    func setCell(disc:Discription,widthSize:CGFloat,heightSize:CGFloat){
-        self.backgroundColor = .systemGray6
+    func setCell(disc:Article,widthSize:CGFloat,heightSize:CGFloat){
+        self.backgroundColor = .white
        
         width = widthSize
         subHeight = heightSize
@@ -87,68 +87,68 @@ class DetailViewCell: UITableViewCell {
         }
     }
     func addView(){
-        contentView.addSubview(menuButton)
-        contentView.addSubview(profileImageView)
-        contentView.addSubview(usernameLabel)
-        contentView.addSubview(discTextLabel)
-        contentView.addSubview(dateLabel)
+        self.addSubview(menuButton)
+        self.addSubview(profileImageView)
+        self.addSubview(usernameLabel)
+        self.addSubview(discTextLabel)
+        self.addSubview(dateLabel)
+        
         if discription?.type == "image" {
-            contentView.addSubview(discImageView)
+            self.addSubview(discImageView)
             discImageView.backgroundColor = .black
             discImageView.isUserInteractionEnabled = true
             discImageView.contentMode = .scaleAspectFit
-            discImageView.anchor(left: contentView.leftAnchor, paddingLeft: 5.0,
-                                 right: contentView.rightAnchor, paddingRight: 5.0,
-                                 bottom: contentView.bottomAnchor,paddingBottom: 10,
+            discImageView.anchor(left: self.leftAnchor, paddingLeft: 5.0,
+                                 right: self.rightAnchor, paddingRight: 5.0,
+                                 bottom: self.bottomAnchor,paddingBottom: 10,
                                  height: width - 10)
             dateLabel.anchor(top:discTextLabel.bottomAnchor , paddingTop: 2.0,
-                             left: contentView.leftAnchor, paddingLeft: 10.0,
-                             right: contentView.rightAnchor, paddingRight: 10.0,
+                             left: self.leftAnchor, paddingLeft: 10.0,
+                             right: self.rightAnchor, paddingRight: 10.0,
                              bottom: discImageView.topAnchor,paddingBottom: 10)
            
         }
         else{
-            contentView.addSubview(videoView)
-            contentView.addSubview(expandButton)
-            videoView.anchor(left: contentView.leftAnchor, paddingLeft: 0,
-                             right: contentView.rightAnchor, paddingRight: 0,
-                             bottom: contentView.bottomAnchor,paddingBottom: 0,
+            self.addSubview(videoView)
+            self.addSubview(expandButton)
+            videoView.anchor(left: self.leftAnchor, paddingLeft: 0,
+                             right: self.rightAnchor, paddingRight: 0,
+                             bottom: self.bottomAnchor,paddingBottom: 0,
                              height: width)
             expandButton.layer.zPosition = 1
             expandButton.anchor(top:videoView.topAnchor,paddingTop: 5,right: videoView.rightAnchor, paddingRight: 5)
             
             dateLabel.anchor(top:discTextLabel.bottomAnchor , paddingTop: 2.0,
-                             left: contentView.leftAnchor, paddingLeft: 10.0,
-                             right: contentView.rightAnchor, paddingRight: 10.0,
+                             left: self.leftAnchor, paddingLeft: 10.0,
+                             right: self.rightAnchor, paddingRight: 10.0,
                              bottom: videoView.topAnchor,paddingBottom: 10)
 
         }
        
         profileImageView.layer.cornerRadius = width / 7 / 2
         profileImageView.clipsToBounds = true
-        profileImageView.anchor(top: contentView.topAnchor, paddingTop: 10,
-                                left: contentView.leftAnchor, paddingLeft: 10,
+        profileImageView.anchor(top: self.topAnchor, paddingTop: 10,
+                                left: self.leftAnchor, paddingLeft: 10,
                                 width: width / 7,
                                 height:  width / 7)
         profileImageView.isUserInteractionEnabled = true
-        usernameLabel.anchor(top: contentView.topAnchor, paddingTop: 10,
+        usernameLabel.anchor(top: self.topAnchor, paddingTop: 10,
                              left: profileImageView.rightAnchor, paddingLeft: 10,
-                              right: contentView.rightAnchor, paddingRight: 10.0,
+                             right: menuButton.leftAnchor, paddingRight: 10,
                              height: width / 7)
       
-        menuButton.anchor(top: contentView.topAnchor, paddingTop: 10,
+        menuButton.anchor(top: self.topAnchor, paddingTop: 10,
                           left: usernameLabel.rightAnchor, paddingLeft: 10,
-                          right: contentView.rightAnchor, paddingRight: 10,
+                          right: self.rightAnchor, paddingRight: 5,
                           width: 20, height: 20)
     
         
         
         discTextLabel.font = UIFont.systemFont(ofSize: 20)
-        discTextLabel.backgroundColor = .systemGray6
         discTextLabel.numberOfLines = 0
         discTextLabel.anchor(top: profileImageView.bottomAnchor, paddingTop: 5.0,
                              left: leftAnchor, paddingLeft: 10.0,
-                             right: contentView.rightAnchor, paddingRight: 10.0)
+                             right: self.rightAnchor, paddingRight: 10.0)
         
        
         
@@ -182,9 +182,9 @@ class DetailViewCell: UITableViewCell {
     
     weak var delegate:profileCellDelegate? = nil
 }
-protocol profileCellDelegate: class  {
+protocol profileCellDelegate: AnyObject  {
     func toDetail(image:UIImage)
     func toProfilePage()
     func expandVideo(player:AVPlayer)
-    func showMenu(disc: Discription ,profile:Profile)
+    func showMenu(disc: Article ,profile:Profile)
 }

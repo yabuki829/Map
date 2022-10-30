@@ -25,11 +25,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>投稿がどの辺りでとられたのかをカメラで確認できます</string>
+	<string>投稿機能のためにカメラにアクセスします</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>投稿と一緒に位置情報を記録するために使用します</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>投稿と一緒に位置情報を記録するために使用します</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>投稿機能のためにカメラにアクセスします</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>投稿とともに画像を保存するために使用します</string>
 	<key>NSPhotoLibraryUsageDescription</key>

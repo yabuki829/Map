@@ -133,18 +133,10 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
        
     }
     @objc func registerWithEmail(){
-//        let nav = PrivacyPolicyViewController()
-//        self.present(nav, animated: true, completion: nil)
+        let nav = PrivacyPolicyViewController()
+        self.present(nav, animated: true, completion: nil)
         print("登録する")
-        AuthManager.shered.startAuth { result in
-            if result {
-                self.move()
-            }
-            else {
-                print("エラー  ")
-            }
-           
-        }
+
     }
     @objc func loginWithApple(){
         print("Apple Login")
@@ -191,7 +183,7 @@ extension LoginViewController: ASAuthorizationControllerDelegate,ASAuthorization
                             
                             let myprofile:Profile = Profile(userid: profile.userid,
                                                       username: profile.username,
-                                                      text: profile.text ?? "Learn from the mistakes of others. You can’t live long enough to make them all yourself.",
+                                                            text: profile.text ,
                                                             backgroundImage: ProfileImage( url: profile.backgroundImage.url, name: profile.backgroundImage.name),
                                                             profileImage: ProfileImage(url: profile.profileImage.url, name: profile.profileImage.name))
                             

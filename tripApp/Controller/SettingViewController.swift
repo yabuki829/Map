@@ -36,6 +36,19 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
         menuItem(name: "開発者のその他アプリ", icon: "pencil"),
             menuItem(name: "TasksTodo", icon: "doc"),
     ]
+    let settingdataInEn = [
+     
+        menuItem(name: "Account", icon: "pencil"),
+            menuItem(name: "List of blocked accounts", icon: "questionmark.circle"),
+//            menuItem(name: "サブスクリプションについて", icon: "questionmark.circle"),
+            menuItem(name: "Sign out", icon: "rectangle.portrait.and.arrow.right"),
+            menuItem(name: "Delete Acount", icon: "trash"),
+        menuItem(name: "Other", icon: ""),
+            menuItem(name: "Inquiry", icon: "phone.circle"),
+//            menuItem(name: "レビューを書く", icon: "pencil"),
+        menuItem(name: "Developer's other apps", icon: "pencil"),
+            menuItem(name: "TasksTodo", icon: "doc"),
+    ]
        
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait
@@ -78,16 +91,31 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
        
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         print(indexPath.row)
-        if indexPath.row == 0 || indexPath.row == 4 || indexPath.row == 6{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "section", for: indexPath) as! SectionCell
-            cell.setCell(title:settingdata[indexPath.row].name )
-            return cell
+        if LanguageManager.shered.getlocation() == "ja"{
+            if indexPath.row == 0 || indexPath.row == 4 || indexPath.row == 6{
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "section", for: indexPath) as! SectionCell
+                cell.setCell(title:settingdata[indexPath.row].name )
+                return cell
+            }
+            else{
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! menubarCell
+                cell.setCell(setting: settingdata[indexPath.row])
+                return cell
+            }
         }
-        else{
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! menubarCell
-            cell.setCell(setting: settingdata[indexPath.row])
-            return cell
+        else {
+            if indexPath.row == 0 || indexPath.row == 4 || indexPath.row == 6{
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "section", for: indexPath) as! SectionCell
+                cell.setCell(title:settingdataInEn[indexPath.row].name )
+                return cell
+            }
+            else{
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! menubarCell
+                cell.setCell(setting: settingdataInEn[indexPath.row])
+                return cell
+            }
         }
+       
            
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -110,10 +138,6 @@ class SettingViewController:UICollectionViewController,UICollectionViewDelegateF
             vc.isBlockList = true
             navigationController?.pushViewController(vc, animated: true)
         }
-//        else if indexPath.row == 2{
-//            let nav = UINavigationController(rootViewController: SubscriptionViewController())
-//            self.present(nav, animated: true, completion: nil)
-//        }
         else if indexPath.row == 2{
             
             signoutAlert()

@@ -14,7 +14,7 @@ import SceneKit
 class ARViewController :UIViewController,ARSCNViewDelegate{
  
     @IBOutlet weak var arView: ARSCNView!
-    var discription:Discription?
+    var discription:Article?
     var isFirst = 0
     override func viewDidLoad() {
         self.title = "AR"

@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class MenuView:UIView{
+class MapStyleView:UIView{
     let mapSateliteButton: UIButton = {
         let button = UIButton()
         button.setTitle("衛生写真", for: .normal)

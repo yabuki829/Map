@@ -18,7 +18,7 @@ class FriendListViewController:UIViewController{
         let collecitonview = UICollectionView(frame: .zero, collectionViewLayout:layout )
         return collecitonview
     }()
-    var disc: Discription?
+    var disc: Article?
     var profileList = [Profile]()
     var receiverList = [Friend]()
     var isBlockList = false
@@ -33,13 +33,20 @@ class FriendListViewController:UIViewController{
         settingCollectionView()
         getFriendProfile()
         if isBlockList {
+            FollowManager.shere.userDefaults.removeObject(forKey: "block")
             title = "Blocked User"
         }
         if isPostView{
             title = "Friend List"
         }
         if isEditView {
-            title = "投稿の公開範囲を変更"
+            if LanguageManager.shered.getlocation() == ""{
+                title = "投稿の公開範囲を変更"
+            }
+            else {
+                title = "Publishing Settings"
+            }
+           
         }
     }
 
@@ -50,17 +57,19 @@ class FriendListViewController:UIViewController{
         //インディケーター回す
         print("取得します")
         if isBlockList {
-            print("ブロックした友達")
+           
             let friendList = FollowManager.shere.getBlockedUser()
+            print("ブロックした友達",friendList)
             FirebaseManager.shered.getBlockUserProfile(friendList: friendList) { (result) in
                 //インディケーターを止める
                 self.profileList = result
                 self.collectionView.reloadData()
             }
         }
-        if isEditView{
+        else if isEditView{
             //profileとdiscのreciverを取得する
             let friend = FollowManager.shere.getFollow()
+            print("友達",friend)
             
             FirebaseManager.shered.getReceiver(disc: disc!) { receiver in
                 print("receiver",receiver)
@@ -104,7 +113,7 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if isBlockList || isEditView{
-            print("blockUser cell")
+            print("blockUser cellefowekf@oewk]faoke]fok]awfapowf")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListCell", for: indexPath) as! FriendListCell
             if isBlockList {
                 cell.isBlockList = true
@@ -122,6 +131,7 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
             return cell
         }
         else if isPostView{
+            print("投稿の公開範囲")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListWithPostCell", for: indexPath) as! FriendListWithPostCell
             
             cell.setCell(imageurl: profileList[indexPath.row].profileImage.url, username: profileList[indexPath.row].username, friend: FollowManager.shere.getFollow()[indexPath.row], index: indexPath.row)
@@ -129,8 +139,11 @@ extension FriendListViewController:UICollectionViewDelegate,UICollectionViewData
             return cell
         }
         else{
+            print("デフォルトのせる")
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "FriendListCell", for: indexPath) as! FriendListCell
+            cell.isFriendList = true
             cell.setCell(imageurl: profileList[indexPath.row].profileImage.url, username: profileList[indexPath.row].username, text: profileList[indexPath.row].text, userid: profileList[indexPath.row].userid)
+            
             return cell
         }
        
